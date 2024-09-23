@@ -1,0 +1,63 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35303.130
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kiyote.Buffers", "src\Kiyote\Buffers\Kiyote.Buffers\Kiyote.Buffers.csproj", "{B544BD31-1CC1-4876-B570-99889065EEA3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7507F548-9820-4AE5-957D-85AC1FDE9977}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Kiyote", "Kiyote", "{57CBEB0B-E1C2-4A6B-A2E5-B847BC22A614}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Buffers", "Buffers", "{4DE912FD-3A0C-44AA-AEF2-E7CD7C411B2B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{EA98BDD9-CCBD-495E-9383-A138B210E2DA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Kiyote", "Kiyote", "{92ED9174-20F2-4C22-AA21-A5869FCAA57A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Buffers", "Buffers", "{0E1DDCA9-9882-4B45-A3BD-2B7BC9F0B704}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kiyote.Buffers.UnitTests", "..\test\Kiyote\Buffer\Kiyote.Buffers.UnitTests\Kiyote.Buffers.UnitTests\Kiyote.Buffers.UnitTests.csproj", "{3DDC8680-1361-4F2B-9336-7CBF5D045DFB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{75F43D21-32C3-4B5D-BA0C-B76DFF8067A4}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
+		forceclean.ps1 = forceclean.ps1
+		LICENSE = LICENSE
+		nuget.config = nuget.config
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B544BD31-1CC1-4876-B570-99889065EEA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B544BD31-1CC1-4876-B570-99889065EEA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B544BD31-1CC1-4876-B570-99889065EEA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B544BD31-1CC1-4876-B570-99889065EEA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DDC8680-1361-4F2B-9336-7CBF5D045DFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DDC8680-1361-4F2B-9336-7CBF5D045DFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DDC8680-1361-4F2B-9336-7CBF5D045DFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DDC8680-1361-4F2B-9336-7CBF5D045DFB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B544BD31-1CC1-4876-B570-99889065EEA3} = {4DE912FD-3A0C-44AA-AEF2-E7CD7C411B2B}
+		{57CBEB0B-E1C2-4A6B-A2E5-B847BC22A614} = {7507F548-9820-4AE5-957D-85AC1FDE9977}
+		{4DE912FD-3A0C-44AA-AEF2-E7CD7C411B2B} = {57CBEB0B-E1C2-4A6B-A2E5-B847BC22A614}
+		{92ED9174-20F2-4C22-AA21-A5869FCAA57A} = {EA98BDD9-CCBD-495E-9383-A138B210E2DA}
+		{0E1DDCA9-9882-4B45-A3BD-2B7BC9F0B704} = {92ED9174-20F2-4C22-AA21-A5869FCAA57A}
+		{3DDC8680-1361-4F2B-9336-7CBF5D045DFB} = {0E1DDCA9-9882-4B45-A3BD-2B7BC9F0B704}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D8BB6836-EEBA-476B-9F91-64427A091A27}
+	EndGlobalSection
+EndGlobal
