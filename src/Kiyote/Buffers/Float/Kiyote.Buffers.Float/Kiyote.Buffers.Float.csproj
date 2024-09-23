@@ -12,4 +12,9 @@
 		<PackageReference Include="Kiyote.Geometry" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Kiyote.Buffers\Kiyote.Buffers.csproj" />
+	</ItemGroup>
+
 </Project>
+

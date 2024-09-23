@@ -17,7 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Kiyote", "Kiyote", "{92ED91
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Buffers", "Buffers", "{0E1DDCA9-9882-4B45-A3BD-2B7BC9F0B704}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kiyote.Buffers.UnitTests", "test\Kiyote\Buffer\Kiyote.Buffers.UnitTests\Kiyote.Buffers.UnitTests.csproj", "{3DDC8680-1361-4F2B-9336-7CBF5D045DFB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kiyote.Buffers.UnitTests", "test\Kiyote\Buffers\Kiyote.Buffers.UnitTests\Kiyote.Buffers.UnitTests.csproj", "{3DDC8680-1361-4F2B-9336-7CBF5D045DFB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{75F43D21-32C3-4B5D-BA0C-B76DFF8067A4}"
 	ProjectSection(SolutionItems) = preProject
@@ -31,6 +31,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		nuget.config = nuget.config
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kiyote.Buffers.Float", "src\Kiyote\Buffers\Float\Kiyote.Buffers.Float\Kiyote.Buffers.Float.csproj", "{97B617E5-E079-4937-B1FB-DEEFA4E5D6DF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Float", "Float", "{7D4D75B5-5C99-4425-986D-2ED37E85A129}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Float", "Float", "{60F3EC8F-D538-4C05-B215-10A6F63F116E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kiyote.Buffers.Float.IntegrationTests", "test\Kiyote\Buffers\Float\Kiyote.Buffers.Float.IntegrationTests\Kiyote.Buffers.Float.IntegrationTests.csproj", "{5CABAE7E-B6A7-4F5A-8E03-232616E36A73}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,6 +54,14 @@ Global
 		{3DDC8680-1361-4F2B-9336-7CBF5D045DFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DDC8680-1361-4F2B-9336-7CBF5D045DFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DDC8680-1361-4F2B-9336-7CBF5D045DFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97B617E5-E079-4937-B1FB-DEEFA4E5D6DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97B617E5-E079-4937-B1FB-DEEFA4E5D6DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97B617E5-E079-4937-B1FB-DEEFA4E5D6DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97B617E5-E079-4937-B1FB-DEEFA4E5D6DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CABAE7E-B6A7-4F5A-8E03-232616E36A73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CABAE7E-B6A7-4F5A-8E03-232616E36A73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CABAE7E-B6A7-4F5A-8E03-232616E36A73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CABAE7E-B6A7-4F5A-8E03-232616E36A73}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -57,6 +73,10 @@ Global
 		{92ED9174-20F2-4C22-AA21-A5869FCAA57A} = {EA98BDD9-CCBD-495E-9383-A138B210E2DA}
 		{0E1DDCA9-9882-4B45-A3BD-2B7BC9F0B704} = {92ED9174-20F2-4C22-AA21-A5869FCAA57A}
 		{3DDC8680-1361-4F2B-9336-7CBF5D045DFB} = {0E1DDCA9-9882-4B45-A3BD-2B7BC9F0B704}
+		{97B617E5-E079-4937-B1FB-DEEFA4E5D6DF} = {7D4D75B5-5C99-4425-986D-2ED37E85A129}
+		{7D4D75B5-5C99-4425-986D-2ED37E85A129} = {4DE912FD-3A0C-44AA-AEF2-E7CD7C411B2B}
+		{60F3EC8F-D538-4C05-B215-10A6F63F116E} = {0E1DDCA9-9882-4B45-A3BD-2B7BC9F0B704}
+		{5CABAE7E-B6A7-4F5A-8E03-232616E36A73} = {60F3EC8F-D538-4C05-B215-10A6F63F116E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D8BB6836-EEBA-476B-9F91-64427A091A27}
