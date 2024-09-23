@@ -17,12 +17,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Kiyote", "Kiyote", "{92ED91
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Buffers", "Buffers", "{0E1DDCA9-9882-4B45-A3BD-2B7BC9F0B704}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kiyote.Buffers.UnitTests", "..\test\Kiyote\Buffer\Kiyote.Buffers.UnitTests\Kiyote.Buffers.UnitTests\Kiyote.Buffers.UnitTests.csproj", "{3DDC8680-1361-4F2B-9336-7CBF5D045DFB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kiyote.Buffers.UnitTests", "test\Kiyote\Buffer\Kiyote.Buffers.UnitTests\Kiyote.Buffers.UnitTests.csproj", "{3DDC8680-1361-4F2B-9336-7CBF5D045DFB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{75F43D21-32C3-4B5D-BA0C-B76DFF8067A4}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
+		.github\workflows\ci.yml = .github\workflows\ci.yml
 		Directory.Build.props = Directory.Build.props
 		Directory.Packages.props = Directory.Packages.props
 		forceclean.ps1 = forceclean.ps1
