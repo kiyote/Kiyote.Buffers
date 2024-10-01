@@ -32,9 +32,11 @@ jobs:
       - name: Restore
         run: nuget restore
 
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
-      
-      - name: Publish
-        if: startsWith(github.ref, 'refs/heads/release')
-        run: nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}
+      - name: Create nuget package
+        run: dotnet pack --configuration Release --output ${{ env.NuGetDirectory }}
+
+      - name: Publish NuGet package
+        run: |
+          foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
+              dotnet nuget push $file --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json
+          }  
