@@ -5,6 +5,10 @@ on:
     branches: 
       - release/**
 
+defaults:
+  run:
+    shell: pwsh
+
 env:
   DOTNET_VERSION: 8.0.401
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
@@ -34,4 +38,4 @@ jobs:
       run: |
         foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
             dotnet nuget push $file --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json
-        }        
+        }
