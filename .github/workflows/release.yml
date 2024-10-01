@@ -7,36 +7,31 @@ on:
 
 env:
   DOTNET_VERSION: 8.0.401
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+  NuGetDirectory: ${{ github.workspace}}/nuget
     
 jobs:
-  build:
+  publish_package:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          ${{ env.DOTNET_VERSION }}      
+          
+    - name: Define global.json
+      run: dotnet new globaljson --sdk-version ${{ env.DOTNET_VERSION }}    
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: |
-            ${{ env.DOTNET_VERSION }}
+    - name: Create nuget package
+      run: dotnet pack --configuration Release --output ${{ env.NuGetDirectory }}
 
-      - name: Define global.json
-        run: dotnet new globaljson --sdk-version ${{ env.DOTNET_VERSION }}
-
-      - name: Setup NuGet
-        uses: NuGet/setup-nuget@v2
-
-      - name: Restore
-        run: nuget restore
-
-      - name: Create nuget package
-        run: dotnet pack --configuration Release --output ${{ env.NuGetDirectory }}
-
-      - name: Publish NuGet package
-        run: |
-          foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
-              dotnet nuget push $file --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json
-          }  
+    - name: Publish NuGet package
+      run: |
+        foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
+            dotnet nuget push $file --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json
+        }        
