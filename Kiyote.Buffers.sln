@@ -23,14 +23,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
-		.github\workflows\ci.yml = .github\workflows\ci.yml
 		Directory.Build.props = Directory.Build.props
 		Directory.Packages.props = Directory.Packages.props
 		forceclean.ps1 = forceclean.ps1
 		LICENSE = LICENSE
 		nuget.config = nuget.config
 		README.md = README.md
-		.github\workflows\release.yml = .github\workflows\release.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kiyote.Buffers.Float", "src\Kiyote\Buffers\Float\Kiyote.Buffers.Float\Kiyote.Buffers.Float.csproj", "{97B617E5-E079-4937-B1FB-DEEFA4E5D6DF}"
@@ -40,6 +38,17 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Float", "Float", "{60F3EC8F-D538-4C05-B215-10A6F63F116E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kiyote.Buffers.Float.IntegrationTests", "test\Kiyote\Buffers\Float\Kiyote.Buffers.Float.IntegrationTests\Kiyote.Buffers.Float.IntegrationTests.csproj", "{5CABAE7E-B6A7-4F5A-8E03-232616E36A73}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{2B17FB68-26F8-4BFC-AC51-42F6B63D0023}"
+	ProjectSection(SolutionItems) = preProject
+		.github\dependabot.yaml = .github\dependabot.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{72FC9EFC-93DF-46AF-B16A-3AA147D87C7C}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\ci.yml = .github\workflows\ci.yml
+		.github\workflows\release.yml = .github\workflows\release.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -78,6 +87,8 @@ Global
 		{7D4D75B5-5C99-4425-986D-2ED37E85A129} = {4DE912FD-3A0C-44AA-AEF2-E7CD7C411B2B}
 		{60F3EC8F-D538-4C05-B215-10A6F63F116E} = {0E1DDCA9-9882-4B45-A3BD-2B7BC9F0B704}
 		{5CABAE7E-B6A7-4F5A-8E03-232616E36A73} = {60F3EC8F-D538-4C05-B215-10A6F63F116E}
+		{2B17FB68-26F8-4BFC-AC51-42F6B63D0023} = {75F43D21-32C3-4B5D-BA0C-B76DFF8067A4}
+		{72FC9EFC-93DF-46AF-B16A-3AA147D87C7C} = {2B17FB68-26F8-4BFC-AC51-42F6B63D0023}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D8BB6836-EEBA-476B-9F91-64427A091A27}
