@@ -1,22 +1,21 @@
 name: Release
 
 on:
-  create:
-    branches: 
-      - release/**
+  create
 
 defaults:
   run:
     shell: pwsh
 
 env:
-  DOTNET_VERSION: 8.0.401
+  DOTNET_VERSION: 8.0.402
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_NOLOGO: true
   NuGetDirectory: ${{ github.workspace}}/nuget
     
 jobs:
   publish_package:
+    if: ${{ contains(github.ref, 'refs/heads/releases/') }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
