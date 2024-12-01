@@ -4,7 +4,7 @@
     <PackageVersion Include="coverlet.collector" Version="6.0.2" />
     <PackageVersion Include="coverlet.msbuild" Version="6.0.2" />
     <PackageVersion Include="ConfigureAwait.Fody" Version="3.3.2" />
-    <PackageVersion Include="Fody" Version="6.8.2" />
+    <PackageVersion Include="Fody" Version="6.9.1" />
     <PackageVersion Include="Kiyote.Geometry" Version="0.12.3" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
