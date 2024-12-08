@@ -6,7 +6,7 @@ internal sealed class FlatArrayBufferFactory : IBufferFactory {
 		ISize size,
 		T initialValue
 	) {
-		IBuffer<T> buffer = new FlatArrayBuffer<T>( size, initialValue );
+		FlatArrayBuffer<T> buffer = new FlatArrayBuffer<T>( size, initialValue );
 		for( int r = 0; r < size.Height; r++ ) {
 			for( int c = 0; c < size.Width; c++ ) {
 				buffer[c, r] = initialValue;

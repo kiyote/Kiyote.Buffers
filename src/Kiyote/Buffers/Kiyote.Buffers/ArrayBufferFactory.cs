@@ -6,7 +6,7 @@ internal sealed class ArrayBufferFactory : IBufferFactory {
 		ISize size,
 		T initialValue
 	) {
-		IBuffer<T> buffer = new ArrayBuffer<T>( size );
+		ArrayBuffer<T> buffer = new ArrayBuffer<T>( size );
 		for( int r = 0; r < size.Height; r++ ) {
 			for (int c = 0; c < size.Width; c++) {
 				buffer[c, r] = initialValue;
