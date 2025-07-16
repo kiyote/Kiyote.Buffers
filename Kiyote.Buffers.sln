@@ -50,6 +50,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 		.github\workflows\release.yml = .github\workflows\release.yml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kiyote.Buffers.Benchmarks", "test\Kiyote\Buffers\Kiyote.Buffers.Benchmarks\Kiyote.Buffers.Benchmarks.csproj", "{C96ABE51-1E8C-42FE-AD4B-42C460C0499D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,6 +74,10 @@ Global
 		{5CABAE7E-B6A7-4F5A-8E03-232616E36A73}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5CABAE7E-B6A7-4F5A-8E03-232616E36A73}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5CABAE7E-B6A7-4F5A-8E03-232616E36A73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C96ABE51-1E8C-42FE-AD4B-42C460C0499D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C96ABE51-1E8C-42FE-AD4B-42C460C0499D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C96ABE51-1E8C-42FE-AD4B-42C460C0499D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C96ABE51-1E8C-42FE-AD4B-42C460C0499D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -89,6 +95,7 @@ Global
 		{5CABAE7E-B6A7-4F5A-8E03-232616E36A73} = {60F3EC8F-D538-4C05-B215-10A6F63F116E}
 		{2B17FB68-26F8-4BFC-AC51-42F6B63D0023} = {75F43D21-32C3-4B5D-BA0C-B76DFF8067A4}
 		{72FC9EFC-93DF-46AF-B16A-3AA147D87C7C} = {2B17FB68-26F8-4BFC-AC51-42F6B63D0023}
+		{C96ABE51-1E8C-42FE-AD4B-42C460C0499D} = {0E1DDCA9-9882-4B45-A3BD-2B7BC9F0B704}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D8BB6836-EEBA-476B-9F91-64427A091A27}
