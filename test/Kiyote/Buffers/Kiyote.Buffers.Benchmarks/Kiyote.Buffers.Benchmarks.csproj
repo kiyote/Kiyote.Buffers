@@ -8,4 +8,8 @@
 	<ItemGroup>
 		<PackageReference Include="BenchmarkDotNet" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\..\src\Kiyote\Buffers\Kiyote.Buffers\Kiyote.Buffers.csproj" />
+	</ItemGroup>
 </Project>
