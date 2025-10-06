@@ -2,7 +2,7 @@
 
 public interface IBuffer<T> {
 
-	public ISize Size { get; }
+	ISize Size { get; }
 
-	public T this[int column, int row] { get; set; }
+	T this[int column, int row] { get; set; }
 }
