@@ -8,11 +8,8 @@ public interface IBufferFactory {
 	);
 
 	IBuffer<T> Create<T>(
-		ISize size
-	);
-
-	IBuffer<T> Create<T>(
 		int columns,
-		int rows
+		int rows,
+		T initialValue
 	);
 }

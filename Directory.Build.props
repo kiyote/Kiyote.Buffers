@@ -1,12 +1,12 @@
 <Project>
 	<PropertyGroup>
-		<ProductVersion>0.1.0</ProductVersion>
+		<ProductVersion>0.3.0</ProductVersion>
 		<Version Condition=" '$(ProductVersion)' == '' ">0.0.1</Version>
 		<Version Condition=" '$(ProductVersion)' != '' ">$(ProductVersion)</Version>
 	</PropertyGroup>	
 
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net9.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>

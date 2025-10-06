@@ -25,7 +25,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\..\..\src\Kiyote\Buffers\Float\Kiyote.Buffers.Float\Kiyote.Buffers.Float.csproj" />
+		<ProjectReference Include="..\..\..\..\..\src\Kiyote\Buffers\Numerics\Kiyote.Buffers.Numerics\Kiyote.Buffers.Numerics.csproj" />
 	</ItemGroup>
 
 </Project>

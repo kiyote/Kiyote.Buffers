@@ -12,7 +12,7 @@ internal sealed class BufferOperator : IBufferOperator {
 
 		for( int r = 0; r < rows; r++ ) {
 			for( int c = 0; c < columns; c++ ) {
-				output[c, r] = op( a[c, r] );
+				output[ c, r ] = op( a[ c, r ] );
 			}
 		}
 	}
@@ -32,7 +32,7 @@ internal sealed class BufferOperator : IBufferOperator {
 		}
 		for( int r = 0; r < rows; r++ ) {
 			for( int c = 0; c < columns; c++ ) {
-				output[c, r] = op( a[c, r], b[c, r] );
+				output[ c, r ] = op( a[ c, r ], b[ c, r ] );
 			}
 		}
 	}
@@ -47,7 +47,7 @@ internal sealed class BufferOperator : IBufferOperator {
 
 		for( int r = 0; r < rows; r++ ) {
 			for( int c = 0; c < columns; c++ ) {
-				output[c, r] = op( c, r, source, source[c, r] );
+				output[ c, r ] = op( c, r, source, source[ c, r ] );
 			}
 		}
 	}
@@ -62,7 +62,7 @@ internal sealed class BufferOperator : IBufferOperator {
 
 		for( int r = 0; r < rows; r++ ) {
 			for( int c = 0; c < columns; c++ ) {
-				output[c, r] = op( c, r, source[c, r] );
+				output[ c, r ] = op( c, r, source[ c, r ] );
 			}
 		}
 	}

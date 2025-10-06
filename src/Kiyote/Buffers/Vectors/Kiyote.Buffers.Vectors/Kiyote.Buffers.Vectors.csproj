@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<ItemGroup>
+		<PackageReference Include="ConfigureAwait.Fody">
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="Fody">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+		<PackageReference Include="Kiyote.Geometry" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Kiyote.Buffers\Kiyote.Buffers.csproj" />
+	</ItemGroup>
+
+</Project>
+
