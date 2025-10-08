@@ -39,4 +39,9 @@ public interface INumericBufferOperator : IBufferOperator {
 	void Normalize<T>(
 		INumericBuffer<T> source
 	) where T : struct, INumber<T>;
+
+	void Clear<T>(
+		INumericBuffer<T> source,
+		T value
+	) where T : struct, INumber<T>;
 }

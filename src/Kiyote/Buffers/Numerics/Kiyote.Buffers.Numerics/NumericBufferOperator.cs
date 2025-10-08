@@ -5,6 +5,27 @@ namespace Kiyote.Buffers.Numerics;
 
 internal class NumericBufferOperator : INumericBufferOperator {
 
+	void INumericBufferOperator.Clear<T>(
+		INumericBuffer<T> source,
+		T value
+	) {
+		if( source is NumericBuffer<T> numericBuffer ) {
+			Vector<T> values = Vector.Create( value );
+			for( int row = 0; row < source.Size.Height; row++ ) {
+				Span<Vector<T>> vcontent = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
+				for( int i = 0; i < numericBuffer.OpCount; i++ ) {
+					vcontent[ i ] = values;
+				}
+			}
+		} else {
+			for( int row = 0; row < source.Size.Height; row++ ) {
+				for( int col = 0; col < source.Size.Width; col++ ) {
+					source[ col, row ] = value;
+				}
+			}
+		}
+	}
+
 	void INumericBufferOperator.Add<T>(
 		INumericBuffer<T> source,
 		T amount
