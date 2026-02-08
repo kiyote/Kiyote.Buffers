@@ -8,7 +8,7 @@ defaults:
     shell: pwsh
 
 env:
-  DOTNET_VERSION: 10.0.101
+  DOTNET_VERSION: 10.0.102
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_NOLOGO: true
   NuGetDirectory: ${{ github.workspace}}/nuget
@@ -38,3 +38,4 @@ jobs:
         foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
             dotnet nuget push $file --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json
         }
+
