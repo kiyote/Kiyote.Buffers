@@ -1,12 +1,12 @@
-﻿using System.Numerics;
+using System.Numerics;
 using System.Runtime.InteropServices;
-using Kiyote.Geometry;
 
 namespace Kiyote.Buffers.Vectors;
 
 internal class VectorBuffer<T> : IBuffer<T> where T : struct, INumber<T> {
 
-	private readonly ISize _size;
+	private readonly int _columns;
+	private readonly int _rows;
 	private readonly T[][] _content;
 	private readonly int _allocWidth;
 	private readonly int _opCount;
@@ -16,7 +16,8 @@ internal class VectorBuffer<T> : IBuffer<T> where T : struct, INumber<T> {
 		int rows,
 		T defaultValue
 	) {
-		_size = new Point( columns, rows );
+		_columns = columns;
+		_rows = rows;
 		_content = new T[ rows ][];
 		if (columns % Vector<float>.Count == 0) {
 			_allocWidth = columns;
@@ -36,14 +37,16 @@ internal class VectorBuffer<T> : IBuffer<T> where T : struct, INumber<T> {
 
 	public T this[int column, int row] { get => _content[ row ][ column ]; set => _content[ row ][ column ] = value; }
 
-	ISize IBuffer<T>.Size => _size;
+	int IBuffer<T>.Columns => _columns;
+
+	int IBuffer<T>.Rows => _rows;
 
 	public void Add(
 		T amount
 	) {
 		Vector<T> amounts = Vector.Create( amount );
 
-		for( int row = 0; row < _size.Height; row++ ) {
+		for( int row = 0; row < _rows; row++ ) {
 			Span<Vector<T>> vcontent = MemoryMarshal.Cast<T, Vector<T>>( _content[row].AsSpan() );
 
 			for (int i = 0; i < _opCount; i++) {

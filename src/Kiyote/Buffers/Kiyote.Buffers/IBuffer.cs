@@ -2,7 +2,9 @@
 
 public interface IBuffer<T> {
 
-	ISize Size { get; }
+	int Columns { get; }
+
+	int Rows { get; }
 
 	T this[int column, int row] { get; set; }
 }

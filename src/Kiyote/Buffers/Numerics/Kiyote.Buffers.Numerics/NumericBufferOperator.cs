@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 using System.Runtime.InteropServices;
 
 namespace Kiyote.Buffers.Numerics;
@@ -11,15 +11,15 @@ internal class NumericBufferOperator : INumericBufferOperator {
 	) {
 		if( source is NumericBuffer<T> numericBuffer ) {
 			Vector<T> values = Vector.Create( value );
-			for( int row = 0; row < source.Size.Height; row++ ) {
+			for( int row = 0; row < source.Rows; row++ ) {
 				Span<Vector<T>> vcontent = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
 				for( int i = 0; i < numericBuffer.OpCount; i++ ) {
 					vcontent[ i ] = values;
 				}
 			}
 		} else {
-			for( int row = 0; row < source.Size.Height; row++ ) {
-				for( int col = 0; col < source.Size.Width; col++ ) {
+			for( int row = 0; row < source.Rows; row++ ) {
+				for( int col = 0; col < source.Columns; col++ ) {
 					source[ col, row ] = value;
 				}
 			}
@@ -33,7 +33,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		if( source is NumericBuffer<T> numericBuffer ) {
 			Vector<T> amounts = Vector.Create( amount );
 
-			for( int row = 0; row < source.Size.Height; row++ ) {
+			for( int row = 0; row < source.Rows; row++ ) {
 				Span<Vector<T>> vcontent = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
 
 				for( int i = 0; i < numericBuffer.OpCount; i++ ) {
@@ -41,8 +41,8 @@ internal class NumericBufferOperator : INumericBufferOperator {
 				}
 			}
 		} else {
-			for( int row = 0; row < source.Size.Height; row++ ) {
-				for( int col = 0; col < source.Size.Width; col++ ) {
+			for( int row = 0; row < source.Rows; row++ ) {
+				for( int col = 0; col < source.Columns; col++ ) {
 					source[ col, row ] += amount;
 				}
 			}
@@ -56,7 +56,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		if( source is NumericBuffer<T> numericBuffer ) {
 			Vector<T> amounts = Vector.Create( amount );
 
-			for( int row = 0; row < source.Size.Height; row++ ) {
+			for( int row = 0; row < source.Rows; row++ ) {
 				Span<Vector<T>> vcontent = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
 
 				for( int i = 0; i < numericBuffer.OpCount; i++ ) {
@@ -64,8 +64,8 @@ internal class NumericBufferOperator : INumericBufferOperator {
 				}
 			}
 		} else {
-			for( int row = 0; row < source.Size.Height; row++ ) {
-				for( int col = 0; col < source.Size.Width; col++ ) {
+			for( int row = 0; row < source.Rows; row++ ) {
+				for( int col = 0; col < source.Columns; col++ ) {
 					source[ col, row ] -= amount;
 				}
 			}
@@ -79,7 +79,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		if( source is NumericBuffer<T> numericBuffer ) {
 			Vector<T> amounts = Vector.Create( amount );
 
-			for( int row = 0; row < source.Size.Height; row++ ) {
+			for( int row = 0; row < source.Rows; row++ ) {
 				Span<Vector<T>> vcontent = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
 
 				for( int i = 0; i < numericBuffer.OpCount; i++ ) {
@@ -87,8 +87,8 @@ internal class NumericBufferOperator : INumericBufferOperator {
 				}
 			}
 		} else {
-			for( int row = 0; row < source.Size.Height; row++ ) {
-				for( int col = 0; col < source.Size.Width; col++ ) {
+			for( int row = 0; row < source.Rows; row++ ) {
+				for( int col = 0; col < source.Columns; col++ ) {
 					source[ col, row ] *= amount;
 				}
 			}
@@ -102,7 +102,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		if( source is NumericBuffer<T> numericBuffer ) {
 			Vector<T> amounts = Vector.Create( amount );
 
-			for( int row = 0; row < source.Size.Height; row++ ) {
+			for( int row = 0; row < source.Rows; row++ ) {
 				Span<Vector<T>> vcontent = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
 
 				for( int i = 0; i < numericBuffer.OpCount; i++ ) {
@@ -110,8 +110,8 @@ internal class NumericBufferOperator : INumericBufferOperator {
 				}
 			}
 		} else {
-			for( int row = 0; row < source.Size.Height; row++ ) {
-				for( int col = 0; col < source.Size.Width; col++ ) {
+			for( int row = 0; row < source.Rows; row++ ) {
+				for( int col = 0; col < source.Columns; col++ ) {
 					source[ col, row ] /= amount;
 				}
 			}
@@ -125,7 +125,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 			&& numericBuffer.OpCount > 1 // Only use vectorization if we have more than one vector's worth of data
 		) {
 			Vector<T> maxes = Vector.Create( source[ 0, 0 ] );
-			for( int row = 0; row < source.Size.Height; row++ ) {
+			for( int row = 0; row < source.Rows; row++ ) {
 				Span<Vector<T>> vcontent = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
 
 				for( int i = 0; i < numericBuffer.OpCount; i++ ) {
@@ -143,8 +143,8 @@ internal class NumericBufferOperator : INumericBufferOperator {
 
 		} else {
 			T max = source[ 0, 0 ];
-			for( int row = 0; row < source.Size.Height; row++ ) {
-				for( int col = 0; col < source.Size.Width; col++ ) {
+			for( int row = 0; row < source.Rows; row++ ) {
+				for( int col = 0; col < source.Columns; col++ ) {
 					if( source[ col, row ] > max ) {
 						max = source[ col, row ];
 					}
@@ -162,7 +162,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 			&& numericBuffer.OpCount > 1 // Only use vectorization if we have more than one vector's worth of data
 		) {
 			Vector<T> mins = Vector.Create( source[ 0, 0 ] );
-			for( int row = 0; row < source.Size.Height; row++ ) {
+			for( int row = 0; row < source.Rows; row++ ) {
 				Span<Vector<T>> vcontent = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
 
 				for( int i = 0; i < numericBuffer.OpCount; i++ ) {
@@ -180,8 +180,8 @@ internal class NumericBufferOperator : INumericBufferOperator {
 
 		} else {
 			T min = source[ 0, 0 ];
-			for( int row = 0; row < source.Size.Height; row++ ) {
-				for( int col = 0; col < source.Size.Width; col++ ) {
+			for( int row = 0; row < source.Rows; row++ ) {
+				for( int col = 0; col < source.Columns; col++ ) {
 					if( source[ col, row ] < min ) {
 						min = source[ col, row ];
 					}
@@ -200,7 +200,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		) {
 			Vector<T> mins = Vector.Create( source[ 0, 0 ] );
 			Vector<T> maxs = Vector.Create( source[ 0, 0 ] );
-			for( int row = 0; row < source.Size.Height; row++ ) {
+			for( int row = 0; row < source.Rows; row++ ) {
 				Span<Vector<T>> vcontent = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
 
 				for( int i = 0; i < numericBuffer.OpCount; i++ ) {
@@ -224,8 +224,8 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		} else {
 			T min = source[ 0, 0 ];
 			T max = source[ 0, 0 ];
-			for( int row = 0; row < source.Size.Height; row++ ) {
-				for( int col = 0; col < source.Size.Width; col++ ) {
+			for( int row = 0; row < source.Rows; row++ ) {
+				for( int col = 0; col < source.Columns; col++ ) {
 					if( source[ col, row ] < min ) {
 						min = source[ col, row ];
 					}
@@ -258,8 +258,8 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		Func<T, T> op,
 		IBuffer<T> output
 	) {
-		int rows = a.Size.Height;
-		int columns = a.Size.Width;
+		int rows = a.Rows;
+		int columns = a.Columns;
 
 		for( int r = 0; r < rows; r++ ) {
 			for( int c = 0; c < columns; c++ ) {
@@ -274,10 +274,10 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		Func<T, T, T> op,
 		IBuffer<T> output
 	) {
-		int rows = a.Size.Height;
-		int columns = a.Size.Width;
-		if( rows != b.Size.Height
-			|| columns != b.Size.Width
+		int rows = a.Rows;
+		int columns = a.Columns;
+		if( rows != b.Rows
+			|| columns != b.Columns
 		) {
 			throw new InvalidOperationException( "Operands must be same dimensions." );
 		}
@@ -293,8 +293,8 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		Func<int, int, IBuffer<T>, T, T> op,
 		IBuffer<T> output
 	) {
-		int rows = source.Size.Height;
-		int columns = source.Size.Width;
+		int rows = source.Rows;
+		int columns = source.Columns;
 
 		for( int r = 0; r < rows; r++ ) {
 			for( int c = 0; c < columns; c++ ) {
@@ -308,8 +308,8 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		Func<int, int, TSource, TOutput> op,
 		IBuffer<TOutput> output
 	) {
-		int rows = source.Size.Height;
-		int columns = source.Size.Width;
+		int rows = source.Rows;
+		int columns = source.Columns;
 
 		for( int r = 0; r < rows; r++ ) {
 			for( int c = 0; c < columns; c++ ) {
