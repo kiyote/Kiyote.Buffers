@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Kiyote.Buffers;
@@ -13,4 +13,5 @@ public static class ExtensionMethods {
 
 		return services;
 	}
+
 }
