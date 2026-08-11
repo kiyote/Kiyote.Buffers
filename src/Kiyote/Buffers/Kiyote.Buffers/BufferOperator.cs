@@ -1,4 +1,4 @@
-﻿namespace Kiyote.Buffers;
+namespace Kiyote.Buffers;
 
 internal sealed class BufferOperator : IBufferOperator {
 
@@ -7,8 +7,8 @@ internal sealed class BufferOperator : IBufferOperator {
 		Func<T, T> op,
 		IBuffer<T> output
 	) {
-		int rows = a.Size.Height;
-		int columns = a.Size.Width;
+		int rows = a.Rows;
+		int columns = a.Columns;
 
 		for( int r = 0; r < rows; r++ ) {
 			for( int c = 0; c < columns; c++ ) {
@@ -23,10 +23,10 @@ internal sealed class BufferOperator : IBufferOperator {
 		Func<T, T, T> op,
 		IBuffer<T> output
 	) {
-		int rows = a.Size.Height;
-		int columns = a.Size.Width;
-		if( rows != b.Size.Height
-			|| columns != b.Size.Width
+		int rows = a.Rows;
+		int columns = a.Columns;
+		if( rows != b.Rows
+			|| columns != b.Columns
 		) {
 			throw new InvalidOperationException( "Operands must be same dimensions." );
 		}
@@ -42,8 +42,8 @@ internal sealed class BufferOperator : IBufferOperator {
 		Func<int, int, IBuffer<T>, T, T> op,
 		IBuffer<T> output
 	) {
-		int rows = source.Size.Height;
-		int columns = source.Size.Width;
+		int rows = source.Rows;
+		int columns = source.Columns;
 
 		for( int r = 0; r < rows; r++ ) {
 			for( int c = 0; c < columns; c++ ) {
@@ -57,8 +57,8 @@ internal sealed class BufferOperator : IBufferOperator {
 		Func<int, int, TSource, TOutput> op,
 		IBuffer<TOutput> output
 	) {
-		int rows = source.Size.Height;
-		int columns = source.Size.Width;
+		int rows = source.Rows;
+		int columns = source.Columns;
 
 		for( int r = 0; r < rows; r++ ) {
 			for( int c = 0; c < columns; c++ ) {

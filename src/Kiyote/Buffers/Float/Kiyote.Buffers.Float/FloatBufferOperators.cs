@@ -1,4 +1,4 @@
-﻿namespace Kiyote.Buffers.Float;
+namespace Kiyote.Buffers.Float;
 
 internal sealed class FloatBufferOperators : IFloatBufferOperators {
 
@@ -62,9 +62,9 @@ internal sealed class FloatBufferOperators : IFloatBufferOperators {
 			throw new InvalidOperationException( "Why blur with zero effect?" );
 		}
 
-		for( int r = 0; r < input.Size.Height; r++ ) {
+		for( int r = 0; r < input.Rows; r++ ) {
 			float sum = input[0, r] * amount;
-			for( int c = 0; c < input.Size.Width; c++ ) {
+			for( int c = 0; c < input.Columns; c++ ) {
 				int x = Math.Max( 0, c - amount );
 				sum += input[c, r];
 				sum -= input[x, r];
@@ -82,9 +82,9 @@ internal sealed class FloatBufferOperators : IFloatBufferOperators {
 			throw new InvalidOperationException( "Why blur with zero effect?" );
 		}
 
-		for( int c = 0; c < input.Size.Height; c++ ) {
+		for( int c = 0; c < input.Rows; c++ ) {
 			float sum = input[c, 0] * amount;
-			for( int r = 0; r < input.Size.Width; r++ ) {
+			for( int r = 0; r < input.Columns; r++ ) {
 				int y = Math.Max( 0, r - amount );
 				sum += input[c, r];
 				sum -= input[c, y];
@@ -153,8 +153,8 @@ internal sealed class FloatBufferOperators : IFloatBufferOperators {
 		float desiredRange = maximum - minimum;
 		float minValue = float.MaxValue;
 		float maxValue = float.MinValue;
-		int rows = input.Size.Height;
-		int columns = input.Size.Width;
+		int rows = input.Rows;
+		int columns = input.Columns;
 		for( int r = 0; r < rows; r++ ) {
 			for( int c = 0; c < columns; c++ ) {
 				float value = input[c, r];

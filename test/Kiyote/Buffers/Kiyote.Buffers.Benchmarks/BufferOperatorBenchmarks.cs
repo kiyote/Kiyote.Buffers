@@ -1,5 +1,4 @@
-﻿using BenchmarkDotNet.Attributes;
-using Kiyote.Geometry;
+using BenchmarkDotNet.Attributes;
 
 namespace Kiyote.Buffers.Benchmarks;
 
@@ -14,10 +13,10 @@ public class BufferOperatorBenchmarks {
 
 	public BufferOperatorBenchmarks() {
 		_op = new BufferOperator();
-		_input1 = new ArrayBuffer<int>( new Point( 1000, 1000 ), 0 );
-		_input2 = new ArrayBuffer<int>( new Point( 1000, 1000 ), 0 );
-		_output1 = new ArrayBuffer<int>( new Point( 1000, 1000 ), 0 );
-		_output2 = new ArrayBuffer<float>( new Point( 1000, 1000 ), 0.0f );
+		_input1 = new ArrayBuffer<int>( 1000, 1000, 0 );
+		_input2 = new ArrayBuffer<int>( 1000, 1000, 0 );
+		_output1 = new ArrayBuffer<int>( 1000, 1000, 0 );
+		_output2 = new ArrayBuffer<float>( 1000, 1000, 0.0f );
 	}
 
 	[Benchmark]

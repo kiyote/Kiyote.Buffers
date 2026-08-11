@@ -1,11 +1,11 @@
-﻿using System.Numerics;
-using Kiyote.Geometry;
+using System.Numerics;
 
 namespace Kiyote.Buffers.Numerics;
 
 internal class NumericBuffer<T> : INumericBuffer<T> where T : struct, INumber<T> {
 
-	private readonly ISize _size;
+	private readonly int _columns;
+	private readonly int _rows;
 	internal readonly T[][] Content;
 	private readonly int _allocWidth;
 	internal readonly int OpCount;
@@ -15,7 +15,8 @@ internal class NumericBuffer<T> : INumericBuffer<T> where T : struct, INumber<T>
 		int rows,
 		T defaultValue
 	) {
-		_size = new Point( columns, rows );
+		_columns = columns;
+		_rows = rows;
 		Content = new T[ rows ][];
 		if (columns % Vector<float>.Count == 0) {
 			_allocWidth = columns;
@@ -33,6 +34,8 @@ internal class NumericBuffer<T> : INumericBuffer<T> where T : struct, INumber<T>
 
 	T IBuffer<T>.this[ int column, int row ] { get => Content[row][column]; set => Content[ row ][ column ] = value; }
 
-	ISize IBuffer<T>.Size => _size;
+	int IBuffer<T>.Columns => _columns;
+
+	int IBuffer<T>.Rows => _rows;
 
 }

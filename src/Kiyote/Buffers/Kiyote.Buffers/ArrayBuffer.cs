@@ -1,25 +1,28 @@
-﻿namespace Kiyote.Buffers;
+namespace Kiyote.Buffers;
 
 internal sealed class ArrayBuffer<T> : IBuffer<T> {
 
 	private readonly T[][] _buffer;
-	private readonly ISize _size;
+	private readonly int _columns;
+	private readonly int _rows;
 
 	public ArrayBuffer(
-		ISize size,
+		int columns,
+		int rows,
 		T defaultValue
 	) {
-		ArgumentNullException.ThrowIfNull( size, nameof( size ) );
-
-		_size = size;
-		_buffer = new T[ size.Height ][];
-		for( int r = 0; r < size.Height; r++ ) {
-			_buffer[ r ] = new T[ size.Width ];
+		_columns = columns;
+		_rows = rows;
+		_buffer = new T[ rows ][];
+		for( int r = 0; r < rows; r++ ) {
+			_buffer[ r ] = new T[ columns ];
 			Array.Fill( _buffer[ r ], defaultValue );
 		}
 	}
 
-	public ISize Size => _size;
+	public int Columns => _columns;
+
+	public int Rows => _rows;
 
 	public T this[ int column, int row ] {
 		get {
