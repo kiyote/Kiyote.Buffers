@@ -3,8 +3,12 @@
 
 # Kiyote.Buffers
 
-Provides IBufferOperator to perform actions on large buffers.  `BufferOperator` provides a generic
-implementation to allow any custom operation to be crafted as part of the `Perform` call.
+Provides a consistent abstraction for large buffers and performing repetitive operations on those buffers.
 
-In the `Kiyote.Buffers.Numerics` an implementation that provides common operations on buffers of numeric types
-is provided.  This includes operations such as `Sum`, `Average`, `Min`, `Max`, and more.
+## Packages
+
+| Package | Description |
+| --- | --- |
+| [Kiyote.Buffers](src/Kiyote/Buffers/Kiyote.Buffers/README.md) | Provides a consistent abstraction for large buffers and performing repetitive operations on those buffers. |
+| [Kiyote.Buffers.Numerics](src/Kiyote/Buffers/Numerics/Kiyote.Buffers.Numerics/README.md) | Provides an abstraction for large numeric buffers and performing repetitive operations on those buffers with vectorized operations where appropriate. |
+
