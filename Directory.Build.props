@@ -1,6 +1,6 @@
 <Project>
 	<PropertyGroup>
-		<ProductVersion>0.6.1</ProductVersion>
+		<ProductVersion>0.7.0</ProductVersion>
 		<Version Condition=" '$(ProductVersion)' == '' ">0.0.1</Version>
 		<Version Condition=" '$(ProductVersion)' != '' ">$(ProductVersion)</Version>
 	</PropertyGroup>	
@@ -10,6 +10,15 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Authors>Todd Lang</Authors>
+		<Description>Provides a consistent abstraction for large buffers and performing repetitive operations on those buffers.</Description>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/kiyote/Kiyote.Buffers</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/kiyote/Kiyote.Buffers</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 
 	<PropertyGroup>

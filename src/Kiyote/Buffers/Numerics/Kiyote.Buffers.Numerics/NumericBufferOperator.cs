@@ -9,17 +9,20 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		INumericBuffer<T> source,
 		T value
 	) {
+		int rows = source.Rows;
 		if( source is NumericBuffer<T> numericBuffer ) {
 			Vector<T> values = Vector.Create( value );
-			for( int row = 0; row < source.Rows; row++ ) {
+			int opCount = numericBuffer.OpCount;
+			for( int row = 0; row < rows; row++ ) {
 				Span<Vector<T>> vcontent = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
-				for( int i = 0; i < numericBuffer.OpCount; i++ ) {
+				for( int i = 0; i < opCount; i++ ) {
 					vcontent[ i ] = values;
 				}
 			}
 		} else {
-			for( int row = 0; row < source.Rows; row++ ) {
-				for( int col = 0; col < source.Columns; col++ ) {
+			int columns = source.Columns;
+			for( int row = 0; row < rows; row++ ) {
+				for( int col = 0; col < columns; col++ ) {
 					source[ col, row ] = value;
 				}
 			}
@@ -30,19 +33,22 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		INumericBuffer<T> source,
 		T amount
 	) {
+		int rows = source.Rows;
 		if( source is NumericBuffer<T> numericBuffer ) {
 			Vector<T> amounts = Vector.Create( amount );
+			int opCount = numericBuffer.OpCount;
 
-			for( int row = 0; row < source.Rows; row++ ) {
+			for( int row = 0; row < rows; row++ ) {
 				Span<Vector<T>> vcontent = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
 
-				for( int i = 0; i < numericBuffer.OpCount; i++ ) {
-					vcontent[ i ] = vcontent[ i ] + amounts;
+				for( int i = 0; i < opCount; i++ ) {
+					vcontent[ i ] += amounts;
 				}
 			}
 		} else {
-			for( int row = 0; row < source.Rows; row++ ) {
-				for( int col = 0; col < source.Columns; col++ ) {
+			int columns = source.Columns;
+			for( int row = 0; row < rows; row++ ) {
+				for( int col = 0; col < columns; col++ ) {
 					source[ col, row ] += amount;
 				}
 			}
@@ -53,19 +59,22 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		INumericBuffer<T> source,
 		T amount
 	) {
+		int rows = source.Rows;
 		if( source is NumericBuffer<T> numericBuffer ) {
 			Vector<T> amounts = Vector.Create( amount );
+			int opCount = numericBuffer.OpCount;
 
-			for( int row = 0; row < source.Rows; row++ ) {
+			for( int row = 0; row < rows; row++ ) {
 				Span<Vector<T>> vcontent = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
 
-				for( int i = 0; i < numericBuffer.OpCount; i++ ) {
-					vcontent[ i ] = vcontent[ i ] - amounts;
+				for( int i = 0; i < opCount; i++ ) {
+					vcontent[ i ] -= amounts;
 				}
 			}
 		} else {
-			for( int row = 0; row < source.Rows; row++ ) {
-				for( int col = 0; col < source.Columns; col++ ) {
+			int columns = source.Columns;
+			for( int row = 0; row < rows; row++ ) {
+				for( int col = 0; col < columns; col++ ) {
 					source[ col, row ] -= amount;
 				}
 			}
@@ -76,19 +85,22 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		INumericBuffer<T> source,
 		T amount
 	) {
+		int rows = source.Rows;
 		if( source is NumericBuffer<T> numericBuffer ) {
 			Vector<T> amounts = Vector.Create( amount );
+			int opCount = numericBuffer.OpCount;
 
-			for( int row = 0; row < source.Rows; row++ ) {
+			for( int row = 0; row < rows; row++ ) {
 				Span<Vector<T>> vcontent = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
 
-				for( int i = 0; i < numericBuffer.OpCount; i++ ) {
-					vcontent[ i ] = vcontent[ i ] * amounts;
+				for( int i = 0; i < opCount; i++ ) {
+					vcontent[ i ] *= amounts;
 				}
 			}
 		} else {
-			for( int row = 0; row < source.Rows; row++ ) {
-				for( int col = 0; col < source.Columns; col++ ) {
+			int columns = source.Columns;
+			for( int row = 0; row < rows; row++ ) {
+				for( int col = 0; col < columns; col++ ) {
 					source[ col, row ] *= amount;
 				}
 			}
@@ -99,19 +111,22 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		INumericBuffer<T> source,
 		T amount
 	) {
+		int rows = source.Rows;
 		if( source is NumericBuffer<T> numericBuffer ) {
 			Vector<T> amounts = Vector.Create( amount );
+			int opCount = numericBuffer.OpCount;
 
-			for( int row = 0; row < source.Rows; row++ ) {
+			for( int row = 0; row < rows; row++ ) {
 				Span<Vector<T>> vcontent = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
 
-				for( int i = 0; i < numericBuffer.OpCount; i++ ) {
-					vcontent[ i ] = vcontent[ i ] / amounts;
+				for( int i = 0; i < opCount; i++ ) {
+					vcontent[ i ] /= amounts;
 				}
 			}
 		} else {
-			for( int row = 0; row < source.Rows; row++ ) {
-				for( int col = 0; col < source.Columns; col++ ) {
+			int columns = source.Columns;
+			for( int row = 0; row < rows; row++ ) {
+				for( int col = 0; col < columns; col++ ) {
 					source[ col, row ] /= amount;
 				}
 			}
@@ -121,20 +136,22 @@ internal class NumericBufferOperator : INumericBufferOperator {
 	T INumericBufferOperator.Max<T>(
 		INumericBuffer<T> source
 	) {
+		int rows = source.Rows;
 		if( source is NumericBuffer<T> numericBuffer
 			&& numericBuffer.OpCount > 1 // Only use vectorization if we have more than one vector's worth of data
 		) {
+			int opCount = numericBuffer.OpCount;
 			Vector<T> maxes = Vector.Create( source[ 0, 0 ] );
-			for( int row = 0; row < source.Rows; row++ ) {
+			for( int row = 0; row < rows; row++ ) {
 				Span<Vector<T>> vcontent = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
 
-				for( int i = 0; i < numericBuffer.OpCount; i++ ) {
+				for( int i = 0; i < opCount; i++ ) {
 					maxes = Vector.Max( vcontent[ i ], maxes );
 				}
 			}
 
 			T max = maxes[ 0 ];
-			for( int i = 0; i < Vector<T>.Count; i++ ) {
+			for( int i = 1; i < Vector<T>.Count; i++ ) {
 				if( maxes[ i ] > max ) {
 					max = maxes[ i ];
 				}
@@ -142,11 +159,13 @@ internal class NumericBufferOperator : INumericBufferOperator {
 			return max;
 
 		} else {
+			int columns = source.Columns;
 			T max = source[ 0, 0 ];
-			for( int row = 0; row < source.Rows; row++ ) {
-				for( int col = 0; col < source.Columns; col++ ) {
-					if( source[ col, row ] > max ) {
-						max = source[ col, row ];
+			for( int row = 0; row < rows; row++ ) {
+				for( int col = 0; col < columns; col++ ) {
+					T value = source[ col, row ];
+					if( value > max ) {
+						max = value;
 					}
 				}
 			}
@@ -158,20 +177,22 @@ internal class NumericBufferOperator : INumericBufferOperator {
 	T INumericBufferOperator.Min<T>(
 		INumericBuffer<T> source
 	) {
+		int rows = source.Rows;
 		if( source is NumericBuffer<T> numericBuffer
 			&& numericBuffer.OpCount > 1 // Only use vectorization if we have more than one vector's worth of data
 		) {
+			int opCount = numericBuffer.OpCount;
 			Vector<T> mins = Vector.Create( source[ 0, 0 ] );
-			for( int row = 0; row < source.Rows; row++ ) {
+			for( int row = 0; row < rows; row++ ) {
 				Span<Vector<T>> vcontent = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
 
-				for( int i = 0; i < numericBuffer.OpCount; i++ ) {
+				for( int i = 0; i < opCount; i++ ) {
 					mins = Vector.Min( vcontent[ i ], mins );
 				}
 			}
 
 			T min = mins[ 0 ];
-			for( int i = 0; i < Vector<T>.Count; i++ ) {
+			for( int i = 1; i < Vector<T>.Count; i++ ) {
 				if( mins[ i ] < min ) {
 					min = mins[ i ];
 				}
@@ -179,11 +200,13 @@ internal class NumericBufferOperator : INumericBufferOperator {
 			return min;
 
 		} else {
+			int columns = source.Columns;
 			T min = source[ 0, 0 ];
-			for( int row = 0; row < source.Rows; row++ ) {
-				for( int col = 0; col < source.Columns; col++ ) {
-					if( source[ col, row ] < min ) {
-						min = source[ col, row ];
+			for( int row = 0; row < rows; row++ ) {
+				for( int col = 0; col < columns; col++ ) {
+					T value = source[ col, row ];
+					if( value < min ) {
+						min = value;
 					}
 				}
 			}
@@ -195,23 +218,26 @@ internal class NumericBufferOperator : INumericBufferOperator {
 	(T min, T max) INumericBufferOperator.MinMax<T>(
 		INumericBuffer<T> source
 	) {
+		int rows = source.Rows;
 		if( source is NumericBuffer<T> numericBuffer
 			&& numericBuffer.OpCount > 1 // Only use vectorization if we have more than one vector's worth of data
 		) {
+			int opCount = numericBuffer.OpCount;
 			Vector<T> mins = Vector.Create( source[ 0, 0 ] );
-			Vector<T> maxs = Vector.Create( source[ 0, 0 ] );
-			for( int row = 0; row < source.Rows; row++ ) {
+			Vector<T> maxs = mins;
+			for( int row = 0; row < rows; row++ ) {
 				Span<Vector<T>> vcontent = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
 
-				for( int i = 0; i < numericBuffer.OpCount; i++ ) {
-					mins = Vector.Min( vcontent[ i ], mins );
-					maxs = Vector.Max( vcontent[ i ], maxs );
+				for( int i = 0; i < opCount; i++ ) {
+					Vector<T> values = vcontent[ i ];
+					mins = Vector.Min( values, mins );
+					maxs = Vector.Max( values, maxs );
 				}
 			}
 
 			T min = mins[ 0 ];
 			T max = maxs[ 0 ];
-			for( int i = 0; i < Vector<T>.Count; i++ ) {
+			for( int i = 1; i < Vector<T>.Count; i++ ) {
 				if( mins[ i ] < min ) {
 					min = mins[ i ];
 				}
@@ -222,15 +248,17 @@ internal class NumericBufferOperator : INumericBufferOperator {
 			return (min, max);
 
 		} else {
+			int columns = source.Columns;
 			T min = source[ 0, 0 ];
-			T max = source[ 0, 0 ];
-			for( int row = 0; row < source.Rows; row++ ) {
-				for( int col = 0; col < source.Columns; col++ ) {
-					if( source[ col, row ] < min ) {
-						min = source[ col, row ];
+			T max = min;
+			for( int row = 0; row < rows; row++ ) {
+				for( int col = 0; col < columns; col++ ) {
+					T value = source[ col, row ];
+					if( value < min ) {
+						min = value;
 					}
-					if( source[ col, row ] > max ) {
-						max = source[ col, row ];
+					if( value > max ) {
+						max = value;
 					}
 				}
 			}

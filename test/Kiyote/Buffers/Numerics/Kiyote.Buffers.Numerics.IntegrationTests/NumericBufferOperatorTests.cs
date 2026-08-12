@@ -1,4 +1,4 @@
-﻿namespace Kiyote.Buffers.Numerics.IntegrationTests;
+namespace Kiyote.Buffers.Numerics.IntegrationTests;
 
 public sealed class NumericBufferOperatorTests {
 
@@ -11,7 +11,7 @@ public sealed class NumericBufferOperatorTests {
 	[OneTimeSetUp]
 	public void OneTimeSetUp() {
 		var services = new ServiceCollection();
-		services.AddNumericBuffers();
+		_ = services.AddNumericBuffers();
 
 		_provider = services.BuildServiceProvider();
 	}
@@ -48,7 +48,7 @@ public sealed class NumericBufferOperatorTests {
 
 		float min = _operators.Min( _buffer );
 
-		Assert.That( min, Is.EqualTo( 0.0f ) );
+		Assert.That( min, Is.Zero );
 	}
 
 	[Test]
@@ -59,7 +59,7 @@ public sealed class NumericBufferOperatorTests {
 		
 		(float min, float max) = _operators.MinMax( _buffer );
 
-		Assert.That( min, Is.EqualTo( 0.0f ) );
+		Assert.That( min, Is.Zero );
 		Assert.That( max, Is.EqualTo( 20.0f ) );
 	}
 
@@ -89,7 +89,227 @@ public sealed class NumericBufferOperatorTests {
 
 		_operators.Normalize( _buffer! );
 
-		Assert.That( _buffer![ 0, 0 ], Is.EqualTo( 0.0f ) );
+		Assert.That( _buffer![ 0, 0 ], Is.Zero );
 		Assert.That( _buffer![ 9, 9 ], Is.EqualTo( 1.0f ) );
+	}
+
+	[Test]
+	public void Normalize_UniformBuffer_ValuesUnchanged() {
+		_operators.Add( _buffer!, 6.0f );
+
+		_operators.Normalize( _buffer! );
+
+		Assert.That( _buffer![ 0, 0 ], Is.EqualTo( 6.0f ) );
+		Assert.That( _buffer![ 9, 9 ], Is.EqualTo( 6.0f ) );
+	}
+
+	[Test]
+	public void Clear_NumericBuffer_ValuesSet() {
+		_operators.Add( _buffer!, 3.0f );
+
+		_operators.Clear( _buffer!, 1.0f );
+
+		Assert.That( _buffer![ 0, 0 ], Is.EqualTo( 1.0f ) );
+		Assert.That( _buffer![ 9, 9 ], Is.EqualTo( 1.0f ) );
+	}
+
+	[Test]
+	public void Subtract_FixedValue_BufferDecremented() {
+		_operators.Add( _buffer!, 10.0f );
+
+		_operators.Subtract( _buffer!, 4.0f );
+
+		Assert.That( _buffer![ 3, 7 ], Is.EqualTo( 6.0f ) );
+	}
+
+	[Test]
+	public void Clear_UnknownBuffer_ValuesSet() {
+		var buffer = new TestNumericBuffer( 3, 3 );
+
+		_operators.Clear( buffer, 5.0f );
+
+		Assert.That( buffer[ 2, 2 ], Is.EqualTo( 5.0f ) );
+	}
+
+	[Test]
+	public void Add_UnknownBuffer_BufferIncremented() {
+		var buffer = new TestNumericBuffer( 3, 3 );
+
+		_operators.Add( buffer, 2.0f );
+
+		Assert.That( buffer[ 2, 2 ], Is.EqualTo( 2.0f ) );
+	}
+
+	[Test]
+	public void Subtract_UnknownBuffer_BufferDecremented() {
+		var buffer = new TestNumericBuffer( 3, 3 );
+
+		_operators.Subtract( buffer, 2.0f );
+
+		Assert.That( buffer[ 2, 2 ], Is.EqualTo( -2.0f ) );
+	}
+
+	[Test]
+	public void Multiply_UnknownBuffer_ValuesSet() {
+		var buffer = new TestNumericBuffer( 3, 3 );
+		_operators.Add( buffer, 2.0f );
+
+		_operators.Multiply( buffer, 3.0f );
+
+		Assert.That( buffer[ 2, 2 ], Is.EqualTo( 6.0f ) );
+	}
+
+	[Test]
+	public void Divide_UnknownBuffer_ValuesSet() {
+		var buffer = new TestNumericBuffer( 3, 3 );
+		_operators.Add( buffer, 6.0f );
+
+		_operators.Divide( buffer, 3.0f );
+
+		Assert.That( buffer[ 2, 2 ], Is.EqualTo( 2.0f ) );
+	}
+
+	[Test]
+	public void Max_UnvectorizedBuffer_MaximumReturned() {
+		INumericBuffer<float> buffer = _bufferFactory.Create( 2, 2, 1.0f );
+		buffer[ 1, 1 ] = 9.0f;
+
+		float max = _operators.Max( buffer );
+
+		Assert.That( max, Is.EqualTo( 9.0f ) );
+	}
+
+	[Test]
+	public void Min_UnvectorizedBuffer_MinimumReturned() {
+		INumericBuffer<float> buffer = _bufferFactory.Create( 2, 2, 5.0f );
+		buffer[ 1, 1 ] = 1.0f;
+
+		float min = _operators.Min( buffer );
+
+		Assert.That( min, Is.EqualTo( 1.0f ) );
+	}
+
+	[Test]
+	public void MinMax_UnvectorizedBuffer_ValuesReturned() {
+		INumericBuffer<float> buffer = _bufferFactory.Create( 2, 2, 5.0f );
+		buffer[ 0, 1 ] = 1.0f;
+		buffer[ 1, 1 ] = 9.0f;
+
+		(float min, float max) = _operators.MinMax( buffer );
+
+		Assert.That( min, Is.EqualTo( 1.0f ) );
+		Assert.That( max, Is.EqualTo( 9.0f ) );
+	}
+
+	[Test]
+	public void Perform_SingleBuffer_ValuesIteratedCorrectly() {
+		INumericBuffer<float> output = _bufferFactory.Create( 10, 10, 0.0f );
+		_operators.Add( _buffer!, 2.0f );
+
+		_operators.Perform(
+			_buffer!,
+			value => {
+				return value * 2.0f;
+			},
+			output
+		);
+
+		Assert.That( output[ 9, 9 ], Is.EqualTo( 4.0f ) );
+	}
+
+	[Test]
+	public void Perform_MultiBuffer_ValuesIteratedCorrectly() {
+		INumericBuffer<float> other = _bufferFactory.Create( 10, 10, 3.0f );
+		INumericBuffer<float> output = _bufferFactory.Create( 10, 10, 0.0f );
+		_operators.Add( _buffer!, 2.0f );
+
+		_operators.Perform(
+			_buffer!,
+			other,
+			( left, right ) => {
+				return left + right;
+			},
+			output
+		);
+
+		Assert.That( output[ 9, 9 ], Is.EqualTo( 5.0f ) );
+	}
+
+	[Test]
+	public void Perform_BufferSizesDiffer_ThrowsException() {
+		INumericBuffer<float> other = _bufferFactory.Create( 5, 5, 0.0f );
+		INumericBuffer<float> output = _bufferFactory.Create( 10, 10, 0.0f );
+
+		Assert.That(
+			() => {
+				_operators.Perform(
+					_buffer!,
+					other,
+					( left, right ) => {
+						return left + right;
+					},
+					output
+				);
+			},
+			Throws.TypeOf<InvalidOperationException>()
+		);
+	}
+
+	[Test]
+	public void Perform_SourceBufferAndLocation_ValuesIteratedCorrectly() {
+		INumericBuffer<float> output = _bufferFactory.Create( 10, 10, 0.0f );
+		_operators.Add( _buffer!, 1.0f );
+
+		_operators.Perform(
+			_buffer!,
+			( column, row, source, value ) => {
+				return source[ column, row ] + column + row;
+			},
+			output
+		);
+
+		Assert.That( output[ 2, 3 ], Is.EqualTo( 6.0f ) );
+	}
+
+	[Test]
+	public void Perform_LocationAndValue_ValuesIteratedCorrectly() {
+		INumericBuffer<float> output = _bufferFactory.Create( 10, 10, 0.0f );
+		_operators.Add( _buffer!, 1.0f );
+
+		_operators.Perform(
+			_buffer!,
+			( column, row, value ) => {
+				return value + column + row;
+			},
+			output
+		);
+
+		Assert.That( output[ 2, 3 ], Is.EqualTo( 6.0f ) );
+	}
+
+	private sealed class TestNumericBuffer : INumericBuffer<float> {
+
+		private readonly float[][] _content;
+
+		public TestNumericBuffer(
+			int columns,
+			int rows
+		) {
+			Columns = columns;
+			Rows = rows;
+			_content = new float[ rows ][];
+			for( int r = 0; r < rows; r++ ) {
+				_content[ r ] = new float[ columns ];
+			}
+		}
+
+		public int Columns { get; }
+
+		public int Rows { get; }
+
+		public float this[ int column, int row ] {
+			get => _content[ row ][ column ];
+			set => _content[ row ][ column ] = value;
+		}
 	}
 }

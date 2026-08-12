@@ -1,6 +1,6 @@
 namespace Kiyote.Buffers;
 
-internal sealed class ArrayBuffer<T> : IBuffer<T> {
+public sealed class ArrayBuffer<T> : IBuffer<T> {
 
 	private readonly T[][] _buffer;
 	private readonly int _columns;

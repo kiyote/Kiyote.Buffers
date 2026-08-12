@@ -2,7 +2,7 @@ using System.Numerics;
 
 namespace Kiyote.Buffers.Numerics;
 
-internal class NumericBuffer<T> : INumericBuffer<T> where T : struct, INumber<T> {
+public sealed class NumericBuffer<T> : INumericBuffer<T> where T : struct, INumber<T> {
 
 	private readonly int _columns;
 	private readonly int _rows;
