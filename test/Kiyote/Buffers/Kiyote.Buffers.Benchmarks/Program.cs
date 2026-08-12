@@ -12,7 +12,11 @@ ManualConfig config = DefaultConfig.Instance
          .WithLaunchCount(1)
          .WithToolchain(InProcessNoEmitToolchain.Instance));
 
-BenchmarkRunner.Run<BufferOperatorBenchmarks>(config);
-//BenchmarkRunner.Run<ArrayBufferBenchmarks>(config);
-//BenchmarkRunner.Run<NumericBufferOperatorBenchmarks>(config);
+BenchmarkSwitcher
+    .FromTypes( [
+        typeof( ArrayBufferBenchmarks ),
+        typeof( BufferOperatorBenchmarks ),
+        typeof( NumericBufferOperatorBenchmarks )
+    ] )
+    .RunAll(config, args);
 
