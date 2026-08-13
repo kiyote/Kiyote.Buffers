@@ -38,4 +38,10 @@ public sealed class NumericBuffer<T> : INumericBuffer<T> where T : struct, INumb
 
 	int IBuffer<T>.Rows => _rows;
 
+	Span<T> IBuffer<T>.GetRowSpan( int row ) {
+		// Rows are allocated wider than the logical column count so they can be
+		// processed as whole vectors; the padding must never be exposed.
+		return Content[ row ].AsSpan( 0, _columns );
+	}
+
 }
