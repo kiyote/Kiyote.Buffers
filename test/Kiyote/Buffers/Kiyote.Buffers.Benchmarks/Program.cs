@@ -7,16 +7,17 @@ using Kiyote.Buffers.Benchmarks;
 using Kiyote.Buffers.Numerics.Benchmarks;
 
 ManualConfig config = DefaultConfig.Instance
-    .AddJob(Job
-         .MediumRun
-         .WithLaunchCount(1)
-         .WithToolchain(InProcessNoEmitToolchain.Instance));
+	.AddJob( Job
+		 .MediumRun
+		 .WithLaunchCount( 1 )
+		 .WithToolchain( InProcessNoEmitToolchain.Instance ) );
 
 BenchmarkSwitcher
-    .FromTypes( [
-        typeof( ArrayBufferBenchmarks ),
-        typeof( BufferOperatorBenchmarks ),
-        typeof( NumericBufferOperatorBenchmarks )
-    ] )
-    .RunAll(config, args);
+	.FromTypes( [
+		typeof( ArrayBufferBenchmarks ),
+		typeof( BufferOperatorBenchmarks ),
+		typeof( NumericBufferBenchmarks ),
+		typeof( NumericBufferOperatorBenchmarks )
+	] )
+	.RunAll( config, args );
 

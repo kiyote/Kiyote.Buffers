@@ -32,5 +32,9 @@ public sealed class ArrayBuffer<T> : IBuffer<T> {
 			_buffer[ row ][ column ] = value;
 		}
 	}
+
+	public Span<T> GetRowSpan( int row ) {
+		return _buffer[ row ].AsSpan();
+	}
 }
 

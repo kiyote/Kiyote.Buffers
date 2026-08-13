@@ -64,6 +64,99 @@ public sealed class NumericBufferOperatorTests {
 	}
 
 	[Test]
+	public void Max_AllValuesBelowPadding_PaddingIgnored() {
+		_operators.Add( _buffer!, -1.0f );
+
+		float max = _operators.Max( _buffer! );
+
+		Assert.That( max, Is.EqualTo( -1.0f ) );
+	}
+
+	[Test]
+	public void Min_AllValuesAbovePadding_PaddingIgnored() {
+		_operators.Add( _buffer!, 1.0f );
+
+		float min = _operators.Min( _buffer! );
+
+		Assert.That( min, Is.EqualTo( 1.0f ) );
+	}
+
+	[Test]
+	public void MinMax_AllValuesBelowPadding_PaddingIgnored() {
+		_operators.Add( _buffer!, -5.0f );
+		_buffer![ 9, 9 ] = -1.0f;
+
+		(float min, float max) = _operators.MinMax( _buffer );
+
+		Assert.That( min, Is.EqualTo( -5.0f ) );
+		Assert.That( max, Is.EqualTo( -1.0f ) );
+	}
+
+	[Test]
+	public void Max_ValueInTailColumns_ValueReturned() {
+		INumericBuffer<float> buffer = _bufferFactory.Create( 10, 10, 0.0f );
+		buffer[ 9, 3 ] = 42.0f;
+
+		float max = _operators.Max( buffer );
+
+		Assert.That( max, Is.EqualTo( 42.0f ) );
+	}
+
+	[Test]
+	public void Min_ValueInTailColumns_ValueReturned() {
+		INumericBuffer<float> buffer = _bufferFactory.Create( 10, 10, 0.0f );
+		buffer[ 9, 3 ] = -42.0f;
+
+		float min = _operators.Min( buffer );
+
+		Assert.That( min, Is.EqualTo( -42.0f ) );
+	}
+
+	[Test]
+	public void Normalize_AllValuesBelowPadding_ValuesScaled() {
+		_operators.Add( _buffer!, -4.0f );
+		_buffer![ 0, 0 ] = -8.0f;
+
+		_operators.Normalize( _buffer );
+
+		Assert.That( _buffer[ 0, 0 ], Is.Zero );
+		Assert.That( _buffer[ 1, 0 ], Is.EqualTo( 1.0f ) );
+	}
+
+	[Test]
+	public void GetRowSpan_PaddedBuffer_LengthMatchesColumns() {
+		INumericBuffer<float> buffer = _bufferFactory.Create( 10, 10, 0.0f );
+
+		Span<float> span = buffer.GetRowSpan( 3 );
+
+		Assert.That( span.Length, Is.EqualTo( buffer.Columns ) );
+	}
+
+	[Test]
+	public void GetRowSpan_ValuesWritten_BufferUpdated() {
+		INumericBuffer<float> buffer = _bufferFactory.Create( 10, 10, 0.0f );
+
+		Span<float> span = buffer.GetRowSpan( 3 );
+		span.Fill( 7.0f );
+
+		Assert.That( buffer[ 0, 3 ], Is.EqualTo( 7.0f ) );
+		Assert.That( buffer[ 9, 3 ], Is.EqualTo( 7.0f ) );
+	}
+
+	[Test]
+	public void GetRowSpan_ValuesWritten_PaddingUnaffected() {
+		INumericBuffer<float> buffer = _bufferFactory.Create( 10, 10, 0.0f );
+		_operators.Add( buffer, -1.0f );
+
+		buffer.GetRowSpan( 3 ).Fill( -1.0f );
+
+		// If the span had exposed padding, the fill would have overwritten it
+		// and the reduction would still be correct; this guards the reverse
+		// case where padding leaks back into the result.
+		Assert.That( _operators.Max( buffer ), Is.EqualTo( -1.0f ) );
+	}
+
+	[Test]
 	public void Multiply_NumericBuffer_ValuesSet() {
 		_operators.Add( _buffer!, 2.0f );
 
@@ -310,6 +403,10 @@ public sealed class NumericBufferOperatorTests {
 		public float this[ int column, int row ] {
 			get => _content[ row ][ column ];
 			set => _content[ row ][ column ] = value;
+		}
+
+		public Span<float> GetRowSpan( int row ) {
+			return _content[ row ].AsSpan();
 		}
 	}
 }

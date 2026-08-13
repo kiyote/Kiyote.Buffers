@@ -11,8 +11,10 @@ internal sealed class BufferOperator : IBufferOperator {
 		int columns = a.Columns;
 
 		for( int r = 0; r < rows; r++ ) {
+			Span<T> source = a.GetRowSpan( r );
+			Span<T> target = output.GetRowSpan( r );
 			for( int c = 0; c < columns; c++ ) {
-				output[ c, r ] = op( a[ c, r ] );
+				target[ c ] = op( source[ c ] );
 			}
 		}
 	}
@@ -31,8 +33,11 @@ internal sealed class BufferOperator : IBufferOperator {
 			throw new InvalidOperationException( "Operands must be same dimensions." );
 		}
 		for( int r = 0; r < rows; r++ ) {
+			Span<T> left = a.GetRowSpan( r );
+			Span<T> right = b.GetRowSpan( r );
+			Span<T> target = output.GetRowSpan( r );
 			for( int c = 0; c < columns; c++ ) {
-				output[ c, r ] = op( a[ c, r ], b[ c, r ] );
+				target[ c ] = op( left[ c ], right[ c ] );
 			}
 		}
 	}
@@ -46,8 +51,11 @@ internal sealed class BufferOperator : IBufferOperator {
 		int columns = source.Columns;
 
 		for( int r = 0; r < rows; r++ ) {
+			Span<T> target = output.GetRowSpan( r );
 			for( int c = 0; c < columns; c++ ) {
-				output[ c, r ] = op( c, r, source, source[ c, r ] );
+				// The source buffer is handed to the delegate, which may read any
+				// cell, so it is indexed directly rather than through a cached span.
+				target[ c ] = op( c, r, source, source[ c, r ] );
 			}
 		}
 	}
@@ -61,8 +69,10 @@ internal sealed class BufferOperator : IBufferOperator {
 		int columns = source.Columns;
 
 		for( int r = 0; r < rows; r++ ) {
+			Span<TSource> values = source.GetRowSpan( r );
+			Span<TOutput> target = output.GetRowSpan( r );
 			for( int c = 0; c < columns; c++ ) {
-				output[ c, r ] = op( c, r, source[ c, r ] );
+				target[ c ] = op( c, r, values[ c ] );
 			}
 		}
 	}
