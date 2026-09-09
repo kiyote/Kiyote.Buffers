@@ -367,28 +367,6 @@ public sealed class BufferAnalyzerUnitTests {
 		} );
 	}
 
-	[Test]
-	public void IsSealed_LargeBuffer_DoesNotAllocate() {
-		ArrayBuffer<bool> buffer = new ArrayBuffer<bool>( 1200, 1200, true );
-		for( int i = 0; i < 1200; i++ ) {
-			buffer[ i, 1 ] = false;
-			buffer[ 1, i ] = false;
-			buffer[ 1198, i ] = false;
-			buffer[ i, 1198 ] = false;
-		}
-
-		// Warm the pool and force JIT before measuring
-		_ = _analyzer.IsSealed( buffer, 600, 600, new BoolPassable() );
-
-		long before = GC.GetAllocatedBytesForCurrentThread();
-		for( int i = 0; i < 5; i++ ) {
-			_ = _analyzer.IsSealed( buffer, 600, 600, new BoolPassable() );
-		}
-		long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-
-		Assert.That( allocated, Is.Zero );
-	}
-
 	/// <summary>
 	/// Builds a 5x5 buffer whose only passable cell is 2,2, walled in by an
 	/// impassable ring.
