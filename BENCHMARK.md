@@ -51,3 +51,22 @@ LaunchCount=1  WarmupCount=10
 | Divide_Int      | 3,660.4 μs | 86.94 μs | 77.07 μs |      22 B |
 | Normalize_Float |   846.5 μs | 80.81 μs | 71.63 μs |       6 B |
 | Normalize_Int   |   315.2 μs | 33.51 μs | 31.35 μs |       2 B |
+
+## BufferAnalyzer
+| Method                       | Mean        | Error     | StdDev    | Allocated |
+|----------------------------- |------------:|----------:|----------:|----------:|
+| IsSealed_100x100_Delegate    |    141.7 us |   1.34 us |   1.19 us |         - |
+| IsSealed_1000x1000_Delegate  | 16,552.2 us | 105.80 us |  88.35 us |     114 B |
+| IsSealed_100x100_Predicate   |    129.5 us |   0.92 us |   0.82 us |       1 B |
+| IsSealed_1000x1000_Predicate | 14,052.1 us | 266.46 us | 249.24 us |      57 B |
+
+
+| Method                                 | Mean        | Error       | StdDev    | Gen0      | Gen1      | Gen2      | Allocated  |
+|--------------------------------------- |------------:|------------:|----------:|----------:|----------:|----------:|-----------:|
+| IsSealed_100x100_Delegate              |    179.0 us |     4.97 us |   4.65 us |         - |         - |         - |          - |
+| IsSealed_1000x1000_Delegate            | 18,720.1 us |   307.23 us | 287.38 us |         - |         - |         - |      124 B |
+| IsSealed_100x100_Predicate             |    184.5 us |     2.84 us |   2.66 us |         - |         - |         - |        1 B |
+| IsSealed_1000x1000_Predicate           | 20,267.5 us |   382.77 us | 358.04 us |         - |         - |         - |      124 B |
+| IsSealed_1200x1200_Predicate           | 29,815.6 us | 1,008.08 us | 893.63 us |         - |         - |         - |      124 B |
+| TryGetSealedArea_1000x1000_Predicate   | 27,165.0 us |   619.14 us | 579.14 us | 1937.5000 | 1937.5000 | 1937.5000 | 25174108 B |
+| TryVisitSealedArea_1000x1000_Predicate | 18,743.3 us |   109.33 us |  96.92 us |         - |         - |         - |      124 B |
