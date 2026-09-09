@@ -17,7 +17,8 @@ BenchmarkSwitcher
 		typeof( ArrayBufferBenchmarks ),
 		typeof( BufferOperatorBenchmarks ),
 		typeof( NumericBufferBenchmarks ),
-		typeof( NumericBufferOperatorBenchmarks )
+		typeof( NumericBufferOperatorBenchmarks ),
+		typeof( BufferAnalyzerBenchmarks )
 	] )
 	.RunAll( config, args );
 

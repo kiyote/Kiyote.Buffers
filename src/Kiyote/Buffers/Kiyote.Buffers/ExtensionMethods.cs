@@ -10,6 +10,7 @@ public static class ExtensionMethods {
 	) {
 		services.TryAddSingleton<IBufferOperator, BufferOperator>();
 		services.TryAddSingleton<IBufferFactory, ArrayBufferFactory>();
+		services.TryAddSingleton<IBufferAnalyzer, BufferAnalyzer>();
 
 		return services;
 	}
