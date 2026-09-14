@@ -1,0 +1,38 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="BENCHMARK.md" />
+    <File Path="CODEOWNERS" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="forceclean.ps1" />
+    <File Path="LICENSE" />
+    <File Path="nuget.config" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Solution Items/.github/">
+    <File Path=".github/dependabot.yaml" />
+  </Folder>
+  <Folder Name="/Solution Items/.github/workflows/">
+    <File Path=".github/workflows/ci.yml" />
+    <File Path=".github/workflows/release.yml" />
+  </Folder>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Kiyote/" />
+  <Folder Name="/src/Kiyote/Buffers/">
+    <Project Path="src/Kiyote/Buffers/Kiyote.Buffers/Kiyote.Buffers.csproj" />
+  </Folder>
+  <Folder Name="/src/Kiyote/Buffers/Numerics/">
+    <Project Path="src/Kiyote/Buffers/Numerics/Kiyote.Buffers.Numerics/Kiyote.Buffers.Numerics.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+  <Folder Name="/test/Kiyote/" />
+  <Folder Name="/test/Kiyote/Buffers/">
+    <Project Path="test/Kiyote/Buffers/Kiyote.Buffers.Benchmarks/Kiyote.Buffers.Benchmarks.csproj" />
+    <Project Path="test/Kiyote/Buffers/Kiyote.Buffers.UnitTests/Kiyote.Buffers.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/test/Kiyote/Buffers/Numerics/">
+    <Project Path="test/Kiyote/Buffers/Numerics/Kiyote.Buffers.Numerics.IntegrationTests/Kiyote.Buffers.Numerics.IntegrationTests.csproj" />
+  </Folder>
+</Solution>
