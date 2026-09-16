@@ -57,7 +57,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		}
 	}
 
-	void INumericBufferOperator.AddTo<T>(
+	void INumericBufferOperator.Add<T>(
 		INumericBuffer<T> source,
 		INumericBuffer<T> destination,
 		T amount
@@ -116,7 +116,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		}
 	}
 
-	void INumericBufferOperator.SubtractTo<T>(
+	void INumericBufferOperator.Subtract<T>(
 		INumericBuffer<T> source,
 		INumericBuffer<T> destination,
 		T amount
@@ -175,7 +175,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		}
 	}
 
-	void INumericBufferOperator.MultiplyTo<T>(
+	void INumericBufferOperator.Multiply<T>(
 		INumericBuffer<T> source,
 		INumericBuffer<T> destination,
 		T amount
@@ -234,7 +234,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		}
 	}
 
-	void INumericBufferOperator.DivideTo<T>(
+	void INumericBufferOperator.Divide<T>(
 		INumericBuffer<T> source,
 		INumericBuffer<T> destination,
 		T amount
@@ -455,7 +455,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		op.Divide( source, range );
 	}
 
-	void INumericBufferOperator.NormalizeTo<T>(
+	void INumericBufferOperator.Normalize<T>(
 		INumericBuffer<T> source,
 		INumericBuffer<T> destination
 	) {
@@ -466,8 +466,34 @@ internal class NumericBufferOperator : INumericBufferOperator {
 			op.Clear( destination, source[ 0, 0 ] );
 			return;
 		}
-		op.SubtractTo( source, destination, min );
+		op.Subtract( source, destination, min );
 		op.Divide( destination, range );
+	}
+
+	void INumericBufferOperator.ScaleToRange<T>(
+		INumericBuffer<T> source,
+		INumericBuffer<T> destination
+	) {
+		INumericBufferOperator op = this;
+		(T min, T max) = op.MinMax( source );
+		T range = max - min;
+		if( range == T.Zero ) {
+			op.Clear( destination, T.Zero );
+			return;
+		}
+
+		double doubleRange = double.CreateChecked( range );
+		double doubleMax = double.CreateChecked( T.MaxValue );
+		int rows = source.Rows;
+		int columns = source.Columns;
+		for( int row = 0; row < rows; row++ ) {
+			Span<T> content = source.GetRowSpan( row );
+			Span<T> target = destination.GetRowSpan( row );
+			for( int col = 0; col < columns; col++ ) {
+				double normalized = double.CreateChecked( content[ col ] - min ) / doubleRange * doubleMax;
+				target[ col ] = T.CreateSaturating( normalized );
+			}
+		}
 	}
 
 

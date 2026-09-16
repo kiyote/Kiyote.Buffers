@@ -33,31 +33,33 @@ LaunchCount=1  WarmupCount=10
 | Perform_TwoInputAdd    | 3,085.4 μs |  82.06 μs |  76.76 μs |      22 B |
 
 ## NumericBufferOperator
-| Method            | Mean       | Error    | StdDev   | Allocated |
-|------------------ |-----------:|---------:|---------:|----------:|
-| Add_Float         |   335.4 us | 22.23 us | 20.79 us |         - |
-| Add_Int           |   317.7 us | 60.44 us | 56.54 us |       2 B |
-| AddTo_Float       |   698.0 us | 39.05 us | 36.53 us |       4 B |
-| AddTo_Int         |   681.7 us | 29.07 us | 27.20 us |       4 B |
-| Subtract_Float    |   259.5 us |  9.02 us |  7.04 us |       2 B |
-| Subtract_Int      |   289.4 us | 35.91 us | 33.59 us |       2 B |
-| SubtractTo_Float  |   832.7 us | 39.68 us | 37.11 us |       4 B |
-| SubtractTo_Int    |   813.5 us | 36.46 us | 34.11 us |       4 B |
-| Max_Float         |   704.5 us |  6.47 us |  5.41 us |       4 B |
-| Max_Int           |   200.2 us | 14.58 us | 12.18 us |       2 B |
-| Min_Float         |   705.3 us | 12.67 us | 10.58 us |       4 B |
-| Min_Int           |   207.9 us | 20.92 us | 19.57 us |       1 B |
-| MinMax_Float      |   931.7 us | 25.61 us | 23.96 us |       4 B |
-| MinMax_Int        |   304.3 us | 11.95 us | 11.17 us |       2 B |
-| Multiply_Float    |   260.8 us | 20.37 us | 19.06 us |       2 B |
-| Multiply_Int      |   309.8 us | 38.53 us | 36.04 us |       2 B |
-| MultiplyTo_Float  |   677.4 us | 21.73 us | 20.33 us |       4 B |
-| MultiplyTo_Int    |   642.7 us | 17.05 us | 13.31 us |       4 B |
-| Divide_Float      |   388.4 us | 67.34 us | 59.69 us |       1 B |
-| Divide_Int        | 3,859.2 us | 43.73 us | 38.77 us |      31 B |
-| DivideTo_Float    |   801.0 us | 26.73 us | 23.69 us |       4 B |
-| DivideTo_Int      | 3,711.1 us | 26.79 us | 23.75 us |      16 B |
-| Normalize_Float   |   815.8 us | 19.02 us | 15.89 us |       4 B |
-| Normalize_Int     |   222.3 us |  8.92 us |  7.45 us |       1 B |
-| NormalizeTo_Float | 1,503.2 us | 38.88 us | 32.47 us |       8 B |
-| NormalizeTo_Int   |   943.6 us | 24.70 us | 20.63 us |       4 B |
+| Method                       | Mean       | Error     | StdDev   | Allocated |
+|----------------------------- |-----------:|----------:|---------:|----------:|
+| Add_Float                    |   274.4 us |  24.66 us | 23.07 us |         - |
+| Add_Int                      |   246.8 us |   7.90 us |  7.00 us |       2 B |
+| Add_FloatToDestination       |   661.2 us |  12.83 us | 12.00 us |       4 B |
+| Add_IntToDestination         |   639.6 us |  12.80 us | 11.35 us |       4 B |
+| Subtract_Float               |   371.3 us |  23.08 us | 20.46 us |       2 B |
+| Subtract_Int                 |   365.1 us |  46.59 us | 43.58 us |       2 B |
+| Subtract_FloatToDestination  |   675.0 us |  28.28 us | 23.62 us |       4 B |
+| Subtract_IntToDestination    |   664.5 us |  28.86 us | 27.00 us |       4 B |
+| Max_Float                    |   697.8 us |   9.66 us |  8.57 us |       4 B |
+| Max_Int                      |   187.4 us |   6.67 us |  6.24 us |       2 B |
+| Min_Float                    |   726.6 us |  32.83 us | 29.10 us |       4 B |
+| Min_Int                      |   267.4 us |  28.12 us | 24.93 us |       2 B |
+| MinMax_Float                 |   910.0 us |  63.24 us | 59.15 us |       4 B |
+| MinMax_Int                   |   226.5 us |  16.68 us | 13.93 us |       2 B |
+| Multiply_Float               |   258.0 us |  12.97 us | 11.50 us |       2 B |
+| Multiply_Int                 |   270.0 us |   7.64 us |  5.97 us |       2 B |
+| Multiply_FloatToDestination  |   663.2 us |  17.80 us | 14.87 us |       4 B |
+| Multiply_IntToDestination    |   632.2 us |  24.30 us | 18.97 us |       4 B |
+| Divide_Float                 |   424.1 us |  32.55 us | 27.18 us |       2 B |
+| Divide_Int                   | 3,632.3 us |  67.92 us | 63.53 us |      16 B |
+| Divide_FloatToDestination    |   676.0 us |  36.65 us | 34.28 us |       4 B |
+| Divide_IntToDestination      | 3,608.1 us |  16.02 us | 14.20 us |      16 B |
+| Normalize_Float              |   794.4 us |  15.09 us | 13.38 us |       4 B |
+| Normalize_Int                |   333.4 us |  61.24 us | 57.29 us |       1 B |
+| Normalize_FloatToDestination | 1,437.1 us | 101.91 us | 95.32 us |       7 B |
+| Normalize_IntToDestination   |   825.2 us |  52.85 us | 49.44 us |       4 B |
+| ScaleToRange_Float           | 1,298.6 us |  39.07 us | 34.64 us |       8 B |
+| ScaleToRange_Int             |   859.4 us |  61.51 us | 54.52 us |       4 B |

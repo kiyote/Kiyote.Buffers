@@ -9,7 +9,7 @@ public interface INumericBufferOperator : IBufferOperator {
 		T amount
 	) where T : struct, INumber<T>;
 
-	void AddTo<T>(
+	void Add<T>(
 		INumericBuffer<T> source,
 		INumericBuffer<T> destination,
 		T amount
@@ -20,7 +20,7 @@ public interface INumericBufferOperator : IBufferOperator {
 		T amount
 	) where T : struct, INumber<T>;
 
-	void SubtractTo<T>(
+	void Subtract<T>(
 		INumericBuffer<T> source,
 		INumericBuffer<T> destination,
 		T amount
@@ -31,7 +31,7 @@ public interface INumericBufferOperator : IBufferOperator {
 		T amount
 	) where T : struct, INumber<T>;
 
-	void MultiplyTo<T>(
+	void Multiply<T>(
 		INumericBuffer<T> source,
 		INumericBuffer<T> destination,
 		T amount
@@ -42,7 +42,7 @@ public interface INumericBufferOperator : IBufferOperator {
 		T amount
 	) where T : struct, INumber<T>;
 
-	void DivideTo<T>(
+	void Divide<T>(
 		INumericBuffer<T> source,
 		INumericBuffer<T> destination,
 		T amount
@@ -64,10 +64,15 @@ public interface INumericBufferOperator : IBufferOperator {
 		INumericBuffer<T> source
 	) where T : struct, INumber<T>;
 
-	void NormalizeTo<T>(
+	void Normalize<T>(
 		INumericBuffer<T> source,
 		INumericBuffer<T> destination
 	) where T : struct, INumber<T>;
+
+	void ScaleToRange<T>(
+		INumericBuffer<T> source,
+		INumericBuffer<T> destination
+	) where T : struct, INumber<T>, IMinMaxValue<T>;
 
 	void Clear<T>(
 		INumericBuffer<T> source,

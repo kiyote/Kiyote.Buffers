@@ -33,13 +33,13 @@ public class NumericBufferOperatorBenchmarks {
 	}
 
 	[Benchmark]
-	public void AddTo_Float() {
-		_operator.AddTo( _floatBuffer, _floatDestination, 1.0f );
+	public void Add_FloatToDestination() {
+		_operator.Add( _floatBuffer, _floatDestination, 1.0f );
 	}
 
 	[Benchmark]
-	public void AddTo_Int() {
-		_operator.AddTo( _intBuffer, _intDestination, 1 );
+	public void Add_IntToDestination() {
+		_operator.Add( _intBuffer, _intDestination, 1 );
 	}
 
 	[Benchmark]
@@ -53,13 +53,13 @@ public class NumericBufferOperatorBenchmarks {
 	}
 
 	[Benchmark]
-	public void SubtractTo_Float() {
-		_operator.SubtractTo( _floatBuffer, _floatDestination, 1.0f );
+	public void Subtract_FloatToDestination() {
+		_operator.Subtract( _floatBuffer, _floatDestination, 1.0f );
 	}
 
 	[Benchmark]
-	public void SubtractTo_Int() {
-		_operator.SubtractTo( _intBuffer, _intDestination, 1 );
+	public void Subtract_IntToDestination() {
+		_operator.Subtract( _intBuffer, _intDestination, 1 );
 	}
 
 	[Benchmark]
@@ -103,13 +103,13 @@ public class NumericBufferOperatorBenchmarks {
 	}
 
 	[Benchmark]
-	public void MultiplyTo_Float() {
-		_operator.MultiplyTo( _floatBuffer, _floatDestination, 2.0f );
+	public void Multiply_FloatToDestination() {
+		_operator.Multiply( _floatBuffer, _floatDestination, 2.0f );
 	}
 
 	[Benchmark]
-	public void MultiplyTo_Int() {
-		_operator.MultiplyTo( _intBuffer, _intDestination, 2 );
+	public void Multiply_IntToDestination() {
+		_operator.Multiply( _intBuffer, _intDestination, 2 );
 	}
 
 	[Benchmark]
@@ -123,13 +123,13 @@ public class NumericBufferOperatorBenchmarks {
 	}
 
 	[Benchmark]
-	public void DivideTo_Float() {
-		_operator.DivideTo( _floatBuffer, _floatDestination, 2.0f );
+	public void Divide_FloatToDestination() {
+		_operator.Divide( _floatBuffer, _floatDestination, 2.0f );
 	}
 
 	[Benchmark]
-	public void DivideTo_Int() {
-		_operator.DivideTo( _intBuffer, _intDestination, 2 );
+	public void Divide_IntToDestination() {
+		_operator.Divide( _intBuffer, _intDestination, 2 );
 	}
 
 	[Benchmark]
@@ -143,12 +143,22 @@ public class NumericBufferOperatorBenchmarks {
 	}
 
 	[Benchmark]
-	public void NormalizeTo_Float() {
-		_operator.NormalizeTo( _floatBuffer, _floatDestination );
+	public void Normalize_FloatToDestination() {
+		_operator.Normalize( _floatBuffer, _floatDestination );
 	}
 
 	[Benchmark]
-	public void NormalizeTo_Int() {
-		_operator.NormalizeTo( _intBuffer, _intDestination );
+	public void Normalize_IntToDestination() {
+		_operator.Normalize( _intBuffer, _intDestination );
+	}
+
+	[Benchmark]
+	public void ScaleToRange_Float() {
+		_operator.ScaleToRange( _floatBuffer, _floatDestination );
+	}
+
+	[Benchmark]
+	public void ScaleToRange_Int() {
+		_operator.ScaleToRange( _intBuffer, _intDestination );
 	}
 }

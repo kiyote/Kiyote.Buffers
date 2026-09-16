@@ -18,10 +18,10 @@ public sealed class NumericBuffer<T> : INumericBuffer<T> where T : struct, INumb
 		_columns = columns;
 		_rows = rows;
 		Content = new T[ rows ][];
-		if (columns % Vector<float>.Count == 0) {
+		if (columns % Vector<T>.Count == 0) {
 			_allocWidth = columns;
 		} else {
-			_allocWidth = ( ( columns / Vector<float>.Count ) + 1 ) * Vector<float>.Count;
+			_allocWidth = ( ( columns / Vector<T>.Count ) + 1 ) * Vector<T>.Count;
 		}
 		OpCount = _allocWidth / Vector<T>.Count;
 		for( int i = 0; i < rows; i++ ) {

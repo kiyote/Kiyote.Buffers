@@ -207,6 +207,29 @@ public sealed class NumericBufferOperatorTests {
 	}
 
 	[Test]
+	public void Clear_SmallByteBuffer_ValuesSet() {
+		// Regression test: a wide element type (byte) with a column count
+		// smaller than Vector<byte>.Count previously caused OpCount to
+		// truncate to zero, silently skipping the vectorized path.
+		INumericBuffer<byte> buffer = _bufferFactory.Create( 10, 10, (byte) 0 );
+
+		_operators.Clear( buffer, (byte) 5 );
+
+		Assert.That( buffer[ 0, 0 ], Is.EqualTo( 5 ) );
+		Assert.That( buffer[ 9, 9 ], Is.EqualTo( 5 ) );
+	}
+
+	[Test]
+	public void Add_SmallByteBuffer_ValuesSet() {
+		INumericBuffer<byte> buffer = _bufferFactory.Create( 10, 10, (byte) 1 );
+
+		_operators.Add( buffer, (byte) 4 );
+
+		Assert.That( buffer[ 0, 0 ], Is.EqualTo( 5 ) );
+		Assert.That( buffer[ 9, 9 ], Is.EqualTo( 5 ) );
+	}
+
+	[Test]
 	public void Subtract_FixedValue_BufferDecremented() {
 		_operators.Add( _buffer!, 10.0f );
 
@@ -385,7 +408,7 @@ public sealed class NumericBufferOperatorTests {
 		INumericBuffer<float> output = _bufferFactory.Create( 10, 10, 0.0f );
 		_operators.Add( _buffer!, 1.0f );
 
-		_operators.AddTo( _buffer!, output, 4.0f );
+		_operators.Add( _buffer!, output, 4.0f );
 
 		Assert.That( output[ 4, 4 ], Is.EqualTo( 5.0f ) );
 		Assert.That( _buffer![ 4, 4 ], Is.EqualTo( 1.0f ) );
@@ -397,7 +420,7 @@ public sealed class NumericBufferOperatorTests {
 		_operators.Add( buffer, 1.0f );
 		var output = new TestNumericBuffer( 3, 3 );
 
-		_operators.AddTo( buffer, output, 4.0f );
+		_operators.Add( buffer, output, 4.0f );
 
 		Assert.That( output[ 2, 2 ], Is.EqualTo( 5.0f ) );
 		Assert.That( buffer[ 2, 2 ], Is.EqualTo( 1.0f ) );
@@ -408,7 +431,7 @@ public sealed class NumericBufferOperatorTests {
 		INumericBuffer<float> output = _bufferFactory.Create( 10, 10, 0.0f );
 		_operators.Add( _buffer!, 10.0f );
 
-		_operators.SubtractTo( _buffer!, output, 4.0f );
+		_operators.Subtract( _buffer!, output, 4.0f );
 
 		Assert.That( output[ 4, 4 ], Is.EqualTo( 6.0f ) );
 		Assert.That( _buffer![ 4, 4 ], Is.EqualTo( 10.0f ) );
@@ -420,7 +443,7 @@ public sealed class NumericBufferOperatorTests {
 		_operators.Add( buffer, 10.0f );
 		var output = new TestNumericBuffer( 3, 3 );
 
-		_operators.SubtractTo( buffer, output, 4.0f );
+		_operators.Subtract( buffer, output, 4.0f );
 
 		Assert.That( output[ 2, 2 ], Is.EqualTo( 6.0f ) );
 		Assert.That( buffer[ 2, 2 ], Is.EqualTo( 10.0f ) );
@@ -431,7 +454,7 @@ public sealed class NumericBufferOperatorTests {
 		INumericBuffer<float> output = _bufferFactory.Create( 10, 10, 0.0f );
 		_operators.Add( _buffer!, 2.0f );
 
-		_operators.MultiplyTo( _buffer!, output, 3.0f );
+		_operators.Multiply( _buffer!, output, 3.0f );
 
 		Assert.That( output[ 4, 4 ], Is.EqualTo( 6.0f ) );
 		Assert.That( _buffer![ 4, 4 ], Is.EqualTo( 2.0f ) );
@@ -443,7 +466,7 @@ public sealed class NumericBufferOperatorTests {
 		_operators.Add( buffer, 2.0f );
 		var output = new TestNumericBuffer( 3, 3 );
 
-		_operators.MultiplyTo( buffer, output, 3.0f );
+		_operators.Multiply( buffer, output, 3.0f );
 
 		Assert.That( output[ 2, 2 ], Is.EqualTo( 6.0f ) );
 		Assert.That( buffer[ 2, 2 ], Is.EqualTo( 2.0f ) );
@@ -454,7 +477,7 @@ public sealed class NumericBufferOperatorTests {
 		INumericBuffer<float> output = _bufferFactory.Create( 10, 10, 0.0f );
 		_operators.Add( _buffer!, 6.0f );
 
-		_operators.DivideTo( _buffer!, output, 3.0f );
+		_operators.Divide( _buffer!, output, 3.0f );
 
 		Assert.That( output[ 4, 4 ], Is.EqualTo( 2.0f ) );
 		Assert.That( _buffer![ 4, 4 ], Is.EqualTo( 6.0f ) );
@@ -466,20 +489,20 @@ public sealed class NumericBufferOperatorTests {
 		_operators.Add( buffer, 6.0f );
 		var output = new TestNumericBuffer( 3, 3 );
 
-		_operators.DivideTo( buffer, output, 3.0f );
+		_operators.Divide( buffer, output, 3.0f );
 
 		Assert.That( output[ 2, 2 ], Is.EqualTo( 2.0f ) );
 		Assert.That( buffer[ 2, 2 ], Is.EqualTo( 6.0f ) );
 	}
 
 	[Test]
-	public void NormalizeTo_NumericBuffer_DestinationSet() {
+	public void Normalize_SourceAndDestination_DestinationSet() {
 		INumericBuffer<float> output = _bufferFactory.Create( 10, 10, 0.0f );
 		_operators.Add( _buffer!, 6.0f );
 		_buffer![ 0, 0 ] = 1.0f;
 		_buffer![ 9, 9 ] = 10.0f;
 
-		_operators.NormalizeTo( _buffer!, output );
+		_operators.Normalize( _buffer!, output );
 
 		Assert.That( output[ 0, 0 ], Is.Zero );
 		Assert.That( output[ 9, 9 ], Is.EqualTo( 1.0f ) );
@@ -488,14 +511,41 @@ public sealed class NumericBufferOperatorTests {
 	}
 
 	[Test]
-	public void NormalizeTo_UniformBuffer_DestinationCleared() {
+	public void Normalize_UniformSourceAndDestination_DestinationCleared() {
 		INumericBuffer<float> output = _bufferFactory.Create( 10, 10, -1.0f );
 		_operators.Add( _buffer!, 6.0f );
 
-		_operators.NormalizeTo( _buffer!, output );
+		_operators.Normalize( _buffer!, output );
 
 		Assert.That( output[ 0, 0 ], Is.EqualTo( 6.0f ) );
 		Assert.That( output[ 9, 9 ], Is.EqualTo( 6.0f ) );
+	}
+
+	[Test]
+	public void ScaleToRange_NumericBuffer_DestinationScaledToMaxValue() {
+		INumericBuffer<byte> source = _bufferFactory.Create( 10, 10, (byte) 0 );
+		INumericBuffer<byte> output = _bufferFactory.Create( 10, 10, (byte) 0 );
+		source[ 0, 0 ] = 0;
+		source[ 5, 5 ] = 128;
+		source[ 9, 9 ] = 255;
+
+		_operators.ScaleToRange( source, output );
+
+		Assert.That( output[ 0, 0 ], Is.EqualTo( 0 ) );
+		Assert.That( output[ 9, 9 ], Is.EqualTo( 255 ) );
+		Assert.That( source[ 0, 0 ], Is.EqualTo( 0 ) );
+		Assert.That( source[ 9, 9 ], Is.EqualTo( 255 ) );
+	}
+
+	[Test]
+	public void ScaleToRange_UniformBuffer_DestinationCleared() {
+		INumericBuffer<byte> source = _bufferFactory.Create( 10, 10, (byte) 42 );
+		INumericBuffer<byte> output = _bufferFactory.Create( 10, 10, (byte) 1 );
+
+		_operators.ScaleToRange( source, output );
+
+		Assert.That( output[ 0, 0 ], Is.EqualTo( 0 ) );
+		Assert.That( output[ 9, 9 ], Is.EqualTo( 0 ) );
 	}
 
 	private sealed class TestNumericBuffer : INumericBuffer<float> {
