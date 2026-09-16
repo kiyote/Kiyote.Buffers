@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 
 namespace Kiyote.Buffers.Numerics; 
 
@@ -9,8 +9,20 @@ public interface INumericBufferOperator : IBufferOperator {
 		T amount
 	) where T : struct, INumber<T>;
 
+	void AddTo<T>(
+		INumericBuffer<T> source,
+		INumericBuffer<T> destination,
+		T amount
+	) where T : struct, INumber<T>;
+
 	void Subtract<T>(
 		INumericBuffer<T> source,
+		T amount
+	) where T : struct, INumber<T>;
+
+	void SubtractTo<T>(
+		INumericBuffer<T> source,
+		INumericBuffer<T> destination,
 		T amount
 	) where T : struct, INumber<T>;
 
@@ -19,8 +31,20 @@ public interface INumericBufferOperator : IBufferOperator {
 		T amount
 	) where T : struct, INumber<T>;
 
+	void MultiplyTo<T>(
+		INumericBuffer<T> source,
+		INumericBuffer<T> destination,
+		T amount
+	) where T : struct, INumber<T>;
+
 	void Divide<T>(
 		INumericBuffer<T> source,
+		T amount
+	) where T : struct, INumber<T>;
+
+	void DivideTo<T>(
+		INumericBuffer<T> source,
+		INumericBuffer<T> destination,
 		T amount
 	) where T : struct, INumber<T>;
 
@@ -38,6 +62,11 @@ public interface INumericBufferOperator : IBufferOperator {
 
 	void Normalize<T>(
 		INumericBuffer<T> source
+	) where T : struct, INumber<T>;
+
+	void NormalizeTo<T>(
+		INumericBuffer<T> source,
+		INumericBuffer<T> destination
 	) where T : struct, INumber<T>;
 
 	void Clear<T>(

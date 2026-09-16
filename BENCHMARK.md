@@ -33,40 +33,31 @@ LaunchCount=1  WarmupCount=10
 | Perform_TwoInputAdd    | 3,085.4 μs |  82.06 μs |  76.76 μs |      22 B |
 
 ## NumericBufferOperator
-| Method          | Mean       | Error    | StdDev   | Allocated |
-|---------------- |-----------:|---------:|---------:|----------:|
-| Add_Float       |   296.3 μs | 26.30 μs | 21.96 μs |       3 B |
-| Add_Int         |   431.2 μs | 90.88 μs | 80.56 μs |       3 B |
-| Subtract_Float  |   460.5 μs | 53.24 μs | 47.19 μs |       6 B |
-| Subtract_Int    |   382.9 μs | 83.17 μs | 77.80 μs |       5 B |
-| Max_Float       |   764.5 μs | 37.21 μs | 34.80 μs |       6 B |
-| Max_Int         |   209.6 μs | 26.37 μs | 24.67 μs |       3 B |
-| Min_Float       |   693.4 μs | 18.41 μs | 15.38 μs |       6 B |
-| Min_Int         |   236.8 μs | 22.05 μs | 20.62 μs |       3 B |
-| MinMax_Float    |   877.0 μs | 75.37 μs | 66.81 μs |       6 B |
-| MinMax_Int      |   307.8 μs | 31.56 μs | 27.98 μs |       3 B |
-| Multiply_Float  |   276.4 μs | 39.59 μs | 37.04 μs |       3 B |
-| Multiply_Int    |   278.9 μs | 17.61 μs | 14.71 μs |       3 B |
-| Divide_Float    |   386.7 μs | 38.01 μs | 31.74 μs |       3 B |
-| Divide_Int      | 3,660.4 μs | 86.94 μs | 77.07 μs |      22 B |
-| Normalize_Float |   846.5 μs | 80.81 μs | 71.63 μs |       6 B |
-| Normalize_Int   |   315.2 μs | 33.51 μs | 31.35 μs |       2 B |
-
-## BufferAnalyzer
-| Method                       | Mean        | Error     | StdDev    | Allocated |
-|----------------------------- |------------:|----------:|----------:|----------:|
-| IsSealed_100x100_Delegate    |    141.7 us |   1.34 us |   1.19 us |         - |
-| IsSealed_1000x1000_Delegate  | 16,552.2 us | 105.80 us |  88.35 us |     114 B |
-| IsSealed_100x100_Predicate   |    129.5 us |   0.92 us |   0.82 us |       1 B |
-| IsSealed_1000x1000_Predicate | 14,052.1 us | 266.46 us | 249.24 us |      57 B |
-
-
-| Method                                 | Mean        | Error       | StdDev    | Gen0      | Gen1      | Gen2      | Allocated  |
-|--------------------------------------- |------------:|------------:|----------:|----------:|----------:|----------:|-----------:|
-| IsSealed_100x100_Delegate              |    179.0 us |     4.97 us |   4.65 us |         - |         - |         - |          - |
-| IsSealed_1000x1000_Delegate            | 18,720.1 us |   307.23 us | 287.38 us |         - |         - |         - |      124 B |
-| IsSealed_100x100_Predicate             |    184.5 us |     2.84 us |   2.66 us |         - |         - |         - |        1 B |
-| IsSealed_1000x1000_Predicate           | 20,267.5 us |   382.77 us | 358.04 us |         - |         - |         - |      124 B |
-| IsSealed_1200x1200_Predicate           | 29,815.6 us | 1,008.08 us | 893.63 us |         - |         - |         - |      124 B |
-| TryGetSealedArea_1000x1000_Predicate   | 27,165.0 us |   619.14 us | 579.14 us | 1937.5000 | 1937.5000 | 1937.5000 | 25174108 B |
-| TryVisitSealedArea_1000x1000_Predicate | 18,743.3 us |   109.33 us |  96.92 us |         - |         - |         - |      124 B |
+| Method            | Mean       | Error    | StdDev   | Allocated |
+|------------------ |-----------:|---------:|---------:|----------:|
+| Add_Float         |   335.4 us | 22.23 us | 20.79 us |         - |
+| Add_Int           |   317.7 us | 60.44 us | 56.54 us |       2 B |
+| AddTo_Float       |   698.0 us | 39.05 us | 36.53 us |       4 B |
+| AddTo_Int         |   681.7 us | 29.07 us | 27.20 us |       4 B |
+| Subtract_Float    |   259.5 us |  9.02 us |  7.04 us |       2 B |
+| Subtract_Int      |   289.4 us | 35.91 us | 33.59 us |       2 B |
+| SubtractTo_Float  |   832.7 us | 39.68 us | 37.11 us |       4 B |
+| SubtractTo_Int    |   813.5 us | 36.46 us | 34.11 us |       4 B |
+| Max_Float         |   704.5 us |  6.47 us |  5.41 us |       4 B |
+| Max_Int           |   200.2 us | 14.58 us | 12.18 us |       2 B |
+| Min_Float         |   705.3 us | 12.67 us | 10.58 us |       4 B |
+| Min_Int           |   207.9 us | 20.92 us | 19.57 us |       1 B |
+| MinMax_Float      |   931.7 us | 25.61 us | 23.96 us |       4 B |
+| MinMax_Int        |   304.3 us | 11.95 us | 11.17 us |       2 B |
+| Multiply_Float    |   260.8 us | 20.37 us | 19.06 us |       2 B |
+| Multiply_Int      |   309.8 us | 38.53 us | 36.04 us |       2 B |
+| MultiplyTo_Float  |   677.4 us | 21.73 us | 20.33 us |       4 B |
+| MultiplyTo_Int    |   642.7 us | 17.05 us | 13.31 us |       4 B |
+| Divide_Float      |   388.4 us | 67.34 us | 59.69 us |       1 B |
+| Divide_Int        | 3,859.2 us | 43.73 us | 38.77 us |      31 B |
+| DivideTo_Float    |   801.0 us | 26.73 us | 23.69 us |       4 B |
+| DivideTo_Int      | 3,711.1 us | 26.79 us | 23.75 us |      16 B |
+| Normalize_Float   |   815.8 us | 19.02 us | 15.89 us |       4 B |
+| Normalize_Int     |   222.3 us |  8.92 us |  7.45 us |       1 B |
+| NormalizeTo_Float | 1,503.2 us | 38.88 us | 32.47 us |       8 B |
+| NormalizeTo_Int   |   943.6 us | 24.70 us | 20.63 us |       4 B |

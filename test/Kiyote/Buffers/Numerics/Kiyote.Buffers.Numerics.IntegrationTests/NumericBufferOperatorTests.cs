@@ -380,6 +380,124 @@ public sealed class NumericBufferOperatorTests {
 		Assert.That( output[ 2, 3 ], Is.EqualTo( 6.0f ) );
 	}
 
+	[Test]
+	public void AddTo_NumericBuffer_DestinationSet() {
+		INumericBuffer<float> output = _bufferFactory.Create( 10, 10, 0.0f );
+		_operators.Add( _buffer!, 1.0f );
+
+		_operators.AddTo( _buffer!, output, 4.0f );
+
+		Assert.That( output[ 4, 4 ], Is.EqualTo( 5.0f ) );
+		Assert.That( _buffer![ 4, 4 ], Is.EqualTo( 1.0f ) );
+	}
+
+	[Test]
+	public void AddTo_UnknownBuffer_DestinationSet() {
+		var buffer = new TestNumericBuffer( 3, 3 );
+		_operators.Add( buffer, 1.0f );
+		var output = new TestNumericBuffer( 3, 3 );
+
+		_operators.AddTo( buffer, output, 4.0f );
+
+		Assert.That( output[ 2, 2 ], Is.EqualTo( 5.0f ) );
+		Assert.That( buffer[ 2, 2 ], Is.EqualTo( 1.0f ) );
+	}
+
+	[Test]
+	public void SubtractTo_NumericBuffer_DestinationSet() {
+		INumericBuffer<float> output = _bufferFactory.Create( 10, 10, 0.0f );
+		_operators.Add( _buffer!, 10.0f );
+
+		_operators.SubtractTo( _buffer!, output, 4.0f );
+
+		Assert.That( output[ 4, 4 ], Is.EqualTo( 6.0f ) );
+		Assert.That( _buffer![ 4, 4 ], Is.EqualTo( 10.0f ) );
+	}
+
+	[Test]
+	public void SubtractTo_UnknownBuffer_DestinationSet() {
+		var buffer = new TestNumericBuffer( 3, 3 );
+		_operators.Add( buffer, 10.0f );
+		var output = new TestNumericBuffer( 3, 3 );
+
+		_operators.SubtractTo( buffer, output, 4.0f );
+
+		Assert.That( output[ 2, 2 ], Is.EqualTo( 6.0f ) );
+		Assert.That( buffer[ 2, 2 ], Is.EqualTo( 10.0f ) );
+	}
+
+	[Test]
+	public void MultiplyTo_NumericBuffer_DestinationSet() {
+		INumericBuffer<float> output = _bufferFactory.Create( 10, 10, 0.0f );
+		_operators.Add( _buffer!, 2.0f );
+
+		_operators.MultiplyTo( _buffer!, output, 3.0f );
+
+		Assert.That( output[ 4, 4 ], Is.EqualTo( 6.0f ) );
+		Assert.That( _buffer![ 4, 4 ], Is.EqualTo( 2.0f ) );
+	}
+
+	[Test]
+	public void MultiplyTo_UnknownBuffer_DestinationSet() {
+		var buffer = new TestNumericBuffer( 3, 3 );
+		_operators.Add( buffer, 2.0f );
+		var output = new TestNumericBuffer( 3, 3 );
+
+		_operators.MultiplyTo( buffer, output, 3.0f );
+
+		Assert.That( output[ 2, 2 ], Is.EqualTo( 6.0f ) );
+		Assert.That( buffer[ 2, 2 ], Is.EqualTo( 2.0f ) );
+	}
+
+	[Test]
+	public void DivideTo_NumericBuffer_DestinationSet() {
+		INumericBuffer<float> output = _bufferFactory.Create( 10, 10, 0.0f );
+		_operators.Add( _buffer!, 6.0f );
+
+		_operators.DivideTo( _buffer!, output, 3.0f );
+
+		Assert.That( output[ 4, 4 ], Is.EqualTo( 2.0f ) );
+		Assert.That( _buffer![ 4, 4 ], Is.EqualTo( 6.0f ) );
+	}
+
+	[Test]
+	public void DivideTo_UnknownBuffer_DestinationSet() {
+		var buffer = new TestNumericBuffer( 3, 3 );
+		_operators.Add( buffer, 6.0f );
+		var output = new TestNumericBuffer( 3, 3 );
+
+		_operators.DivideTo( buffer, output, 3.0f );
+
+		Assert.That( output[ 2, 2 ], Is.EqualTo( 2.0f ) );
+		Assert.That( buffer[ 2, 2 ], Is.EqualTo( 6.0f ) );
+	}
+
+	[Test]
+	public void NormalizeTo_NumericBuffer_DestinationSet() {
+		INumericBuffer<float> output = _bufferFactory.Create( 10, 10, 0.0f );
+		_operators.Add( _buffer!, 6.0f );
+		_buffer![ 0, 0 ] = 1.0f;
+		_buffer![ 9, 9 ] = 10.0f;
+
+		_operators.NormalizeTo( _buffer!, output );
+
+		Assert.That( output[ 0, 0 ], Is.Zero );
+		Assert.That( output[ 9, 9 ], Is.EqualTo( 1.0f ) );
+		Assert.That( _buffer![ 0, 0 ], Is.EqualTo( 1.0f ) );
+		Assert.That( _buffer![ 9, 9 ], Is.EqualTo( 10.0f ) );
+	}
+
+	[Test]
+	public void NormalizeTo_UniformBuffer_DestinationCleared() {
+		INumericBuffer<float> output = _bufferFactory.Create( 10, 10, -1.0f );
+		_operators.Add( _buffer!, 6.0f );
+
+		_operators.NormalizeTo( _buffer!, output );
+
+		Assert.That( output[ 0, 0 ], Is.EqualTo( 6.0f ) );
+		Assert.That( output[ 9, 9 ], Is.EqualTo( 6.0f ) );
+	}
+
 	private sealed class TestNumericBuffer : INumericBuffer<float> {
 
 		private readonly float[][] _content;

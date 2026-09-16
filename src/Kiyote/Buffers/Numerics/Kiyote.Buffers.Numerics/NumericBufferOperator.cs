@@ -57,6 +57,38 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		}
 	}
 
+	void INumericBufferOperator.AddTo<T>(
+		INumericBuffer<T> source,
+		INumericBuffer<T> destination,
+		T amount
+	) {
+		int rows = source.Rows;
+		if( source is NumericBuffer<T> numericBuffer
+			&& destination is NumericBuffer<T> numericDestination
+		) {
+			Vector<T> amounts = Vector.Create( amount );
+			int opCount = numericBuffer.OpCount;
+
+			for( int row = 0; row < rows; row++ ) {
+				Span<Vector<T>> vsource = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
+				Span<Vector<T>> vdestination = MemoryMarshal.Cast<T, Vector<T>>( numericDestination.Content[ row ].AsSpan() );
+
+				for( int i = 0; i < opCount; i++ ) {
+					vdestination[ i ] = vsource[ i ] + amounts;
+				}
+			}
+		} else {
+			int columns = source.Columns;
+			for( int row = 0; row < rows; row++ ) {
+				Span<T> content = source.GetRowSpan( row );
+				Span<T> target = destination.GetRowSpan( row );
+				for( int col = 0; col < columns; col++ ) {
+					target[ col ] = content[ col ] + amount;
+				}
+			}
+		}
+	}
+
 	void INumericBufferOperator.Subtract<T>(
 		INumericBuffer<T> source,
 		T amount
@@ -79,6 +111,38 @@ internal class NumericBufferOperator : INumericBufferOperator {
 				Span<T> content = source.GetRowSpan( row );
 				for( int col = 0; col < columns; col++ ) {
 					content[ col ] -= amount;
+				}
+			}
+		}
+	}
+
+	void INumericBufferOperator.SubtractTo<T>(
+		INumericBuffer<T> source,
+		INumericBuffer<T> destination,
+		T amount
+	) {
+		int rows = source.Rows;
+		if( source is NumericBuffer<T> numericBuffer
+			&& destination is NumericBuffer<T> numericDestination
+		) {
+			Vector<T> amounts = Vector.Create( amount );
+			int opCount = numericBuffer.OpCount;
+
+			for( int row = 0; row < rows; row++ ) {
+				Span<Vector<T>> vsource = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
+				Span<Vector<T>> vdestination = MemoryMarshal.Cast<T, Vector<T>>( numericDestination.Content[ row ].AsSpan() );
+
+				for( int i = 0; i < opCount; i++ ) {
+					vdestination[ i ] = vsource[ i ] - amounts;
+				}
+			}
+		} else {
+			int columns = source.Columns;
+			for( int row = 0; row < rows; row++ ) {
+				Span<T> content = source.GetRowSpan( row );
+				Span<T> target = destination.GetRowSpan( row );
+				for( int col = 0; col < columns; col++ ) {
+					target[ col ] = content[ col ] - amount;
 				}
 			}
 		}
@@ -111,6 +175,38 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		}
 	}
 
+	void INumericBufferOperator.MultiplyTo<T>(
+		INumericBuffer<T> source,
+		INumericBuffer<T> destination,
+		T amount
+	) {
+		int rows = source.Rows;
+		if( source is NumericBuffer<T> numericBuffer
+			&& destination is NumericBuffer<T> numericDestination
+		) {
+			Vector<T> amounts = Vector.Create( amount );
+			int opCount = numericBuffer.OpCount;
+
+			for( int row = 0; row < rows; row++ ) {
+				Span<Vector<T>> vsource = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
+				Span<Vector<T>> vdestination = MemoryMarshal.Cast<T, Vector<T>>( numericDestination.Content[ row ].AsSpan() );
+
+				for( int i = 0; i < opCount; i++ ) {
+					vdestination[ i ] = vsource[ i ] * amounts;
+				}
+			}
+		} else {
+			int columns = source.Columns;
+			for( int row = 0; row < rows; row++ ) {
+				Span<T> content = source.GetRowSpan( row );
+				Span<T> target = destination.GetRowSpan( row );
+				for( int col = 0; col < columns; col++ ) {
+					target[ col ] = content[ col ] * amount;
+				}
+			}
+		}
+	}
+
 	void INumericBufferOperator.Divide<T>(
 		INumericBuffer<T> source,
 		T amount
@@ -133,6 +229,38 @@ internal class NumericBufferOperator : INumericBufferOperator {
 				Span<T> content = source.GetRowSpan( row );
 				for( int col = 0; col < columns; col++ ) {
 					content[ col ] /= amount;
+				}
+			}
+		}
+	}
+
+	void INumericBufferOperator.DivideTo<T>(
+		INumericBuffer<T> source,
+		INumericBuffer<T> destination,
+		T amount
+	) {
+		int rows = source.Rows;
+		if( source is NumericBuffer<T> numericBuffer
+			&& destination is NumericBuffer<T> numericDestination
+		) {
+			Vector<T> amounts = Vector.Create( amount );
+			int opCount = numericBuffer.OpCount;
+
+			for( int row = 0; row < rows; row++ ) {
+				Span<Vector<T>> vsource = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
+				Span<Vector<T>> vdestination = MemoryMarshal.Cast<T, Vector<T>>( numericDestination.Content[ row ].AsSpan() );
+
+				for( int i = 0; i < opCount; i++ ) {
+					vdestination[ i ] = vsource[ i ] / amounts;
+				}
+			}
+		} else {
+			int columns = source.Columns;
+			for( int row = 0; row < rows; row++ ) {
+				Span<T> content = source.GetRowSpan( row );
+				Span<T> target = destination.GetRowSpan( row );
+				for( int col = 0; col < columns; col++ ) {
+					target[ col ] = content[ col ] / amount;
 				}
 			}
 		}
@@ -325,6 +453,21 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		}
 		op.Subtract( source, min );
 		op.Divide( source, range );
+	}
+
+	void INumericBufferOperator.NormalizeTo<T>(
+		INumericBuffer<T> source,
+		INumericBuffer<T> destination
+	) {
+		INumericBufferOperator op = this;
+		(T min, T max) = op.MinMax( source );
+		T range = max - min;
+		if( range == T.Zero ) {
+			op.Clear( destination, source[ 0, 0 ] );
+			return;
+		}
+		op.SubtractTo( source, destination, min );
+		op.Divide( destination, range );
 	}
 
 
