@@ -69,10 +69,12 @@ public interface INumericBufferOperator : IBufferOperator {
 		INumericBuffer<T> destination
 	) where T : struct, INumber<T>;
 
-	void ScaleToRange<T>(
-		INumericBuffer<T> source,
-		INumericBuffer<T> destination
-	) where T : struct, INumber<T>, IMinMaxValue<T>;
+	void ScaleToRange<TSource, TDestination>(
+		INumericBuffer<TSource> source,
+		INumericBuffer<TDestination> destination
+	)
+		where TSource : struct, INumber<TSource>
+		where TDestination : struct, INumber<TDestination>, IMinMaxValue<TDestination>;
 
 	void Clear<T>(
 		INumericBuffer<T> source,

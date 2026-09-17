@@ -470,28 +470,30 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		op.Divide( destination, range );
 	}
 
-	void INumericBufferOperator.ScaleToRange<T>(
-		INumericBuffer<T> source,
-		INumericBuffer<T> destination
+	void INumericBufferOperator.ScaleToRange<TSource, TDestination>(
+		INumericBuffer<TSource> source,
+		INumericBuffer<TDestination> destination
 	) {
 		INumericBufferOperator op = this;
-		(T min, T max) = op.MinMax( source );
-		T range = max - min;
-		if( range == T.Zero ) {
-			op.Clear( destination, T.Zero );
+		(TSource min, TSource max) = op.MinMax( source );
+		TSource range = max - min;
+		if( range == TSource.Zero ) {
+			op.Clear( destination, TDestination.Zero );
 			return;
 		}
 
 		double doubleRange = double.CreateChecked( range );
-		double doubleMax = double.CreateChecked( T.MaxValue );
+		double doubleDestinationMin = double.CreateChecked( TDestination.MinValue );
+		double doubleDestinationMax = double.CreateChecked( TDestination.MaxValue );
+		double doubleDestinationRange = doubleDestinationMax - doubleDestinationMin;
 		int rows = source.Rows;
 		int columns = source.Columns;
 		for( int row = 0; row < rows; row++ ) {
-			Span<T> content = source.GetRowSpan( row );
-			Span<T> target = destination.GetRowSpan( row );
+			Span<TSource> content = source.GetRowSpan( row );
+			Span<TDestination> target = destination.GetRowSpan( row );
 			for( int col = 0; col < columns; col++ ) {
-				double normalized = double.CreateChecked( content[ col ] - min ) / doubleRange * doubleMax;
-				target[ col ] = T.CreateSaturating( normalized );
+				double normalized = ( double.CreateChecked( content[ col ] - min ) / doubleRange * doubleDestinationRange ) + doubleDestinationMin;
+				target[ col ] = TDestination.CreateSaturating( normalized );
 			}
 		}
 	}

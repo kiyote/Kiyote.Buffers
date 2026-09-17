@@ -548,6 +548,21 @@ public sealed class NumericBufferOperatorTests {
 		Assert.That( output[ 9, 9 ], Is.EqualTo( 0 ) );
 	}
 
+	[Test]
+	public void ScaleToRange_DoubleSourceByteDestination_DestinationScaledToMaxValue() {
+		INumericBuffer<double> source = _bufferFactory.Create( 10, 10, 0.0 );
+		INumericBuffer<byte> output = _bufferFactory.Create( 10, 10, (byte) 0 );
+		source[ 0, 0 ] = -10.0;
+		source[ 5, 5 ] = 0.0;
+		source[ 9, 9 ] = 10.0;
+
+		_operators.ScaleToRange( source, output );
+
+		Assert.That( output[ 0, 0 ], Is.EqualTo( 0 ) );
+		Assert.That( output[ 5, 5 ], Is.EqualTo( 127 ) );
+		Assert.That( output[ 9, 9 ], Is.EqualTo( 255 ) );
+	}
+
 	private sealed class TestNumericBuffer : INumericBuffer<float> {
 
 		private readonly float[][] _content;
