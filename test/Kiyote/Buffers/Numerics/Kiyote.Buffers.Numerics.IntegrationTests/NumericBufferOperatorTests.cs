@@ -11,7 +11,7 @@ public sealed class NumericBufferOperatorTests {
 	[OneTimeSetUp]
 	public void OneTimeSetUp() {
 		var services = new ServiceCollection();
-		_ = services.AddNumericBuffers();
+		_ = services.AddRaggedNumericBuffers();
 
 		_provider = services.BuildServiceProvider();
 	}

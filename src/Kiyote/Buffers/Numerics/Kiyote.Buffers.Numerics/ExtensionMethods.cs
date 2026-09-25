@@ -13,7 +13,7 @@ public static class ExtensionMethods {
 		return services;
 	}
 
-	public static IServiceCollection AddRaggedNumericBuffes(
+	public static IServiceCollection AddRaggedNumericBuffers(
 		this IServiceCollection services
 	) {
 		services
@@ -23,7 +23,7 @@ public static class ExtensionMethods {
 		return services;
 	}
 
-	public static IServiceCollection AddFlatNumericBuffes(
+	public static IServiceCollection AddFlatNumericBuffers(
 		this IServiceCollection services
 	) {
 		services
