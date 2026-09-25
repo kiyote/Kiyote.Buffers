@@ -12,7 +12,7 @@ public class BufferOperatorUnitTests {
 
 	[Test]
 	public void Create_ValidDimensions_BufferCreated() {
-		IBufferFactory bufferFactory = new ArrayBufferFactory();
+		IBufferFactory bufferFactory = new RaggedArrayBufferFactory();
 
 		IBuffer<int> buffer = bufferFactory.Create<int>( 3, 2, 7 );
 
@@ -23,13 +23,13 @@ public class BufferOperatorUnitTests {
 
 	[Test]
 	public void Perform_SingleBuffer_ValuesIteratedCorrectly() {
-		ArrayBuffer<int> input = new( 2, 2, 0 );
+		RaggedArrayBuffer<int> input = new( 2, 2, 0 );
 		input[ 0, 0 ] = 1;
 		input[ 1, 0 ] = 2;
 		input[ 0, 1 ] = 3;
 		input[ 1, 1 ] = 4;
 
-		ArrayBuffer<int> output = new( 2, 2, 0 );
+		RaggedArrayBuffer<int> output = new( 2, 2, 0 );
 		_bufferOperator.Perform(
 			input,
 			value => {
@@ -47,19 +47,19 @@ public class BufferOperatorUnitTests {
 
 	[Test]
 	public void Perform_MultiBuffer_ValuesIteratedCorrectly() {
-		ArrayBuffer<int> input1 = new( 2, 2, 0 );
+		RaggedArrayBuffer<int> input1 = new( 2, 2, 0 );
 		input1[ 0, 0 ] = 1;
 		input1[ 1, 0 ] = 2;
 		input1[ 0, 1 ] = 3;
 		input1[ 1, 1 ] = 4;
 
-		ArrayBuffer<int> input2 = new( 2, 2, 0 );
+		RaggedArrayBuffer<int> input2 = new( 2, 2, 0 );
 		input2[ 0, 0 ] = 1;
 		input2[ 1, 0 ] = 2;
 		input2[ 0, 1 ] = 3;
 		input2[ 1, 1 ] = 4;
 
-		ArrayBuffer<int> output = new( 2, 2, 0 );
+		RaggedArrayBuffer<int> output = new( 2, 2, 0 );
 		_bufferOperator.Perform(
 			input1,
 			input2,
@@ -78,13 +78,13 @@ public class BufferOperatorUnitTests {
 
 	[Test]
 	public void Perform_SourceBufferAndLocation_ValuesIteratedCorrectly() {
-		ArrayBuffer<int> input = new( 2, 2, 0 );
+		RaggedArrayBuffer<int> input = new( 2, 2, 0 );
 		input[ 0, 0 ] = 1;
 		input[ 1, 0 ] = 2;
 		input[ 0, 1 ] = 3;
 		input[ 1, 1 ] = 4;
 
-		ArrayBuffer<int> output = new( 2, 2, 0 );
+		RaggedArrayBuffer<int> output = new( 2, 2, 0 );
 		_bufferOperator.Perform(
 			input,
 			( column, row, source, value ) => {
@@ -102,13 +102,13 @@ public class BufferOperatorUnitTests {
 
 	[Test]
 	public void Perform_DifferingOutputType_ValuesIteratedCorrectly() {
-		ArrayBuffer<int> input = new( 2, 2, 0 );
+		RaggedArrayBuffer<int> input = new( 2, 2, 0 );
 		input[ 0, 0 ] = 1;
 		input[ 1, 0 ] = 2;
 		input[ 0, 1 ] = 3;
 		input[ 1, 1 ] = 4;
 
-		ArrayBuffer<string> output = new( 2, 2, "" );
+		RaggedArrayBuffer<string> output = new( 2, 2, "" );
 		_bufferOperator.Perform(
 			input,
 			( column, row, value ) => {
@@ -126,9 +126,9 @@ public class BufferOperatorUnitTests {
 
 	[Test]
 	public void Perform_BufferSizesDiffer_ThrowsException() {
-		ArrayBuffer<int> input1 = new( 2, 2, 0 );
-		ArrayBuffer<int> input2 = new( 3, 3, 0 );
-		ArrayBuffer<int> output = new( 4, 4, 0 );
+		RaggedArrayBuffer<int> input1 = new( 2, 2, 0 );
+		RaggedArrayBuffer<int> input2 = new( 3, 3, 0 );
+		RaggedArrayBuffer<int> output = new( 4, 4, 0 );
 
 		Assert.That(
 			() => {

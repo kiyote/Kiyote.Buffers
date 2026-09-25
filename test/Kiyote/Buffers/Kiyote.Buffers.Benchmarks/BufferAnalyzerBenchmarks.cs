@@ -1,14 +1,13 @@
 using BenchmarkDotNet.Attributes;
-using Microsoft.Diagnostics.Tracing;
 
 namespace Kiyote.Buffers.Benchmarks;
 
-[MemoryDiagnoser]
+[MemoryDiagnoser( displayGenColumns: false )]
 public class BufferAnalyzerBenchmarks {
 
-	private readonly ArrayBuffer<bool> _buffer100;
-	private readonly ArrayBuffer<bool> _buffer1000;
-	private readonly ArrayBuffer<bool> _buffer1200;
+	private readonly RaggedArrayBuffer<bool> _buffer100;
+	private readonly RaggedArrayBuffer<bool> _buffer1000;
+	private readonly RaggedArrayBuffer<bool> _buffer1200;
 
 	private readonly IBufferAnalyzer _analyzer;
 
@@ -17,16 +16,16 @@ public class BufferAnalyzerBenchmarks {
 	public BufferAnalyzerBenchmarks() {
 		_analyzer = new BufferAnalyzer();
 		_boolPassable = new BoolPassable();
-		_buffer100 = new ArrayBuffer<bool>( 100, 100, true );
+		_buffer100 = new RaggedArrayBuffer<bool>( 100, 100, true );
 		SealBuffer( _buffer100 );
-		_buffer1000 = new ArrayBuffer<bool>( 1000, 1000, true );
+		_buffer1000 = new RaggedArrayBuffer<bool>( 1000, 1000, true );
 		SealBuffer( _buffer1000 );
-		_buffer1200 = new ArrayBuffer<bool>( 1200, 1200, true );
+		_buffer1200 = new RaggedArrayBuffer<bool>( 1200, 1200, true );
 		SealBuffer( _buffer1200 );
 	}
 
 	private static void SealBuffer(
-		ArrayBuffer<bool> buffer
+		RaggedArrayBuffer<bool> buffer
 	) {
 		// Top
 		for (int i = 0; i < buffer.Columns; i++ ) {

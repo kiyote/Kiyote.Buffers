@@ -12,7 +12,7 @@ public sealed class BufferAnalyzerUnitTests {
 
 	[Test]
 	public void IsSealed_SealedArea_ReturnsTrue() {
-		ArrayBuffer<bool> buffer = new ArrayBuffer<bool>( 5, 5, true );
+		RaggedArrayBuffer<bool> buffer = new RaggedArrayBuffer<bool>( 5, 5, true );
 
 		buffer[ 1, 1 ] = false;
 		buffer[ 2, 1 ] = false;
@@ -30,7 +30,7 @@ public sealed class BufferAnalyzerUnitTests {
 
 	[Test]
 	public void IsSealed_UnsealedArea_ReturnsFalse() {
-		ArrayBuffer<bool> buffer = new ArrayBuffer<bool>( 5, 5, true );
+		RaggedArrayBuffer<bool> buffer = new RaggedArrayBuffer<bool>( 5, 5, true );
 
 		buffer[ 1, 1 ] = false;
 		buffer[ 2, 1 ] = true;
@@ -48,7 +48,7 @@ public sealed class BufferAnalyzerUnitTests {
 
 	[Test]
 	public void IsSealed_ImpassableStart_ReturnsTrue() {
-		ArrayBuffer<bool> buffer = new ArrayBuffer<bool>( 5, 5, true );
+		RaggedArrayBuffer<bool> buffer = new RaggedArrayBuffer<bool>( 5, 5, true );
 
 		buffer[ 2, 2 ] = false;
 
@@ -59,7 +59,7 @@ public sealed class BufferAnalyzerUnitTests {
 
 	[Test]
 	public void IsSealed_StructPassable_SealedArea_ReturnsTrue() {
-		ArrayBuffer<bool> buffer = BuildSealedBuffer();
+		RaggedArrayBuffer<bool> buffer = BuildSealedBuffer();
 
 		bool result = _analyzer.IsSealed( buffer, 2, 2, new BoolPassable() );
 
@@ -68,7 +68,7 @@ public sealed class BufferAnalyzerUnitTests {
 
 	[Test]
 	public void IsSealed_StructPassable_UnsealedArea_ReturnsFalse() {
-		ArrayBuffer<bool> buffer = BuildSealedBuffer();
+		RaggedArrayBuffer<bool> buffer = BuildSealedBuffer();
 		buffer[ 2, 1 ] = true;
 
 		bool result = _analyzer.IsSealed( buffer, 2, 2, new BoolPassable() );
@@ -78,7 +78,7 @@ public sealed class BufferAnalyzerUnitTests {
 
 	[Test]
 	public void TryGetSealedArea_SingleCellArea_ReturnsCell() {
-		ArrayBuffer<bool> buffer = BuildSealedBuffer();
+		RaggedArrayBuffer<bool> buffer = BuildSealedBuffer();
 
 		bool result = _analyzer.TryGetSealedArea(
 			buffer,
@@ -97,7 +97,7 @@ public sealed class BufferAnalyzerUnitTests {
 	[Test]
 	public void TryGetSealedArea_MultiCellArea_ReturnsAllCells() {
 		// A 5x3 room carved out of a 7x5 wall of impassable cells
-		ArrayBuffer<bool> buffer = new ArrayBuffer<bool>( 7, 5, false );
+		RaggedArrayBuffer<bool> buffer = new RaggedArrayBuffer<bool>( 7, 5, false );
 		for( int r = 1; r <= 3; r++ ) {
 			for( int c = 1; c <= 5; c++ ) {
 				buffer[ c, r ] = true;
@@ -129,7 +129,7 @@ public sealed class BufferAnalyzerUnitTests {
 	[Test]
 	public void TryGetSealedArea_ValuesMatchBuffer() {
 		// Distinct values so the reported cell values can be verified by position
-		ArrayBuffer<int> buffer = new ArrayBuffer<int>( 5, 5, 0 );
+		RaggedArrayBuffer<int> buffer = new RaggedArrayBuffer<int>( 5, 5, 0 );
 		for( int r = 0; r < 5; r++ ) {
 			for( int c = 0; c < 5; c++ ) {
 				buffer[ c, r ] = ( r * 5 ) + c;
@@ -164,7 +164,7 @@ public sealed class BufferAnalyzerUnitTests {
 
 	[Test]
 	public void TryGetSealedArea_UnsealedArea_ReturnsFalseAndEmptyArea() {
-		ArrayBuffer<bool> buffer = BuildSealedBuffer();
+		RaggedArrayBuffer<bool> buffer = BuildSealedBuffer();
 		buffer[ 2, 1 ] = true;
 
 		bool result = _analyzer.TryGetSealedArea(
@@ -183,7 +183,7 @@ public sealed class BufferAnalyzerUnitTests {
 
 	[Test]
 	public void TryGetSealedArea_ImpassableStart_ReturnsTrueAndEmptyArea() {
-		ArrayBuffer<bool> buffer = new ArrayBuffer<bool>( 5, 5, true );
+		RaggedArrayBuffer<bool> buffer = new RaggedArrayBuffer<bool>( 5, 5, true );
 
 		buffer[ 2, 2 ] = false;
 
@@ -203,7 +203,7 @@ public sealed class BufferAnalyzerUnitTests {
 
 	[Test]
 	public void TryGetSealedArea_StructPassable_SealedArea_ReturnsCells() {
-		ArrayBuffer<bool> buffer = BuildSealedBuffer();
+		RaggedArrayBuffer<bool> buffer = BuildSealedBuffer();
 
 		bool result = _analyzer.TryGetSealedArea(
 			buffer,
@@ -221,7 +221,7 @@ public sealed class BufferAnalyzerUnitTests {
 
 	[Test]
 	public void TryGetSealedArea_StructPassable_UnsealedArea_ReturnsFalseAndEmptyArea() {
-		ArrayBuffer<bool> buffer = BuildSealedBuffer();
+		RaggedArrayBuffer<bool> buffer = BuildSealedBuffer();
 		buffer[ 2, 1 ] = true;
 
 		bool result = _analyzer.TryGetSealedArea(
@@ -240,7 +240,7 @@ public sealed class BufferAnalyzerUnitTests {
 
 	[Test]
 	public void TryGetSealedArea_EntireBufferPassable_ReturnsFalse() {
-		ArrayBuffer<bool> buffer = new ArrayBuffer<bool>( 5, 5, true );
+		RaggedArrayBuffer<bool> buffer = new RaggedArrayBuffer<bool>( 5, 5, true );
 
 		bool result = _analyzer.TryGetSealedArea(
 			buffer,
@@ -259,7 +259,7 @@ public sealed class BufferAnalyzerUnitTests {
 	[Test]
 	public void TryGetSealedArea_RepeatedCalls_ReturnConsistentResults() {
 		// The fill relies on pooled state, so it must be correct across calls
-		ArrayBuffer<bool> buffer = BuildSealedBuffer();
+		RaggedArrayBuffer<bool> buffer = BuildSealedBuffer();
 
 		for( int i = 0; i < 5; i++ ) {
 			bool result = _analyzer.TryGetSealedArea(
@@ -280,7 +280,7 @@ public sealed class BufferAnalyzerUnitTests {
 	[Test]
 	public void TryVisitSealedArea_SealedArea_VisitsEveryCell() {
 		// A 5x3 room carved out of a 7x5 wall of impassable cells
-		ArrayBuffer<bool> buffer = new ArrayBuffer<bool>( 7, 5, false );
+		RaggedArrayBuffer<bool> buffer = new RaggedArrayBuffer<bool>( 7, 5, false );
 		for( int r = 1; r <= 3; r++ ) {
 			for( int c = 1; c <= 5; c++ ) {
 				buffer[ c, r ] = true;
@@ -306,7 +306,7 @@ public sealed class BufferAnalyzerUnitTests {
 
 	[Test]
 	public void TryVisitSealedArea_UnsealedArea_ReturnsFalse() {
-		ArrayBuffer<bool> buffer = BuildSealedBuffer();
+		RaggedArrayBuffer<bool> buffer = BuildSealedBuffer();
 		buffer[ 2, 1 ] = true;
 
 		List<BufferCell<bool>> visited = [];
@@ -319,7 +319,7 @@ public sealed class BufferAnalyzerUnitTests {
 	[Test]
 	public void TryVisitSealedArea_MutationsVisibleToCaller() {
 		// The visitor is passed by ref, so state it accumulates must survive
-		ArrayBuffer<bool> buffer = BuildSealedBuffer();
+		RaggedArrayBuffer<bool> buffer = BuildSealedBuffer();
 
 		var visitor = new CountingVisitor();
 		bool result = _analyzer.TryVisitSealedArea( buffer, 2, 2, new BoolPassable(), ref visitor );
@@ -334,7 +334,7 @@ public sealed class BufferAnalyzerUnitTests {
 	public void IsSealed_BufferLargerThanPoolMaximum_ReturnsTrue() {
 		// 1200x1200 exceeds the 2^20 element ArrayPool bucket limit, which the
 		// chunked queue and bitset are designed to keep working
-		ArrayBuffer<bool> buffer = new ArrayBuffer<bool>( 1200, 1200, true );
+		RaggedArrayBuffer<bool> buffer = new RaggedArrayBuffer<bool>( 1200, 1200, true );
 		for( int i = 0; i < 1200; i++ ) {
 			buffer[ i, 1 ] = false;
 			buffer[ 1, i ] = false;
@@ -349,7 +349,7 @@ public sealed class BufferAnalyzerUnitTests {
 
 	[Test]
 	public void TryVisitSealedArea_LargeBuffer_VisitsExpectedCellCount() {
-		ArrayBuffer<bool> buffer = new ArrayBuffer<bool>( 1200, 1200, true );
+		RaggedArrayBuffer<bool> buffer = new RaggedArrayBuffer<bool>( 1200, 1200, true );
 		for( int i = 0; i < 1200; i++ ) {
 			buffer[ i, 1 ] = false;
 			buffer[ 1, i ] = false;
@@ -371,8 +371,8 @@ public sealed class BufferAnalyzerUnitTests {
 	/// Builds a 5x5 buffer whose only passable cell is 2,2, walled in by an
 	/// impassable ring.
 	/// </summary>
-	private static ArrayBuffer<bool> BuildSealedBuffer() {
-		ArrayBuffer<bool> buffer = new ArrayBuffer<bool>( 5, 5, true );
+	private static RaggedArrayBuffer<bool> BuildSealedBuffer() {
+		RaggedArrayBuffer<bool> buffer = new RaggedArrayBuffer<bool>( 5, 5, true );
 
 
 		buffer[ 1, 1 ] = false;

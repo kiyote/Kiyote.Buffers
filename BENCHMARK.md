@@ -8,13 +8,21 @@ Job=MediumRun  Toolchain=InProcessNoEmitToolchain  IterationCount=15
 LaunchCount=1  WarmupCount=10
 ```
 
-## ArrayBuffer
+## RaggedArrayBuffer
 | Method                 | Mean       | Error     | StdDev    | Allocated |
 |----------------------- |-----------:|----------:|----------:|----------:|
-| Perform_SingleInputSet |   857.3 μs | 364.12 μs | 340.60 μs |         - |
-| Perform_SingleInputAdd | 2,678.5 μs |  90.97 μs |  85.09 μs |      16 B |
-| Perform_TwoInputSet    |   939.8 μs | 141.78 μs | 132.62 μs |       8 B |
-| Perform_TwoInputAdd    | 3,094.0 μs |  45.25 μs |  40.11 μs |      16 B |
+| Perform_SingleInputSet |   644.6 us | 212.02 us | 198.32 us |         - |
+| Perform_SingleInputAdd | 2,689.2 us | 122.48 us | 114.57 us |      12 B |
+| Perform_TwoInputSet    |   868.9 us | 123.68 us | 115.69 us |       6 B |
+| Perform_TwoInputAdd    | 3,113.7 us |  33.45 us |  29.65 us |      12 B |
+
+## FlatArrayBuffer
+| Method                 | Mean     | Error     | StdDev    | Allocated |
+|----------------------- |---------:|----------:|----------:|----------:|
+| Perform_SingleInputSet | 2.559 ms | 0.0284 ms | 0.0265 ms |      18 B |
+| Perform_SingleInputAdd | 2.596 ms | 0.0600 ms | 0.0561 ms |      18 B |
+| Perform_TwoInputSet    | 3.110 ms | 0.0597 ms | 0.0558 ms |      18 B |
+| Perform_TwoInputAdd    | 3.097 ms | 0.0566 ms | 0.0501 ms |      17 B |
 
 ## BufferOperator
 | Method                          | Mean       | Error     | StdDev    | Allocated |
@@ -24,13 +32,21 @@ LaunchCount=1  WarmupCount=10
 | Perform_OneInputSourceReference | 1,184.8 μs |  82.44 μs |  77.11 μs |      11 B |
 | Perform_OneInputTransformOutput |   888.5 μs | 169.96 μs | 158.98 μs |      11 B |
 
-## NumericBuffer
-| Method                 | Mean       | Error     | StdDev    | Allocated |
-|----------------------- |-----------:|----------:|----------:|----------:|
-| Perform_SingleInputSet |   610.9 μs |  27.14 μs |  25.38 μs |       6 B |
-| Perform_SingleInputAdd | 3,004.5 μs |  97.73 μs |  91.41 μs |      22 B |
-| Perform_TwoInputSet    |   999.0 μs | 107.45 μs | 100.51 μs |      11 B |
-| Perform_TwoInputAdd    | 3,085.4 μs |  82.06 μs |  76.76 μs |      22 B |
+## RaggedNumericBuffer
+| Method                 | Mean       | Error     | StdDev   | Allocated |
+|----------------------- |-----------:|----------:|---------:|----------:|
+| Perform_SingleInputSet |   561.9 us |  27.99 us | 24.81 us |         - |
+| Perform_SingleInputAdd | 2,980.1 us |   6.46 us |  5.04 us |      12 B |
+| Perform_TwoInputSet    |   847.2 us | 101.26 us | 94.72 us |       6 B |
+| Perform_TwoInputAdd    | 2,641.5 us |  27.86 us | 24.70 us |      12 B |
+
+## FlatNumericBuffer
+| Method                 | Mean     | Error     | StdDev    | Allocated |
+|----------------------- |---------:|----------:|----------:|----------:|
+| Perform_SingleInputSet | 3.012 ms | 0.0200 ms | 0.0187 ms |      18 B |
+| Perform_SingleInputAdd | 3.216 ms | 0.0924 ms | 0.0864 ms |      17 B |
+| Perform_TwoInputSet    | 2.987 ms | 0.0766 ms | 0.0716 ms |      17 B |
+| Perform_TwoInputAdd    | 2.848 ms | 0.0252 ms | 0.0224 ms |      18 B |
 
 ## NumericBufferOperator
 | Method                       | Mean       | Error     | StdDev   | Allocated |

@@ -1,0 +1,47 @@
+using System.Numerics;
+
+namespace Kiyote.Buffers.Numerics;
+
+public sealed class RaggedNumericBuffer<T> : INumericBuffer<T> where T : struct, INumber<T> {
+
+	private readonly int _columns;
+	private readonly int _rows;
+	internal readonly T[][] Content;
+	private readonly int _allocWidth;
+	internal readonly int OpCount;
+
+	public RaggedNumericBuffer(
+		int columns,
+		int rows,
+		T defaultValue
+	) {
+		_columns = columns;
+		_rows = rows;
+		Content = new T[ rows ][];
+		if (columns % Vector<T>.Count == 0) {
+			_allocWidth = columns;
+		} else {
+			_allocWidth = ( ( columns / Vector<T>.Count ) + 1 ) * Vector<T>.Count;
+		}
+		OpCount = _allocWidth / Vector<T>.Count;
+		for( int i = 0; i < rows; i++ ) {
+			Content[ i ] = new T[ _allocWidth ];
+			if (defaultValue != default) {
+				Array.Fill( Content[ i ], defaultValue );
+			}
+		}
+	}
+
+	T IBuffer<T>.this[ int column, int row ] { get => Content[row][column]; set => Content[ row ][ column ] = value; }
+
+	int IBuffer<T>.Columns => _columns;
+
+	int IBuffer<T>.Rows => _rows;
+
+	Span<T> IBuffer<T>.GetRowSpan( int row ) {
+		// Rows are allocated wider than the logical column count so they can be
+		// processed as whole vectors; the padding must never be exposed.
+		return Content[ row ].AsSpan( 0, _columns );
+	}
+
+}

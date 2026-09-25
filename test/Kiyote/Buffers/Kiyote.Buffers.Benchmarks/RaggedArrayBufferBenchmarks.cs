@@ -1,20 +1,20 @@
 using BenchmarkDotNet.Attributes;
 
-namespace Kiyote.Buffers.Numerics.Benchmarks;
+namespace Kiyote.Buffers.Benchmarks;
 
 [MemoryDiagnoser]
-public class NumericBufferBenchmarks {
+public class RaggedArrayBufferBenchmarks {
 
-	private readonly NumericBuffer<int> _input1;
-	private readonly NumericBuffer<int> _input2;
-	private readonly NumericBuffer<int> _output;
+	private readonly RaggedArrayBuffer<int> _input1;
+	private readonly RaggedArrayBuffer<int> _input2;
+	private readonly RaggedArrayBuffer<int> _output;
 	private readonly IBufferOperator _op;
 
-	public NumericBufferBenchmarks() {
-		_input1 = new NumericBuffer<int>( 1000, 1000, 0 );
-		_input2 = new NumericBuffer<int>( 1000, 1000, 0 );
-		_output = new NumericBuffer<int>( 1000, 1000, 0 );
-		_op = new NumericBufferOperator();
+	public RaggedArrayBufferBenchmarks() {
+		_input1 = new RaggedArrayBuffer<int>( 1000, 1000, 0 );
+		_input2 = new RaggedArrayBuffer<int>( 1000, 1000, 0 );
+		_output = new RaggedArrayBuffer<int>( 1000, 1000, 0 );
+		_op = new BufferOperator();
 	}
 
 	[Benchmark]

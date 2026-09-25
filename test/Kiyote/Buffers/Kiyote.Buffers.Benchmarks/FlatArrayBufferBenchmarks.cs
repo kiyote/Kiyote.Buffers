@@ -2,18 +2,18 @@ using BenchmarkDotNet.Attributes;
 
 namespace Kiyote.Buffers.Benchmarks;
 
-[MemoryDiagnoser]
-public class ArrayBufferBenchmarks {
+[MemoryDiagnoser( displayGenColumns: false )]
+public class FlatArrayBufferBenchmarks {
 
-	private readonly ArrayBuffer<int> _input1;
-	private readonly ArrayBuffer<int> _input2;
-	private readonly ArrayBuffer<int> _output;
+	private readonly FlatArrayBuffer<int> _input1;
+	private readonly FlatArrayBuffer<int> _input2;
+	private readonly FlatArrayBuffer<int> _output;
 	private readonly IBufferOperator _op;
 
-	public ArrayBufferBenchmarks() {
-		_input1 = new ArrayBuffer<int>( 1000, 1000, 0 );
-		_input2 = new ArrayBuffer<int>( 1000, 1000, 0 );
-		_output = new ArrayBuffer<int>( 1000, 1000, 0 );
+	public FlatArrayBufferBenchmarks() {
+		_input1 = new FlatArrayBuffer<int>( 1000, 1000, 0 );
+		_input2 = new FlatArrayBuffer<int>( 1000, 1000, 0 );
+		_output = new FlatArrayBuffer<int>( 1000, 1000, 0 );
 		_op = new BufferOperator();
 	}
 

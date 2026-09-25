@@ -5,7 +5,7 @@ public class ArrayBufferUnitTests {
 
 	[Test]
 	public void GetRowSpan_ValidRow_LengthMatchesColumns() {
-		ArrayBuffer<int> buffer = new( 5, 3, 0 );
+		RaggedArrayBuffer<int> buffer = new( 5, 3, 0 );
 
 		Span<int> span = buffer.GetRowSpan( 1 );
 
@@ -14,7 +14,7 @@ public class ArrayBufferUnitTests {
 
 	[Test]
 	public void GetRowSpan_ValuesWritten_BufferUpdated() {
-		ArrayBuffer<int> buffer = new( 5, 3, 0 );
+		RaggedArrayBuffer<int> buffer = new( 5, 3, 0 );
 
 		Span<int> span = buffer.GetRowSpan( 1 );
 		span.Fill( 9 );
@@ -25,7 +25,7 @@ public class ArrayBufferUnitTests {
 
 	[Test]
 	public void GetRowSpan_ValuesWritten_OtherRowsUnchanged() {
-		ArrayBuffer<int> buffer = new( 5, 3, 0 );
+		RaggedArrayBuffer<int> buffer = new( 5, 3, 0 );
 
 		buffer.GetRowSpan( 1 ).Fill( 9 );
 
@@ -35,7 +35,7 @@ public class ArrayBufferUnitTests {
 
 	[Test]
 	public void GetRowSpan_ExistingValues_ValuesVisible() {
-		ArrayBuffer<int> buffer = new( 5, 3, 0 );
+		RaggedArrayBuffer<int> buffer = new( 5, 3, 0 );
 		buffer[ 2, 1 ] = 4;
 
 		Span<int> span = buffer.GetRowSpan( 1 );
@@ -45,7 +45,7 @@ public class ArrayBufferUnitTests {
 
 	[Test]
 	public void GetRowSpan_RowOutOfRange_ThrowsException() {
-		ArrayBuffer<int> buffer = new( 5, 3, 0 );
+		RaggedArrayBuffer<int> buffer = new( 5, 3, 0 );
 
 		Assert.Throws<IndexOutOfRangeException>( () => buffer.GetRowSpan( 3 ) );
 	}

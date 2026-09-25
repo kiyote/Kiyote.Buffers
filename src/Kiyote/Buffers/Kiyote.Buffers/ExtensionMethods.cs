@@ -9,8 +9,27 @@ public static class ExtensionMethods {
 		this IServiceCollection services
 	) {
 		services.TryAddSingleton<IBufferOperator, BufferOperator>();
-		services.TryAddSingleton<IBufferFactory, ArrayBufferFactory>();
 		services.TryAddSingleton<IBufferAnalyzer, BufferAnalyzer>();
+
+		return services;
+	}
+
+	public static IServiceCollection AddRaggedBuffers(
+		this IServiceCollection services
+	) {
+		services
+			.AddBuffers()
+			.TryAddSingleton<IBufferFactory, RaggedArrayBufferFactory>();
+
+		return services;
+	}
+
+	public static IServiceCollection AddFlatBuffers(
+		this IServiceCollection services
+	) {
+		services
+			.AddBuffers()
+			.TryAddSingleton<IBufferFactory, FlatArrayBufferFactory>();
 
 		return services;
 	}

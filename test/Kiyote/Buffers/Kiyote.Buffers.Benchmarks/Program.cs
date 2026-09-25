@@ -14,11 +14,13 @@ ManualConfig config = DefaultConfig.Instance
 
 BenchmarkSwitcher
 	.FromTypes( [
-		typeof( ArrayBufferBenchmarks ),
-		typeof( BufferOperatorBenchmarks ),
-		typeof( NumericBufferBenchmarks ),
-		typeof( NumericBufferOperatorBenchmarks ),
-		typeof( BufferAnalyzerBenchmarks )
+		//typeof( RaggedArrayBufferBenchmarks ),
+		//typeof( FlatArrayBufferBenchmarks ),
+		//typeof( BufferOperatorBenchmarks ),
+		typeof( RaggedNumericBufferBenchmarks ),
+		typeof( FlatNumericBufferBenchmarks ),
+		//typeof( NumericBufferOperatorBenchmarks ),
+		//typeof( BufferAnalyzerBenchmarks )
 	] )
 	.RunAll( config, args );
 

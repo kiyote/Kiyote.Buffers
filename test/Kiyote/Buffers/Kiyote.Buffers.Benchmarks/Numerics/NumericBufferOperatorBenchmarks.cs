@@ -5,17 +5,17 @@ namespace Kiyote.Buffers.Numerics.Benchmarks;
 [MemoryDiagnoser]
 public class NumericBufferOperatorBenchmarks {
 
-	private readonly NumericBuffer<float> _floatBuffer;
-	private readonly NumericBuffer<int> _intBuffer;
-	private readonly NumericBuffer<float> _floatDestination;
-	private readonly NumericBuffer<int> _intDestination;
+	private readonly RaggedNumericBuffer<float> _floatBuffer;
+	private readonly RaggedNumericBuffer<int> _intBuffer;
+	private readonly RaggedNumericBuffer<float> _floatDestination;
+	private readonly RaggedNumericBuffer<int> _intDestination;
 	private readonly INumericBufferOperator _operator;
 
 	public NumericBufferOperatorBenchmarks() {
-		_floatBuffer = new NumericBuffer<float>( 1920, 1080, 0.0f );		
-		_intBuffer = new NumericBuffer<int>( 1920, 1080, 0 );
-		_floatDestination = new NumericBuffer<float>( 1920, 1080, 0.0f );
-		_intDestination = new NumericBuffer<int>( 1920, 1080, 0 );
+		_floatBuffer = new RaggedNumericBuffer<float>( 1920, 1080, 0.0f );		
+		_intBuffer = new RaggedNumericBuffer<int>( 1920, 1080, 0 );
+		_floatDestination = new RaggedNumericBuffer<float>( 1920, 1080, 0.0f );
+		_intDestination = new RaggedNumericBuffer<int>( 1920, 1080, 0 );
 		_operator = new NumericBufferOperator();
 
 		_operator.Add( _floatBuffer, 10.0f );

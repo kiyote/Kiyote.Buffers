@@ -1,12 +1,12 @@
 namespace Kiyote.Buffers;
 
-public sealed class ArrayBuffer<T> : IBuffer<T> {
+public sealed class RaggedArrayBuffer<T> : IBuffer<T> {
 
 	private readonly T[][] _buffer;
 	private readonly int _columns;
 	private readonly int _rows;
 
-	public ArrayBuffer(
+	public RaggedArrayBuffer(
 		int columns,
 		int rows,
 		T defaultValue

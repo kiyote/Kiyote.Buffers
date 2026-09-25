@@ -10,7 +10,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		T value
 	) {
 		int rows = source.Rows;
-		if( source is NumericBuffer<T> numericBuffer ) {
+		if( source is RaggedNumericBuffer<T> numericBuffer ) {
 			Vector<T> values = Vector.Create( value );
 			int opCount = numericBuffer.OpCount;
 			for( int row = 0; row < rows; row++ ) {
@@ -35,7 +35,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		T amount
 	) {
 		int rows = source.Rows;
-		if( source is NumericBuffer<T> numericBuffer ) {
+		if( source is RaggedNumericBuffer<T> numericBuffer ) {
 			Vector<T> amounts = Vector.Create( amount );
 			int opCount = numericBuffer.OpCount;
 
@@ -63,8 +63,8 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		T amount
 	) {
 		int rows = source.Rows;
-		if( source is NumericBuffer<T> numericBuffer
-			&& destination is NumericBuffer<T> numericDestination
+		if( source is RaggedNumericBuffer<T> numericBuffer
+			&& destination is RaggedNumericBuffer<T> numericDestination
 		) {
 			Vector<T> amounts = Vector.Create( amount );
 			int opCount = numericBuffer.OpCount;
@@ -94,7 +94,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		T amount
 	) {
 		int rows = source.Rows;
-		if( source is NumericBuffer<T> numericBuffer ) {
+		if( source is RaggedNumericBuffer<T> numericBuffer ) {
 			Vector<T> amounts = Vector.Create( amount );
 			int opCount = numericBuffer.OpCount;
 
@@ -122,8 +122,8 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		T amount
 	) {
 		int rows = source.Rows;
-		if( source is NumericBuffer<T> numericBuffer
-			&& destination is NumericBuffer<T> numericDestination
+		if( source is RaggedNumericBuffer<T> numericBuffer
+			&& destination is RaggedNumericBuffer<T> numericDestination
 		) {
 			Vector<T> amounts = Vector.Create( amount );
 			int opCount = numericBuffer.OpCount;
@@ -153,7 +153,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		T amount
 	) {
 		int rows = source.Rows;
-		if( source is NumericBuffer<T> numericBuffer ) {
+		if( source is RaggedNumericBuffer<T> numericBuffer ) {
 			Vector<T> amounts = Vector.Create( amount );
 			int opCount = numericBuffer.OpCount;
 
@@ -181,8 +181,8 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		T amount
 	) {
 		int rows = source.Rows;
-		if( source is NumericBuffer<T> numericBuffer
-			&& destination is NumericBuffer<T> numericDestination
+		if( source is RaggedNumericBuffer<T> numericBuffer
+			&& destination is RaggedNumericBuffer<T> numericDestination
 		) {
 			Vector<T> amounts = Vector.Create( amount );
 			int opCount = numericBuffer.OpCount;
@@ -212,7 +212,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		T amount
 	) {
 		int rows = source.Rows;
-		if( source is NumericBuffer<T> numericBuffer ) {
+		if( source is RaggedNumericBuffer<T> numericBuffer ) {
 			Vector<T> amounts = Vector.Create( amount );
 			int opCount = numericBuffer.OpCount;
 
@@ -240,8 +240,8 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		T amount
 	) {
 		int rows = source.Rows;
-		if( source is NumericBuffer<T> numericBuffer
-			&& destination is NumericBuffer<T> numericDestination
+		if( source is RaggedNumericBuffer<T> numericBuffer
+			&& destination is RaggedNumericBuffer<T> numericDestination
 		) {
 			Vector<T> amounts = Vector.Create( amount );
 			int opCount = numericBuffer.OpCount;
@@ -272,7 +272,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		int rows = source.Rows;
 		int columns = source.Columns;
 		int vectorCount = columns / Vector<T>.Count;
-		if( source is NumericBuffer<T> numericBuffer
+		if( source is RaggedNumericBuffer<T> numericBuffer
 			&& vectorCount > 0 // Only use vectorization if we have at least one whole vector of real data
 		) {
 			int tailStart = vectorCount * Vector<T>.Count;
@@ -326,7 +326,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		int rows = source.Rows;
 		int columns = source.Columns;
 		int vectorCount = columns / Vector<T>.Count;
-		if( source is NumericBuffer<T> numericBuffer
+		if( source is RaggedNumericBuffer<T> numericBuffer
 			&& vectorCount > 0 // Only use vectorization if we have at least one whole vector of real data
 		) {
 			int tailStart = vectorCount * Vector<T>.Count;
@@ -380,7 +380,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		int rows = source.Rows;
 		int columns = source.Columns;
 		int vectorCount = columns / Vector<T>.Count;
-		if( source is NumericBuffer<T> numericBuffer
+		if( source is RaggedNumericBuffer<T> numericBuffer
 			&& vectorCount > 0 // Only use vectorization if we have at least one whole vector of real data
 		) {
 			int tailStart = vectorCount * Vector<T>.Count;
