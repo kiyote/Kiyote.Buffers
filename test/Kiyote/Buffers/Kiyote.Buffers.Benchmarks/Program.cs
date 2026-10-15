@@ -4,6 +4,7 @@ using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Toolchains.InProcess.NoEmit;
 using Kiyote.Buffers.Benchmarks;
+using Kiyote.Buffers.Benchmarks.ChunkedGrids;
 using Kiyote.Buffers.Numerics.Benchmarks;
 
 ManualConfig config = DefaultConfig.Instance
@@ -17,10 +18,12 @@ BenchmarkSwitcher
 		//typeof( RaggedArrayBufferBenchmarks ),
 		//typeof( FlatArrayBufferBenchmarks ),
 		//typeof( BufferOperatorBenchmarks ),
-		typeof( RaggedNumericBufferBenchmarks ),
-		typeof( FlatNumericBufferBenchmarks ),
+		//typeof( RaggedNumericBufferBenchmarks ),
+		//typeof( FlatNumericBufferBenchmarks ),
 		//typeof( NumericBufferOperatorBenchmarks ),
 		//typeof( BufferAnalyzerBenchmarks )
+		typeof( ChunkedGridBenchmarks ),
+		//typeof( DoubleBufferedChunkedGridBenchmarks ),
 	] )
 	.RunAll( config, args );
 
