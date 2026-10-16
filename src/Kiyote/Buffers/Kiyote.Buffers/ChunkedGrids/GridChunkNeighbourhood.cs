@@ -123,6 +123,57 @@ public readonly ref struct GridChunkNeighbourhood<T> where T : unmanaged {
 		return true;
 	}
 
+	/// <summary>
+	/// Writes the <c>( Size + 2 * halo )²</c> block centred on this chunk into
+	/// <paramref name="values"/>, row-major with stride <c>Size + 2 * halo</c>.
+	/// Element <c>( halo + r ) * ( Size + 2 * halo ) + ( halo + c )</c> is local
+	/// cell (<c>c</c>, <c>r</c>). Regions whose chunk is not allocated are
+	/// written as <see langword="default"/>; unpopulated cells of allocated
+	/// chunks are copied as stored.
+	/// </summary>
+	/// <exception cref="ArgumentOutOfRangeException">
+	/// <paramref name="halo"/> is not in <c>[0, Size]</c>, or <paramref name="values"/> is too short.
+	/// </exception>
+	public void CopyPadded(
+		int halo,
+		Span<T> values
+	) {
+		ChunkNeighbourSpans<T> spans = GetSpans();
+		ChunkPadding.Gather( _layout.ChunkSize, halo, in spans, values );
+	}
+
+	/// <summary>
+	/// Writes the <c>Size + 2 * halo</c> elements of one row of the block
+	/// produced by <see cref="CopyPadded"/>; useful for rolling row-by-row stencils.
+	/// </summary>
+	/// <param name="localRow">The local row, in <c>[-halo, Size + halo)</c>.</param>
+	/// <exception cref="ArgumentOutOfRangeException">
+	/// <paramref name="halo"/> is not in <c>[0, Size]</c>, <paramref name="localRow"/>
+	/// is outside the padded block, or <paramref name="values"/> is too short.
+	/// </exception>
+	public void CopyPaddedRow(
+		int localRow,
+		int halo,
+		Span<T> values
+	) {
+		ChunkNeighbourSpans<T> spans = GetSpans();
+		ChunkPadding.GatherRow( _layout.ChunkSize, halo, localRow, in spans, values );
+	}
+
+	/// <summary>
+	/// Reads up to 64 presence bits of one row, relative to the centre chunk;
+	/// see <see cref="ChunkedGridLayout.ReadPresenceBits"/>.
+	/// </summary>
+	/// <returns>Bit <c>i</c> is the presence of local column <c>localColumn + i</c>.</returns>
+	/// <exception cref="ArgumentOutOfRangeException">An argument is outside its range.</exception>
+	public ulong ReadPresenceBits(
+		int localColumn,
+		int localRow,
+		int count
+	) {
+		return _layout.ReadPresenceBits( ChunkIndex, localColumn, localRow, count );
+	}
+
 	public bool TryGetValue(
 		int localColumn,
 		int localRow,
@@ -143,6 +194,20 @@ public readonly ref struct GridChunkNeighbourhood<T> where T : unmanaged {
 	) {
 		NeighbourChunk<T> chunk = Resolve( localColumn, localRow, out int column, out int row );
 		return chunk.Presence is not null && _layout.IsBitSet( chunk.Presence, column, row );
+	}
+
+	private ChunkNeighbourSpans<T> GetSpans() {
+		return new ChunkNeighbourSpans<T>() {
+			NorthWest = _chunks[ 0 ].Values,
+			North = _chunks[ 1 ].Values,
+			NorthEast = _chunks[ 2 ].Values,
+			West = _chunks[ 3 ].Values,
+			Centre = _chunks[ 4 ].Values,
+			East = _chunks[ 5 ].Values,
+			SouthWest = _chunks[ 6 ].Values,
+			South = _chunks[ 7 ].Values,
+			SouthEast = _chunks[ 8 ].Values
+		};
 	}
 
 	private NeighbourChunk<T> Get(
