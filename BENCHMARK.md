@@ -82,69 +82,83 @@ LaunchCount=1  WarmupCount=10
 
 
 # ChunkedGrid
-| Method                                  | ChunkSize | Mean          | Error        | StdDev       | Allocated |
-|---------------------------------------- |---------- |--------------:|-------------:|-------------:|----------:|
-| Compose_NewGrid                         | 32        |  32,973.35 ns | 3,778.205 ns | 3,534.135 ns |  140840 B |
-| Attach_Aligned                          | 32        |   5,990.63 ns |   322.087 ns |   301.281 ns |         - |
-| Attach_Unaligned                        | 32        |  15,405.91 ns |   542.249 ns |   452.803 ns |         - |
-| Attach_StructExtractor_Unaligned        | 32        |  28,060.58 ns |   578.837 ns |   513.124 ns |         - |
-| Attach_FuncExtractor_Unaligned          | 32        |  46,788.43 ns | 1,802.490 ns | 1,686.051 ns |         - |
-| HasOverlap_Unaligned_NoOverlap          | 32        |   9,485.93 ns |   231.140 ns |   216.209 ns |         - |
-| Detach_Aligned                          | 32        |     770.67 ns |    11.848 ns |    10.503 ns |         - |
-| Detach_Unaligned                        | 32        |   9,692.55 ns |   133.930 ns |   125.278 ns |         - |
-| Compact_NothingToRemove                 | 32        |     120.60 ns |     3.165 ns |     2.806 ns |         - |
-| Indexer_Read                            | 32        | 179,072.20 ns | 5,416.306 ns | 4,801.414 ns |       1 B |
-| Indexer_Write                           | 32        |  43,236.91 ns | 1,434.070 ns | 1,341.430 ns |         - |
-| TryGet_Populated                        | 32        | 191,319.74 ns | 3,729.075 ns | 3,488.179 ns |       1 B |
-| EnumerateChunks_MaskedVectorSum         | 32        |  63,446.78 ns | 1,545.785 ns | 1,445.928 ns |         - |
-| EnumerateNeighbourhoods_VerticalStencil | 32        |  19,391.95 ns |   430.551 ns |   402.738 ns |         - |
-| EnumerateNeighbourhoods_CopyColumns     | 32        |   6,574.42 ns |   124.850 ns |   116.785 ns |         - |
-| Compose_NewGrid                         | 64        |  26,056.49 ns | 2,346.944 ns | 2,080.505 ns |  205312 B |
-| Attach_Aligned                          | 64        |   4,712.07 ns |   143.632 ns |   134.354 ns |         - |
-| Attach_Unaligned                        | 64        |   9,352.25 ns |   315.987 ns |   295.574 ns |         - |
-| Attach_StructExtractor_Unaligned        | 64        |  21,538.63 ns |   506.927 ns |   474.179 ns |         - |
-| Attach_FuncExtractor_Unaligned          | 64        |  40,038.28 ns |   774.762 ns |   724.712 ns |         - |
-| HasOverlap_Unaligned_NoOverlap          | 64        |   3,142.43 ns |    48.817 ns |    43.275 ns |         - |
-| Detach_Aligned                          | 64        |     250.25 ns |     3.188 ns |     2.662 ns |         - |
-| Detach_Unaligned                        | 64        |   5,724.28 ns |   201.237 ns |   178.391 ns |         - |
-| Compact_NothingToRemove                 | 64        |      57.37 ns |     2.023 ns |     1.892 ns |         - |
-| Indexer_Read                            | 64        | 154,152.43 ns | 2,330.592 ns | 2,066.009 ns |       1 B |
-| Indexer_Write                           | 64        |  40,857.02 ns |   703.108 ns |   657.688 ns |         - |
-| TryGet_Populated                        | 64        | 178,238.85 ns | 3,244.430 ns | 2,876.102 ns |       1 B |
-| EnumerateChunks_MaskedVectorSum         | 64        |  90,682.16 ns | 1,527.486 ns | 1,428.812 ns |       1 B |
-| EnumerateNeighbourhoods_VerticalStencil | 64        |  19,532.13 ns |   947.225 ns |   839.690 ns |         - |
-| EnumerateNeighbourhoods_CopyColumns     | 64        |   3,179.90 ns |   112.083 ns |   104.842 ns |         - |
-| Compose_NewGrid                         | 128       |  20,533.39 ns |   863.418 ns |   807.642 ns |  271408 B |
-| Attach_Aligned                          | 128       |   4,391.14 ns |   244.107 ns |   228.338 ns |         - |
-| Attach_Unaligned                        | 128       |   6,445.47 ns |   114.711 ns |   101.688 ns |         - |
-| Attach_StructExtractor_Unaligned        | 128       |  19,871.11 ns |   369.495 ns |   345.626 ns |         - |
-| Attach_FuncExtractor_Unaligned          | 128       |  37,545.15 ns | 1,369.703 ns | 1,281.221 ns |         - |
-| HasOverlap_Unaligned_NoOverlap          | 128       |   2,093.87 ns |    76.785 ns |    71.825 ns |         - |
-| Detach_Aligned                          | 128       |     193.80 ns |     3.454 ns |     2.885 ns |         - |
-| Detach_Unaligned                        | 128       |   3,383.39 ns |    49.380 ns |    46.190 ns |         - |
-| Compact_NothingToRemove                 | 128       |      49.59 ns |     0.962 ns |     0.899 ns |         - |
-| Indexer_Read                            | 128       | 120,719.06 ns | 2,243.911 ns | 2,098.955 ns |       1 B |
-| Indexer_Write                           | 128       |  43,638.47 ns | 1,331.057 ns | 1,179.947 ns |         - |
-| TryGet_Populated                        | 128       | 156,359.59 ns | 6,029.623 ns | 5,640.113 ns |       1 B |
-| EnumerateChunks_MaskedVectorSum         | 128       | 152,059.80 ns | 6,126.096 ns | 5,730.354 ns |       1 B |
-| EnumerateNeighbourhoods_VerticalStencil | 128       |  18,412.53 ns |   687.420 ns |   643.013 ns |         - |
-| EnumerateNeighbourhoods_CopyColumns     | 128       |   1,235.47 ns |    42.429 ns |    39.689 ns |         - |
+BenchmarkDotNet v0.15.8, .NET 10.0.13, Intel Core i7-9700K; MediumRun, in-process. This CPU is affected by the
+JCC erratum, so tight lookup loops (`Indexer_*`, `TryGet_*`) can vary by up to ~30% between runs depending on code
+placement.
+
+| Method                                  | ChunkSize | Mean       | Error     | StdDev    | Allocated |
+|---------------------------------------- |---------- |-----------:|----------:|----------:|----------:|
+| Compose_NewGrid                         | 32        |  39.291 μs | 1.0642 μs | 0.9954 μs |  147776 B |
+| Attach_Aligned                          | 32        |   4.628 μs | 0.1660 μs | 0.1553 μs |         - |
+| Attach_Unaligned                        | 32        |  16.839 μs | 0.2782 μs | 0.2602 μs |         - |
+| Attach_StructExtractor_Unaligned        | 32        |  28.258 μs | 0.2695 μs | 0.2521 μs |         - |
+| Attach_FuncExtractor_Unaligned          | 32        |  34.466 μs | 1.0580 μs | 0.9896 μs |         - |
+| HasOverlap_Unaligned_NoOverlap          | 32        |  10.703 μs | 0.2980 μs | 0.2488 μs |         - |
+| Detach_Unaligned                        | 32        |  10.214 μs | 0.3359 μs | 0.3142 μs |         - |
+| Indexer_Read                            | 32        | 193.597 μs | 6.0313 μs | 5.6417 μs |       1 B |
+| Indexer_Write                           | 32        |  41.252 μs | 0.6620 μs | 0.5169 μs |         - |
+| TryGet_Populated                        | 32        | 179.769 μs | 2.1864 μs | 2.0452 μs |       1 B |
+| EnumerateChunks_MaskedVectorSum         | 32        |  54.761 μs | 0.8162 μs | 0.7635 μs |         - |
+| EnumerateNeighbourhoods_VerticalStencil | 32        |  16.576 μs | 0.5806 μs | 0.5431 μs |         - |
+| EnumerateNeighbourhoods_CopyColumns     | 32        |   5.033 μs | 0.1414 μs | 0.1322 μs |         - |
+| Compose_NewGrid                         | 64        |  35.716 μs | 2.5294 μs | 2.3660 μs |  208736 B |
+| Attach_Aligned                          | 64        |   4.167 μs | 0.1421 μs | 0.1329 μs |         - |
+| Attach_Unaligned                        | 64        |  10.410 μs | 0.0902 μs | 0.0753 μs |         - |
+| Attach_StructExtractor_Unaligned        | 64        |  21.854 μs | 0.5083 μs | 0.4755 μs |         - |
+| Attach_FuncExtractor_Unaligned          | 64        |  28.208 μs | 0.8368 μs | 0.7828 μs |         - |
+| HasOverlap_Unaligned_NoOverlap          | 64        |   3.459 μs | 0.0987 μs | 0.0923 μs |         - |
+| Detach_Unaligned                        | 64        |   5.546 μs | 0.1790 μs | 0.1674 μs |         - |
+| Indexer_Read                            | 64        | 171.591 μs | 4.6587 μs | 4.3577 μs |       1 B |
+| Indexer_Write                           | 64        |  38.516 μs | 0.8339 μs | 0.7800 μs |         - |
+| TryGet_Populated                        | 64        | 159.457 μs | 3.1720 μs | 2.9671 μs |       1 B |
+| EnumerateChunks_MaskedVectorSum         | 64        |  80.744 μs | 2.1576 μs | 2.0182 μs |       1 B |
+| EnumerateNeighbourhoods_VerticalStencil | 64        |  15.146 μs | 0.8865 μs | 0.8292 μs |         - |
+| EnumerateNeighbourhoods_CopyColumns     | 64        |   2.307 μs | 0.0659 μs | 0.0617 μs |         - |
+| Compose_NewGrid                         | 128       |  24.871 μs | 1.2040 μs | 1.1262 μs |  272288 B |
+| Attach_Aligned                          | 128       |   4.028 μs | 0.2470 μs | 0.2310 μs |         - |
+| Attach_Unaligned                        | 128       |   6.910 μs | 0.2011 μs | 0.1881 μs |         - |
+| Attach_StructExtractor_Unaligned        | 128       |  19.147 μs | 0.3099 μs | 0.2899 μs |         - |
+| Attach_FuncExtractor_Unaligned          | 128       |  26.000 μs | 1.3808 μs | 1.2916 μs |         - |
+| HasOverlap_Unaligned_NoOverlap          | 128       |   2.308 μs | 0.0576 μs | 0.0538 μs |         - |
+| Detach_Unaligned                        | 128       |   3.326 μs | 0.0690 μs | 0.0645 μs |         - |
+| Indexer_Read                            | 128       | 136.725 μs | 3.2084 μs | 3.0011 μs |       1 B |
+| Indexer_Write                           | 128       |  39.149 μs | 1.1908 μs | 0.9944 μs |         - |
+| TryGet_Populated                        | 128       | 120.966 μs | 2.3481 μs | 2.1964 μs |       1 B |
+| EnumerateChunks_MaskedVectorSum         | 128       | 112.916 μs | 3.6137 μs | 3.3803 μs |       1 B |
+| EnumerateNeighbourhoods_VerticalStencil | 128       |  16.334 μs | 0.5858 μs | 0.5480 μs |         - |
+| EnumerateNeighbourhoods_CopyColumns     | 128       |   1.000 μs | 0.0320 μs | 0.0300 μs |         - |
 
 # DoubleBufferedChunkedGrid
 | Method                 | ChunkSize | Mean      | Error     | StdDev    | Allocated |
 |----------------------- |---------- |----------:|----------:|----------:|----------:|
-| Attach_Aligned         | 32        |  5.179 us | 0.0853 us | 0.0756 us |         - |
-| Attach_Unaligned       | 32        | 14.974 us | 0.1998 us | 0.1669 us |         - |
-| CopyCurrentToAlternate | 32        |  3.167 us | 0.1174 us | 0.1098 us |         - |
-| TrySet_Populated       | 32        | 47.858 us | 1.1224 us | 1.0499 us |         - |
-| Step_VerticalDiffusion | 32        | 31.094 us | 1.4546 us | 1.3606 us |         - |
-| Attach_Aligned         | 64        |  4.360 us | 0.1514 us | 0.1416 us |         - |
-| Attach_Unaligned       | 64        |  9.591 us | 0.3920 us | 0.3667 us |         - |
-| CopyCurrentToAlternate | 64        |  5.470 us | 0.2960 us | 0.2769 us |         - |
-| TrySet_Populated       | 64        | 47.076 us | 1.4858 us | 1.3898 us |         - |
-| Step_VerticalDiffusion | 64        | 29.945 us | 1.1901 us | 1.0550 us |         - |
-| Attach_Aligned         | 128       |  4.173 us | 0.1535 us | 0.1436 us |         - |
-| Attach_Unaligned       | 128       |  6.600 us | 0.2080 us | 0.1844 us |         - |
-| CopyCurrentToAlternate | 128       |  7.276 us | 0.2372 us | 0.2103 us |         - |
-| TrySet_Populated       | 128       | 47.089 us | 2.3159 us | 2.1663 us |         - |
-| Step_VerticalDiffusion | 128       | 29.245 us | 0.4578 us | 0.4059 us |         - |
+| Attach_Aligned         | 32        |  4.802 μs | 0.0386 μs | 0.0343 μs |         - |
+| Attach_Unaligned       | 32        | 17.202 μs | 0.4467 μs | 0.4179 μs |         - |
+| CopyCurrentToAlternate | 32        |  3.588 μs | 0.1349 μs | 0.1262 μs |         - |
+| TrySet_Populated       | 32        | 39.186 μs | 0.6356 μs | 0.5945 μs |         - |
+| Step_VerticalDiffusion | 32        | 24.549 μs | 0.2830 μs | 0.2508 μs |         - |
+| Attach_Aligned         | 64        |  4.252 μs | 0.0566 μs | 0.0502 μs |         - |
+| Attach_Unaligned       | 64        | 10.891 μs | 0.4198 μs | 0.3927 μs |         - |
+| CopyCurrentToAlternate | 64        |  5.637 μs | 0.2102 μs | 0.1966 μs |         - |
+| TrySet_Populated       | 64        | 38.551 μs | 0.4347 μs | 0.3854 μs |         - |
+| Step_VerticalDiffusion | 64        | 24.711 μs | 0.4944 μs | 0.4625 μs |         - |
+| Attach_Aligned         | 128       |  3.874 μs | 0.1619 μs | 0.1514 μs |         - |
+| Attach_Unaligned       | 128       |  6.938 μs | 0.2889 μs | 0.2702 μs |         - |
+| CopyCurrentToAlternate | 128       |  7.663 μs | 0.4079 μs | 0.3815 μs |         - |
+| TrySet_Populated       | 128       | 35.297 μs | 1.0733 μs | 1.0040 μs |         - |
+| Step_VerticalDiffusion | 128       | 24.413 μs | 0.7100 μs | 0.5928 μs |         - |
+
+# ChunkedGridLayer
+A fully populated 256x256 `ChunkedGridLayout` with one `float` layer. The stencils compute a 5-point average per
+cell, reading neighbours either cell-by-cell through `GridChunkNeighbourhood.TryGetValue` or from a
+`CopyPadded( 1, scratch )` block at fixed offsets.
+
+| Method                       | ChunkSize | Mean         | Error      | StdDev     | Allocated |
+|----------------------------- |---------- |-------------:|-----------:|-----------:|----------:|
+| ElementWise_GetValues        | 32        |     8.007 μs |  0.3356 μs |  0.3139 μs |         - |
+| Stencil_TryGetValue          | 32        | 1,098.672 μs | 23.6550 μs | 22.1269 μs |      13 B |
+| Stencil_CopyPadded           | 32        |   175.672 μs |  4.3646 μs |  4.0826 μs |       2 B |
+| ReadPresenceBits_VacancyMask | 32        |    30.489 μs |  1.4358 μs |  1.3431 μs |         - |
+| ElementWise_GetValues        | 64        |     8.179 μs |  0.4246 μs |  0.3972 μs |         - |
+| Stencil_TryGetValue          | 64        | 1,069.632 μs | 50.7525 μs | 47.4739 μs |      13 B |
+| Stencil_CopyPadded           | 64        |   151.746 μs |  8.2445 μs |  7.7119 μs |       2 B |
+| ReadPresenceBits_VacancyMask | 64        |    15.830 μs |  0.5284 μs |  0.4942 μs |         - |

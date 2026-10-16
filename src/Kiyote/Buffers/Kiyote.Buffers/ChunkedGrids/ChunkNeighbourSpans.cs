@@ -7,12 +7,24 @@ namespace Kiyote.Buffers.ChunkedGrids;
 /// </summary>
 public readonly ref struct ChunkNeighbourSpans<T> {
 
+	/// <summary>
+	/// The chunk at offset (-1, -1).
+	/// </summary>
 	public ReadOnlySpan<T> NorthWest { get; init; }
 
+	/// <summary>
+	/// The chunk at offset (0, -1).
+	/// </summary>
 	public ReadOnlySpan<T> North { get; init; }
 
+	/// <summary>
+	/// The chunk at offset (1, -1).
+	/// </summary>
 	public ReadOnlySpan<T> NorthEast { get; init; }
 
+	/// <summary>
+	/// The chunk at offset (-1, 0).
+	/// </summary>
 	public ReadOnlySpan<T> West { get; init; }
 
 	/// <summary>
@@ -20,12 +32,24 @@ public readonly ref struct ChunkNeighbourSpans<T> {
 	/// </summary>
 	public ReadOnlySpan<T> Centre { get; init; }
 
+	/// <summary>
+	/// The chunk at offset (1, 0).
+	/// </summary>
 	public ReadOnlySpan<T> East { get; init; }
 
+	/// <summary>
+	/// The chunk at offset (-1, 1).
+	/// </summary>
 	public ReadOnlySpan<T> SouthWest { get; init; }
 
+	/// <summary>
+	/// The chunk at offset (0, 1).
+	/// </summary>
 	public ReadOnlySpan<T> South { get; init; }
 
+	/// <summary>
+	/// The chunk at offset (1, 1).
+	/// </summary>
 	public ReadOnlySpan<T> SouthEast { get; init; }
 
 	/// <summary>

@@ -24,6 +24,7 @@ BenchmarkSwitcher
 		//typeof( BufferAnalyzerBenchmarks )
 		typeof( ChunkedGridBenchmarks ),
 		typeof( DoubleBufferedChunkedGridBenchmarks ),
+		typeof( ChunkedGridLayerBenchmarks ),
 	] )
 	.RunAll( config, args );
 

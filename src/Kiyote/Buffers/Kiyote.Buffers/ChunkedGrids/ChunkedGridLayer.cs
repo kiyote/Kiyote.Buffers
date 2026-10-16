@@ -45,8 +45,14 @@ public sealed class ChunkedGridLayer<T> where T : unmanaged {
 		_values = new ChunkValues<T>( layout );
 	}
 
+	/// <summary>
+	/// The layout whose topology this layer follows.
+	/// </summary>
 	public ChunkedGridLayout Layout { get; }
 
+	/// <summary>
+	/// The width and height of a chunk in cells.
+	/// </summary>
 	public int ChunkSize => Layout.ChunkSize;
 
 	/// <summary>

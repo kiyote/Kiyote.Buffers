@@ -31,7 +31,14 @@ namespace Kiyote.Buffers.ChunkedGrids;
 /// </remarks>
 public sealed class ChunkedGridLayout {
 
+	/// <summary>
+	/// The chunk size used when none is specified.
+	/// </summary>
 	public const int DefaultChunkSize = 64;
+
+	/// <summary>
+	/// The largest supported chunk size.
+	/// </summary>
 	public const int MaximumChunkSize = 1 << 12;
 
 	internal const int NeighbourCount = 9;
@@ -88,6 +95,9 @@ public sealed class ChunkedGridLayout {
 		_neighbours = [];
 	}
 
+	/// <summary>
+	/// The width and height of a chunk in cells; a power of two.
+	/// </summary>
 	public int ChunkSize { get; }
 
 	/// <summary>
@@ -102,8 +112,14 @@ public sealed class ChunkedGridLayout {
 	/// </summary>
 	public int ChunkMask { get; }
 
+	/// <summary>
+	/// The number of presence words per chunk row: <c>Math.Max( 1, <see cref="ChunkSize"/> &gt;&gt; 6 )</c>.
+	/// </summary>
 	public int PresenceWordsPerRow { get; }
 
+	/// <summary>
+	/// The number of presence words per chunk: <c><see cref="ChunkSize"/> * <see cref="PresenceWordsPerRow"/></c>.
+	/// </summary>
 	public int PresenceWordsPerChunk { get; }
 
 	/// <summary>
@@ -122,6 +138,9 @@ public sealed class ChunkedGridLayout {
 	/// </summary>
 	public int Version { get; private set; }
 
+	/// <summary>
+	/// <see langword="true"/> when no chunk is allocated.
+	/// </summary>
 	public bool IsEmpty => _lookup.Count == 0;
 
 	/// <summary>
@@ -266,6 +285,9 @@ public sealed class ChunkedGridLayout {
 		return new ReadOnlySpan<int>( _neighbours, chunkIndex * NeighbourCount, NeighbourCount );
 	}
 
+	/// <summary>
+	/// Determines whether a cell's chunk is allocated and the cell is populated.
+	/// </summary>
 	public bool IsPopulated(
 		int column,
 		int row

@@ -55,7 +55,8 @@ stored as square, lazily allocated chunks (64x64 by default). The chunk size mus
 a multiple of the `Vector256<T>` lane count, so every chunk row can be processed with whole vectors.
 
 A cell is populated only when its chunk is allocated and its presence bit is set, allowing irregular shapes.
-`Column`/`Row`/`Width`/`Height` describe the chunk-aligned hull of allocated chunks.
+`Column`/`Row`/`Width`/`Height` describe the chunk-aligned hull of allocated chunks; `TryGetPopulatedBounds`
+computes the exact bounding box of the populated cells. Chunks are enumerated in ascending chunk index order.
 
 ```csharp
 ChunkedGrid<float> grid = new();
@@ -85,7 +86,62 @@ For stencil operations that read across chunk borders (diffusion, blurs, etc.), 
 or `TryGetNeighbourhood`. Each `GridChunkNeighbourhood<T>` resolves the eight surrounding chunks once and
 accepts local coordinates from `-Size` to `2 * Size - 1`: `GetRowValues( -1 )` / `GetRowValues( Size )` return
 the adjacent halo rows as spans, `CopyColumn( -1, ... )` / `CopyColumn( Size, ... )` gather the halo columns,
-and `TryGetValue` reads any single cell in the neighbourhood.
+and `TryGetValue` reads any single cell in the neighbourhood. `CopyPadded` / `CopyPaddedRow` gather the chunk
+and a halo into contiguous scratch (see below).
+
+## ChunkedGridLayout and ChunkedGridLayer
+
+`ChunkedGridLayout` is the topology on its own: which chunks are allocated and which cells are populated, with no
+values. Any number of `ChunkedGridLayer<T>` instances, of any unmanaged `T`, can share one layout, so a single
+occupancy carries many kinds of data.
+
+```csharp
+ChunkedGridLayout layout = new( 32 );
+ChunkedGridLayer<float> pressure = new( layout );
+ChunkedGridLayer<Terrain> terrain = new( layout ); // a byte-sized enum
+
+layout.SetPopulatedRun( 0, 0, 100 );               // populates cells (0..99, 0)
+pressure.GetReference( 10, 0 ) = 1.5f;
+terrain.TrySet( 10, 0, Terrain.Water );
+```
+
+Every allocated chunk has a dense index in `[0, ChunkCapacity)`. An index is stable while its chunk stays allocated,
+so it can key per-chunk side arrays or cached `( chunkIndex, localIndex )` pairs from `TryLocate`. `RemoveChunk` and
+`Compact` free indices for reuse, and every allocation or removal changes `Version`. A reused index always starts
+with no populated cells and `default` values in every layer. Index-based access avoids coordinate lookups entirely:
+
+```csharp
+foreach( int chunk in layout.EnumerateChunks() ) {
+	Span<float> values = pressure.GetValues( chunk );              // ChunkSize * ChunkSize, row-major
+	ReadOnlySpan<int> neighbours = layout.GetNeighbours( chunk ); // 3x3, -1 where not allocated
+}
+```
+
+Stencils can gather a chunk plus a halo from its neighbours into contiguous scratch, so the inner loop reads every
+neighbour at a fixed offset. Regions whose chunk is not allocated are written as `default`:
+
+```csharp
+int stride = layout.ChunkSize + 2;
+float[] scratch = new float[ ChunkPadding.GetPaddedLength( layout.ChunkSize, 1 ) ];
+foreach( GridChunkNeighbourhood<float> n in pressure.EnumerateNeighbourhoods() ) {
+	n.CopyPadded( 1, scratch );
+	// local cell (c, r) is scratch[ ( r + 1 ) * stride + c + 1 ]; north is -stride, east is +1
+}
+```
+
+`ChunkPadding.Gather` does the same over caller-provided spans of any element type. `ReadPresenceBits` reads up to
+64 presence bits of a row across chunk borders, for example to find cells whose north neighbour is unpopulated:
+
+```csharp
+ulong cells = layout.ReadPresenceBits( chunk, 0, r, 32 );
+ulong north = layout.ReadPresenceBits( chunk, 0, r - 1, 32 );
+ulong exposed = cells & ~north;
+```
+
+Layers store values independently of presence: unpopulating a cell does not reset its value, and `GetValues`,
+`GetRowValues` and `GetReference` can write unpopulated cells. The layout holds no reference to its layers; a layer
+catches up with chunk allocations lazily and is collected when no longer referenced. `SwapStorage` exchanges the
+values of two layers over the same layout in O(1). Neither type is thread-safe.
 
 ## DoubleBufferedChunkedGrid
 
