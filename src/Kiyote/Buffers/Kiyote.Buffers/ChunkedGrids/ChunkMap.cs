@@ -187,13 +187,6 @@ internal sealed class ChunkMap<T> where T : unmanaged {
 		return removed;
 	}
 
-	public void Reset() {
-		_chunks.Clear();
-		_cache = null;
-		_hullDirty = false;
-		Version++;
-	}
-
 	public bool IsBitSet(
 		GridChunkStorage<T> chunk,
 		int localColumn,

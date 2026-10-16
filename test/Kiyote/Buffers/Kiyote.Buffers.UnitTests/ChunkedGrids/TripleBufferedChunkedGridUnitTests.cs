@@ -5,7 +5,7 @@ public class TripleBufferedChunkedGridUnitTests {
 
 	[Test]
 	public void Swap_PublishesWrittenBuffer() {
-		using TripleBufferedChunkedGrid<float> grid = CreateGrid();
+		TripleBufferedChunkedGrid<float> grid = CreateGrid();
 		grid.TrySet( 0, 0, GridBuffer.Current, 5f );
 
 		grid.Swap();
@@ -21,7 +21,7 @@ public class TripleBufferedChunkedGridUnitTests {
 
 	[Test]
 	public void Swap_WhileLeased_NeverWritesLeasedBuffer() {
-		using TripleBufferedChunkedGrid<float> grid = CreateGrid();
+		TripleBufferedChunkedGrid<float> grid = CreateGrid();
 		grid.TrySet( 0, 0, GridBuffer.Current, 1f );
 		grid.Swap();
 
@@ -36,7 +36,7 @@ public class TripleBufferedChunkedGridUnitTests {
 
 	[Test]
 	public void Acquire_AfterRelease_ReturnsLatest() {
-		using TripleBufferedChunkedGrid<float> grid = CreateGrid();
+		TripleBufferedChunkedGrid<float> grid = CreateGrid();
 		grid.TrySet( 0, 0, GridBuffer.Current, 1f );
 		grid.Swap();
 		using( grid.Acquire() ) {
@@ -53,7 +53,7 @@ public class TripleBufferedChunkedGridUnitTests {
 
 	[Test]
 	public void Acquire_NothingNew_ReturnsSameBuffer() {
-		using TripleBufferedChunkedGrid<float> grid = CreateGrid();
+		TripleBufferedChunkedGrid<float> grid = CreateGrid();
 		grid.TrySet( 0, 0, GridBuffer.Current, 4f );
 		grid.Swap();
 		using( grid.Acquire() ) {
@@ -67,13 +67,12 @@ public class TripleBufferedChunkedGridUnitTests {
 	[Test]
 	public void Concurrent_ReaderAlwaysSeesConsistentBuffer() {
 		const int Cells = 256;
-		using TripleBufferedChunkedGrid<int> grid = new();
-		using( ChunkedGrid<int> source = new() ) {
-			for( int c = 0; c < Cells; c++ ) {
-				source[ c, 0 ] = 0;
-			}
-			grid.Attach( source, 0, 0 );
+		TripleBufferedChunkedGrid<int> grid = new();
+		ChunkedGrid<int> source = new();
+		for( int c = 0; c < Cells; c++ ) {
+			source[ c, 0 ] = 0;
 		}
+		grid.Attach( source, 0, 0 );
 
 		using CancellationTokenSource stop = new();
 		int torn = 0;
@@ -115,7 +114,7 @@ public class TripleBufferedChunkedGridUnitTests {
 
 	private static TripleBufferedChunkedGrid<float> CreateGrid() {
 		TripleBufferedChunkedGrid<float> grid = new();
-		using ChunkedGrid<float> source = new();
+		ChunkedGrid<float> source = new();
 		source[ 0, 0 ] = 0f;
 		grid.Attach( source, 0, 0 );
 		return grid;

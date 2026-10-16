@@ -58,7 +58,7 @@ A cell is populated only when its chunk is allocated and its presence bit is set
 `Column`/`Row`/`Width`/`Height` describe the chunk-aligned hull of allocated chunks.
 
 ```csharp
-using ChunkedGrid<float> grid = new();
+ChunkedGrid<float> grid = new();
 grid[ 10, -3 ] = 1.5f;
 
 foreach( GridChunk<float> chunk in grid.EnumerateChunks() ) {

@@ -15,10 +15,10 @@ public class ChunkedGridUnalignedUnitTests {
 	[TestCase( 64, 128 )]
 	[TestCase( 256, 8 )]
 	public void Attach_Unaligned_MatchesReference( int sourceChunkSize, int targetChunkSize ) {
-		using ChunkedGrid<float> source = CreateSparseSource( sourceChunkSize );
+		ChunkedGrid<float> source = CreateSparseSource( sourceChunkSize );
 		foreach( int dc in Offsets ) {
 			foreach( int dr in Offsets ) {
-				using ChunkedGrid<float> target = CreateBackground( targetChunkSize );
+				ChunkedGrid<float> target = CreateBackground( targetChunkSize );
 				Dictionary<(int, int), float> expected = Snapshot( target );
 				foreach( ((int c, int r), float v) in Snapshot( source ) ) {
 					expected[ (c + dc, r + dr) ] = v;
@@ -34,8 +34,8 @@ public class ChunkedGridUnalignedUnitTests {
 	[TestCase( 64, 64 )]
 	[TestCase( 128, 8 )]
 	public void AttachExtractor_Unaligned_MatchesReference( int sourceChunkSize, int targetChunkSize ) {
-		using ChunkedGrid<float> source = CreateSparseSource( sourceChunkSize );
-		using ChunkedGrid<float> target = CreateBackground( targetChunkSize );
+		ChunkedGrid<float> source = CreateSparseSource( sourceChunkSize );
+		ChunkedGrid<float> target = CreateBackground( targetChunkSize );
 		Dictionary<(int, int), float> expected = Snapshot( target );
 		foreach( ((int c, int r), float v) in Snapshot( source ) ) {
 			if( ( (int)v & 1 ) == 0 ) {
@@ -52,10 +52,10 @@ public class ChunkedGridUnalignedUnitTests {
 	[TestCase( 8, 128 )]
 	[TestCase( 128, 8 )]
 	public void Detach_Unaligned_MatchesReference( int sourceChunkSize, int targetChunkSize ) {
-		using ChunkedGrid<float> source = CreateSparseSource( sourceChunkSize );
+		ChunkedGrid<float> source = CreateSparseSource( sourceChunkSize );
 		foreach( int dc in Offsets ) {
 			foreach( int dr in Offsets ) {
-				using ChunkedGrid<float> target = CreateBackground( targetChunkSize );
+				ChunkedGrid<float> target = CreateBackground( targetChunkSize );
 				Dictionary<(int, int), float> expected = Snapshot( target );
 				foreach( (int c, int r) in Snapshot( source ).Keys ) {
 					_ = expected.Remove( (c + dc, r + dr) );
@@ -71,8 +71,8 @@ public class ChunkedGridUnalignedUnitTests {
 	[TestCase( 64, 64 )]
 	[TestCase( 128, 8 )]
 	public void DetachExtractor_Unaligned_MatchesReference( int sourceChunkSize, int targetChunkSize ) {
-		using ChunkedGrid<float> source = CreateSparseSource( sourceChunkSize );
-		using ChunkedGrid<float> target = CreateBackground( targetChunkSize );
+		ChunkedGrid<float> source = CreateSparseSource( sourceChunkSize );
+		ChunkedGrid<float> target = CreateBackground( targetChunkSize );
 		Dictionary<(int, int), float> expected = Snapshot( target );
 		foreach( ((int c, int r), float v) in Snapshot( source ) ) {
 			if( ( (int)v & 1 ) == 0 ) {
@@ -88,8 +88,8 @@ public class ChunkedGridUnalignedUnitTests {
 	[TestCase( 64, 64 )]
 	[TestCase( 8, 128 )]
 	public void HasOverlap_Unaligned_MatchesReference( int sourceChunkSize, int targetChunkSize ) {
-		using ChunkedGrid<float> source = CreateSparseSource( sourceChunkSize );
-		using ChunkedGrid<float> target = new( targetChunkSize );
+		ChunkedGrid<float> source = CreateSparseSource( sourceChunkSize );
+		ChunkedGrid<float> target = new( targetChunkSize );
 		target[ 400, 401 ] = 1f;
 		HashSet<(int, int)> cells = [ .. Snapshot( source ).Keys ];
 		foreach( int dc in Offsets ) {

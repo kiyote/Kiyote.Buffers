@@ -36,12 +36,6 @@ public class DoubleBufferedChunkedGridBenchmarks {
 		_grid.CopyCurrentToAlternate();
 	}
 
-	[GlobalCleanup]
-	public void GlobalCleanup() {
-		_block.Dispose();
-		_grid.Dispose();
-	}
-
 	[Benchmark]
 	public void Attach_Aligned() {
 		_grid.Attach( _block, 0, 0 );

@@ -27,7 +27,7 @@ namespace Kiyote.Buffers.ChunkedGrids;
 /// or call the copy methods while a lease is outstanding.
 /// </para>
 /// </remarks>
-public sealed class TripleBufferedChunkedGrid<T> : IDisposable where T : unmanaged {
+public sealed class TripleBufferedChunkedGrid<T> where T : unmanaged {
 
 	private const int None = -1;
 
@@ -36,7 +36,6 @@ public sealed class TripleBufferedChunkedGrid<T> : IDisposable where T : unmanag
 	private int _alternate;
 	private int _latest;
 	private int _leased;
-	private bool _disposed;
 
 	public TripleBufferedChunkedGrid(
 		int chunkSize = ChunkedGrid<T>.DefaultChunkSize
@@ -74,7 +73,6 @@ public sealed class TripleBufferedChunkedGrid<T> : IDisposable where T : unmanag
 	/// current buffer. Never blocks.
 	/// </summary>
 	public void Swap() {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		int published = _current;
 		int previous = _alternate;
 		_ = Interlocked.Exchange( ref _latest, published );
@@ -90,7 +88,6 @@ public sealed class TripleBufferedChunkedGrid<T> : IDisposable where T : unmanag
 	/// thread only; dispose the lease before acquiring another.
 	/// </summary>
 	public TripleBufferedLease<T> Acquire() {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		int latest;
 		do {
 			latest = Volatile.Read( ref _latest );
@@ -107,7 +104,6 @@ public sealed class TripleBufferedChunkedGrid<T> : IDisposable where T : unmanag
 		int column,
 		int row
 	) {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		return _map.IsPopulated( column, row );
 	}
 
@@ -117,7 +113,6 @@ public sealed class TripleBufferedChunkedGrid<T> : IDisposable where T : unmanag
 		GridBuffer buffer,
 		out T value
 	) {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		return _map.TryGet( column, row, Resolve( buffer ), out value );
 	}
 
@@ -128,7 +123,6 @@ public sealed class TripleBufferedChunkedGrid<T> : IDisposable where T : unmanag
 		GridBuffer buffer,
 		T value
 	) {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		return _map.TrySetPopulated( column, row, Resolve( buffer ), value );
 	}
 
@@ -136,7 +130,6 @@ public sealed class TripleBufferedChunkedGrid<T> : IDisposable where T : unmanag
 		int chunkColumn,
 		int chunkRow
 	) {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		return _map.FindStorage( chunkColumn, chunkRow ) is not null;
 	}
 
@@ -145,7 +138,6 @@ public sealed class TripleBufferedChunkedGrid<T> : IDisposable where T : unmanag
 		int chunkRow,
 		out BufferedChunk<T> chunk
 	) {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		GridChunkStorage<T>? storage = _map.FindStorage( chunkColumn, chunkRow );
 		if( storage is null ) {
 			chunk = default;
@@ -162,12 +154,10 @@ public sealed class TripleBufferedChunkedGrid<T> : IDisposable where T : unmanag
 		int chunkColumn,
 		int chunkRow
 	) {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		return _map.Remove( chunkColumn, chunkRow );
 	}
 
 	public BufferedChunkEnumerator<T> EnumerateChunks() {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		return new BufferedChunkEnumerator<T>( _map, _current, _alternate );
 	}
 
@@ -176,7 +166,6 @@ public sealed class TripleBufferedChunkedGrid<T> : IDisposable where T : unmanag
 		int chunkRow,
 		out BufferedNeighbourhood<T> neighbourhood
 	) {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		GridChunkStorage<T>? storage = _map.FindStorage( chunkColumn, chunkRow );
 		if( storage is null ) {
 			neighbourhood = default;
@@ -191,7 +180,6 @@ public sealed class TripleBufferedChunkedGrid<T> : IDisposable where T : unmanag
 	}
 
 	public BufferedNeighbourhoodEnumerator<T> EnumerateNeighbourhoods() {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		return new BufferedNeighbourhoodEnumerator<T>( _map, _current, _alternate );
 	}
 
@@ -199,7 +187,6 @@ public sealed class TripleBufferedChunkedGrid<T> : IDisposable where T : unmanag
 	/// Copies every value of the current buffer into the alternate buffer.
 	/// </summary>
 	public void CopyCurrentToAlternate() {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		_map.CopyBuffer( _current, _alternate );
 	}
 
@@ -207,7 +194,6 @@ public sealed class TripleBufferedChunkedGrid<T> : IDisposable where T : unmanag
 	/// Copies every value of the alternate buffer into the current buffer.
 	/// </summary>
 	public void CopyAlternateToCurrent() {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		_map.CopyBuffer( _alternate, _current );
 	}
 
@@ -217,7 +203,7 @@ public sealed class TripleBufferedChunkedGrid<T> : IDisposable where T : unmanag
 		int column,
 		int row
 	) where TSource : unmanaged {
-		ValidateSource( source );
+		ArgumentNullException.ThrowIfNull( source );
 		return _map.HasOverlap( source.Map, column, row );
 	}
 
@@ -227,7 +213,7 @@ public sealed class TripleBufferedChunkedGrid<T> : IDisposable where T : unmanag
 		int column,
 		int row
 	) {
-		ValidateSource( source );
+		ArgumentNullException.ThrowIfNull( source );
 		_map.Attach( source.Map, 0, column, row, _current );
 	}
 
@@ -239,7 +225,7 @@ public sealed class TripleBufferedChunkedGrid<T> : IDisposable where T : unmanag
 		TExtractor extractor
 	) where TSource : unmanaged
 	  where TExtractor : struct, ICellExtractor<TSource, T> {
-		ValidateSource( source );
+		ArgumentNullException.ThrowIfNull( source );
 		_map.Attach( source.Map, 0, column, row, _current, extractor );
 	}
 
@@ -260,7 +246,7 @@ public sealed class TripleBufferedChunkedGrid<T> : IDisposable where T : unmanag
 		int column,
 		int row
 	) where TSource : unmanaged {
-		ValidateSource( source );
+		ArgumentNullException.ThrowIfNull( source );
 		_map.Detach( source.Map, column, row );
 	}
 
@@ -272,34 +258,18 @@ public sealed class TripleBufferedChunkedGrid<T> : IDisposable where T : unmanag
 		TExtractor extractor
 	) where TSource : unmanaged
 	  where TExtractor : struct, ICellExtractor<TSource, T> {
-		ValidateSource( source );
+		ArgumentNullException.ThrowIfNull( source );
 		_map.Detach( source.Map, 0, column, row, extractor );
 	}
 
 	/// <inheritdoc cref="ChunkedGrid{T}.Compact"/>
 	public int Compact() {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		return _map.Compact();
-	}
-
-	public void Dispose() {
-		if( _disposed ) {
-			return;
-		}
-		_map.Reset();
-		_disposed = true;
 	}
 
 	private int Resolve(
 		GridBuffer buffer
 	) {
 		return buffer == GridBuffer.Current ? _current : _alternate;
-	}
-
-	private void ValidateSource<TSource>(
-		ChunkedGrid<TSource> source
-	) where TSource : unmanaged {
-		ObjectDisposedException.ThrowIf( _disposed, this );
-		ArgumentNullException.ThrowIfNull( source );
 	}
 }

@@ -13,7 +13,7 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Ctor_DefaultChunkSize_Is64() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 
 		using( Assert.EnterMultipleScope() ) {
 			Assert.That( grid.ChunkSize, Is.EqualTo( 64 ) );
@@ -36,14 +36,14 @@ public class ChunkedGridUnitTests {
 	[TestCase( 8 )]
 	[TestCase( 128 )]
 	public void Ctor_ValidFloatChunkSize_Succeeds( int chunkSize ) {
-		using ChunkedGrid<float> grid = new( chunkSize );
+		ChunkedGrid<float> grid = new( chunkSize );
 
 		Assert.That( grid.ChunkSize, Is.EqualTo( chunkSize ) );
 	}
 
 	[Test]
 	public void Indexer_Set_CellPopulated() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 
 		grid[ 3, 5 ] = 1.5f;
 
@@ -56,7 +56,7 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Indexer_NegativeCoordinates_RoundTrip() {
-		using ChunkedGrid<Terrain> grid = new();
+		ChunkedGrid<Terrain> grid = new();
 
 		grid[ -1, -65 ] = Terrain.Water;
 
@@ -68,7 +68,7 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void TryGet_UnpopulatedCellInAllocatedChunk_ReturnsFalse() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 		grid[ 0, 0 ] = 1f;
 
 		bool found = grid.TryGet( 1, 0, out float value );
@@ -81,7 +81,7 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Clear_PopulatedCell_Unpopulated() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 		grid[ 10, 10 ] = 2f;
 
 		grid.Clear( 10, 10 );
@@ -94,7 +94,7 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Hull_Empty_IsZero() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 
 		using( Assert.EnterMultipleScope() ) {
 			Assert.That( grid.Width, Is.Zero );
@@ -104,7 +104,7 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Hull_GrowsChunkAligned() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 
 		grid[ 5, 5 ] = 1f;
 		grid[ -3, 130 ] = 1f;
@@ -119,7 +119,7 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Hull_AfterRemoveChunk_Shrinks() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 		grid[ 0, 0 ] = 1f;
 		grid[ 200, 0 ] = 1f;
 
@@ -134,7 +134,7 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void GetChunk_RowSpans_AreVectorMultiples() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 		grid[ 1, 2 ] = 7f;
 
 		Assert.That( grid.TryGetChunk( 0, 0, out GridChunk<float> chunk ), Is.True );
@@ -151,7 +151,7 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void GetChunk_RowValuesWritten_GridUpdated() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 		GridChunk<float> chunk = grid.GetOrCreateChunk( 1, 0 );
 
 		chunk.GetRowValues( 0 ).Fill( 3f );
@@ -165,7 +165,7 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void EnumerateChunks_VisitsAllocatedChunks() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 		grid[ 0, 0 ] = 1f;
 		grid[ 64, 0 ] = 1f;
 		grid[ 65, 1 ] = 1f;
@@ -180,7 +180,7 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void IsFull_AllCellsPopulated_SmallChunk_True() {
-		using ChunkedGrid<float> grid = new( 8 );
+		ChunkedGrid<float> grid = new( 8 );
 		for( int r = 0; r < 8; r++ ) {
 			for( int c = 0; c < 8; c++ ) {
 				grid[ c, r ] = 1f;
@@ -205,7 +205,7 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void PresenceMask_ExpandVector256_SelectsPopulated() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 		grid[ 0, 0 ] = 5f;
 		grid[ 2, 0 ] = 6f;
 		grid.TryGetChunk( 0, 0, out GridChunk<float> chunk );
@@ -223,8 +223,8 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Attach_SameType_Aligned_CopiesCells() {
-		using ChunkedGrid<float> target = new();
-		using ChunkedGrid<float> source = new();
+		ChunkedGrid<float> target = new();
+		ChunkedGrid<float> source = new();
 		target[ 0, 0 ] = 1f;
 		source[ 0, 0 ] = 2f;
 		source[ 3, 4 ] = 3f;
@@ -241,8 +241,8 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Attach_SameType_AlignedFullRow_CopiesRow() {
-		using ChunkedGrid<float> target = new();
-		using ChunkedGrid<float> source = new();
+		ChunkedGrid<float> target = new();
+		ChunkedGrid<float> source = new();
 		for( int c = 0; c < 64; c++ ) {
 			source[ c, 0 ] = c;
 		}
@@ -257,8 +257,8 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Attach_Unaligned_TranslatesAcrossChunks() {
-		using ChunkedGrid<float> target = new();
-		using ChunkedGrid<float> source = new();
+		ChunkedGrid<float> target = new();
+		ChunkedGrid<float> source = new();
 		source[ 63, 0 ] = 4f;
 
 		target.Attach( source, 1, 0 );
@@ -271,8 +271,8 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Attach_WithExtractor_ConvertsAndFilters() {
-		using ChunkedGrid<Terrain> target = new();
-		using ChunkedGrid<float> source = new();
+		ChunkedGrid<Terrain> target = new();
+		ChunkedGrid<float> source = new();
 		source[ 0, 0 ] = 0.2f;
 		source[ 1, 0 ] = 0.8f;
 		source[ 2, 0 ] = -1f;
@@ -293,8 +293,8 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Attach_StructExtractor_ReceivesSourceCoordinates() {
-		using ChunkedGrid<int> target = new();
-		using ChunkedGrid<float> source = new();
+		ChunkedGrid<int> target = new();
+		ChunkedGrid<float> source = new();
 		source[ 5, 7 ] = 1f;
 
 		target.Attach( source, 100, 100, default( ColumnExtractor ) );
@@ -304,8 +304,8 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void HasOverlap_Overlapping_ReturnsTrue() {
-		using ChunkedGrid<float> target = new();
-		using ChunkedGrid<float> source = new();
+		ChunkedGrid<float> target = new();
+		ChunkedGrid<float> source = new();
 		target[ 5, 5 ] = 1f;
 		source[ 5, 5 ] = 3f;
 
@@ -317,8 +317,8 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void HasOverlap_Unaligned_ReturnsTrue() {
-		using ChunkedGrid<float> target = new();
-		using ChunkedGrid<float> source = new( 8 );
+		ChunkedGrid<float> target = new();
+		ChunkedGrid<float> source = new( 8 );
 		target[ 6, 6 ] = 1f;
 		source[ 5, 5 ] = 3f;
 
@@ -330,8 +330,8 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Attach_Overlap_OverwritesCells() {
-		using ChunkedGrid<float> target = new();
-		using ChunkedGrid<float> source = new();
+		ChunkedGrid<float> target = new();
+		ChunkedGrid<float> source = new();
 		target[ 5, 5 ] = 1f;
 		target[ 6, 5 ] = 9f;
 		source[ 0, 0 ] = 2f;
@@ -348,8 +348,8 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Attach_UnalignedOverlap_OverwritesCells() {
-		using ChunkedGrid<float> target = new();
-		using ChunkedGrid<float> source = new( 8 );
+		ChunkedGrid<float> target = new();
+		ChunkedGrid<float> source = new( 8 );
 		target[ 6, 6 ] = 1f;
 		source[ 5, 5 ] = 3f;
 
@@ -360,22 +360,22 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Attach_Self_Throws() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 
 		Assert.That( () => grid.Attach( grid, 64, 0 ), Throws.ArgumentException );
 	}
 
 	[Test]
 	public void HasOverlap_Self_Throws() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 
 		Assert.That( () => grid.HasOverlap( grid, 64, 0 ), Throws.ArgumentException );
 	}
 
 	[Test]
 	public void Detach_Aligned_UnpopulatesSourceCellsOnly() {
-		using ChunkedGrid<float> target = new();
-		using ChunkedGrid<float> source = new();
+		ChunkedGrid<float> target = new();
+		ChunkedGrid<float> source = new();
 		target[ 0, 0 ] = 1f;
 		source[ 3, 4 ] = 3f;
 		target.Attach( source, 64, 0 );
@@ -391,8 +391,8 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Detach_Unaligned_DifferentType_UnpopulatesCells() {
-		using ChunkedGrid<float> target = new();
-		using ChunkedGrid<Terrain> source = new();
+		ChunkedGrid<float> target = new();
+		ChunkedGrid<Terrain> source = new();
 		source[ 63, 0 ] = Terrain.Land;
 		target[ 64, 0 ] = 1f;
 		target[ 65, 0 ] = 2f;
@@ -407,8 +407,8 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Detach_WithExtractor_DeclinedCellsUntouched() {
-		using ChunkedGrid<Terrain> target = new();
-		using ChunkedGrid<float> source = new();
+		ChunkedGrid<Terrain> target = new();
+		ChunkedGrid<float> source = new();
 		source[ 0, 0 ] = 0.2f;
 		source[ 1, 0 ] = -1f;
 		target[ 0, 0 ] = Terrain.Land;
@@ -424,15 +424,15 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Detach_Self_Throws() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 
 		Assert.That( () => grid.Detach( grid, 0, 0 ), Throws.ArgumentException );
 	}
 
 	[Test]
 	public void Compact_AfterDetach_ReleasesEmptyChunksAndShrinksHull() {
-		using ChunkedGrid<float> target = new();
-		using ChunkedGrid<float> source = new();
+		ChunkedGrid<float> target = new();
+		ChunkedGrid<float> source = new();
 		target[ 0, 0 ] = 1f;
 		source[ 0, 0 ] = 2f;
 		target.Attach( source, 128, 0 );
@@ -450,7 +450,7 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Compact_NoEmptyChunks_ReturnsZero() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 		grid[ 0, 0 ] = 1f;
 
 		using( Assert.EnterMultipleScope() ) {
@@ -461,14 +461,14 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Neighbourhood_MissingCenter_ReturnsFalse() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 
 		Assert.That( grid.TryGetNeighbourhood( 0, 0, out _ ), Is.False );
 	}
 
 	[Test]
 	public void Neighbourhood_ResolvesNeighbours() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 		grid[ 0, 0 ] = 1f;
 		grid[ -1, 0 ] = 2f;
 		grid[ 64, 64 ] = 3f;
@@ -485,7 +485,7 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Neighbourhood_TryGetValue_ReadsAcrossBorders() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 		grid[ 0, 0 ] = 1f;
 		grid[ -1, -1 ] = 2f;
 		grid[ 64, 10 ] = 3f;
@@ -505,7 +505,7 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Neighbourhood_GetRowValues_ReturnsHaloRows() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 		grid[ 5, 0 ] = 1f;
 		grid[ 5, -1 ] = 2f;
 
@@ -522,7 +522,7 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void Neighbourhood_CopyColumn_GathersHaloColumn() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 		grid[ 0, 0 ] = 1f;
 		grid[ -1, 3 ] = 4f;
 
@@ -547,7 +547,7 @@ public class ChunkedGridUnitTests {
 
 	[Test]
 	public void EnumerateNeighbourhoods_VisitsEveryChunk() {
-		using ChunkedGrid<float> grid = new();
+		ChunkedGrid<float> grid = new();
 		grid[ 0, 0 ] = 1f;
 		grid[ 64, 0 ] = 1f;
 
@@ -562,16 +562,6 @@ public class ChunkedGridUnitTests {
 
 		Assert.That( count, Is.EqualTo( 2 ) );
 		Assert.That( withEastOrWest, Is.EqualTo( 2 ) );
-	}
-
-	[Test]
-	public void Dispose_ThenAccess_Throws() {
-		ChunkedGrid<float> grid = new();
-		grid[ 0, 0 ] = 1f;
-
-		grid.Dispose();
-
-		Assert.That( () => grid.IsPopulated( 0, 0 ), Throws.TypeOf<ObjectDisposedException>() );
 	}
 
 	private readonly struct ColumnExtractor : ICellExtractor<float, int> {

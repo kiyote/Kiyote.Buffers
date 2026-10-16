@@ -10,13 +10,12 @@ namespace Kiyote.Buffers.ChunkedGrids;
 /// lanes. The presence bits form a stencil describing which cells hold data.
 /// Enumerators throw if chunks are added or removed while enumerating.
 /// </remarks>
-public sealed class ChunkedGrid<T> : IDisposable where T : unmanaged {
+public sealed class ChunkedGrid<T> where T : unmanaged {
 
 	public const int DefaultChunkSize = 64;
 	public const int MaximumChunkSize = ChunkMap<T>.MaximumChunkSize;
 
 	private readonly ChunkMap<T> _map;
-	private bool _disposed;
 
 	public ChunkedGrid(
 		int chunkSize = DefaultChunkSize
@@ -56,12 +55,10 @@ public sealed class ChunkedGrid<T> : IDisposable where T : unmanaged {
 	/// </summary>
 	public T this[ int column, int row ] {
 		get {
-			ObjectDisposedException.ThrowIf( _disposed, this );
 			_ = _map.TryGet( column, row, 0, out T value );
 			return value;
 		}
 		set {
-			ObjectDisposedException.ThrowIf( _disposed, this );
 			_map.SetCell( column, row, 0, value );
 		}
 	}
@@ -71,7 +68,6 @@ public sealed class ChunkedGrid<T> : IDisposable where T : unmanaged {
 		int row,
 		out T value
 	) {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		return _map.TryGet( column, row, 0, out value );
 	}
 
@@ -79,7 +75,6 @@ public sealed class ChunkedGrid<T> : IDisposable where T : unmanaged {
 		int column,
 		int row
 	) {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		return _map.IsPopulated( column, row );
 	}
 
@@ -90,7 +85,6 @@ public sealed class ChunkedGrid<T> : IDisposable where T : unmanaged {
 		int column,
 		int row
 	) {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		_map.ClearCell( column, row );
 	}
 
@@ -98,7 +92,6 @@ public sealed class ChunkedGrid<T> : IDisposable where T : unmanaged {
 		int chunkColumn,
 		int chunkRow
 	) {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		return _map.FindStorage( chunkColumn, chunkRow ) is not null;
 	}
 
@@ -107,7 +100,6 @@ public sealed class ChunkedGrid<T> : IDisposable where T : unmanaged {
 		int chunkRow,
 		out GridChunk<T> chunk
 	) {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		GridChunkStorage<T>? storage = _map.FindStorage( chunkColumn, chunkRow );
 		if( storage is null ) {
 			chunk = default;
@@ -121,7 +113,6 @@ public sealed class ChunkedGrid<T> : IDisposable where T : unmanaged {
 		int chunkColumn,
 		int chunkRow
 	) {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		return _map.CreateView( _map.GetOrCreateStorage( chunkColumn, chunkRow ), 0 );
 	}
 
@@ -129,7 +120,6 @@ public sealed class ChunkedGrid<T> : IDisposable where T : unmanaged {
 		int chunkColumn,
 		int chunkRow
 	) {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		return _map.Remove( chunkColumn, chunkRow );
 	}
 
@@ -138,7 +128,6 @@ public sealed class ChunkedGrid<T> : IDisposable where T : unmanaged {
 	/// not have chunks added or removed during enumeration.
 	/// </summary>
 	public GridChunkEnumerator<T> EnumerateChunks() {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		return new GridChunkEnumerator<T>( _map, 0 );
 	}
 
@@ -151,7 +140,6 @@ public sealed class ChunkedGrid<T> : IDisposable where T : unmanaged {
 		int chunkRow,
 		out GridChunkNeighbourhood<T> neighbourhood
 	) {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		GridChunkStorage<T>? storage = _map.FindStorage( chunkColumn, chunkRow );
 		if( storage is null ) {
 			neighbourhood = default;
@@ -168,7 +156,6 @@ public sealed class ChunkedGrid<T> : IDisposable where T : unmanaged {
 	/// removed during enumeration.
 	/// </summary>
 	public GridChunkNeighbourhoodEnumerator<T> EnumerateNeighbourhoods() {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		return new GridChunkNeighbourhoodEnumerator<T>( _map, 0 );
 	}
 
@@ -277,24 +264,13 @@ public sealed class ChunkedGrid<T> : IDisposable where T : unmanaged {
 	/// </summary>
 	/// <returns>The number of chunks removed.</returns>
 	public int Compact() {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		return _map.Compact();
-	}
-
-	public void Dispose() {
-		if( _disposed ) {
-			return;
-		}
-		_map.Reset();
-		_disposed = true;
 	}
 
 	private void ValidateSource<TSource>(
 		ChunkedGrid<TSource> source
 	) where TSource : unmanaged {
-		ObjectDisposedException.ThrowIf( _disposed, this );
 		ArgumentNullException.ThrowIfNull( source );
-		ObjectDisposedException.ThrowIf( source._disposed, source );
 		if( ReferenceEquals( source, this ) ) {
 			throw new ArgumentException( "A grid cannot be combined with itself.", nameof( source ) );
 		}

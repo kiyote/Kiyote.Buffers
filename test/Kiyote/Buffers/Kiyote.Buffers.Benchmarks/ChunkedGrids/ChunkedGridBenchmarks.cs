@@ -44,19 +44,9 @@ public class ChunkedGridBenchmarks {
 		_composed = Compose();
 	}
 
-	[GlobalCleanup]
-	public void GlobalCleanup() {
-		_block.Dispose();
-		_attachTarget.Dispose();
-		_detachTarget.Dispose();
-		_composed.Dispose();
-	}
-
 	[Benchmark]
 	public ChunkedGrid<float> Compose_NewGrid() {
-		ChunkedGrid<float> grid = Compose();
-		grid.Dispose();
-		return grid;
+		return Compose();
 	}
 
 	[Benchmark]

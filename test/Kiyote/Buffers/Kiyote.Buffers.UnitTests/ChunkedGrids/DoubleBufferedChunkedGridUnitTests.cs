@@ -7,9 +7,9 @@ public sealed class DoubleBufferedChunkedGridUnitTests {
 
 	[Test]
 	public void Attach_WritesCurrentOnly_SharesPresence() {
-		using ChunkedGrid<float> source = new();
+		ChunkedGrid<float> source = new();
 		source[ 3, 4 ] = 7f;
-		using DoubleBufferedChunkedGrid<float> grid = new();
+		DoubleBufferedChunkedGrid<float> grid = new();
 
 		grid.Attach( source, 0, 0 );
 
@@ -23,9 +23,9 @@ public sealed class DoubleBufferedChunkedGridUnitTests {
 
 	[Test]
 	public void Swap_ExchangesBuffers() {
-		using ChunkedGrid<float> source = new();
+		ChunkedGrid<float> source = new();
 		source[ 0, 0 ] = 1f;
-		using DoubleBufferedChunkedGrid<float> grid = new();
+		DoubleBufferedChunkedGrid<float> grid = new();
 		grid.Attach( source, 0, 0 );
 
 		grid.Swap();
@@ -40,7 +40,7 @@ public sealed class DoubleBufferedChunkedGridUnitTests {
 
 	[Test]
 	public void TrySet_UnpopulatedCell_DoesNotChangeTopology() {
-		using DoubleBufferedChunkedGrid<float> grid = new();
+		DoubleBufferedChunkedGrid<float> grid = new();
 
 		Assert.Multiple( () => {
 			Assert.That( grid.TrySet( 0, 0, GridBuffer.Current, 1f ), Is.False );
@@ -50,9 +50,9 @@ public sealed class DoubleBufferedChunkedGridUnitTests {
 
 	[Test]
 	public void TrySet_PopulatedCell_WritesSelectedBuffer() {
-		using ChunkedGrid<float> source = new();
+		ChunkedGrid<float> source = new();
 		source[ 0, 0 ] = 1f;
-		using DoubleBufferedChunkedGrid<float> grid = new();
+		DoubleBufferedChunkedGrid<float> grid = new();
 		grid.Attach( source, 0, 0 );
 
 		Assert.That( grid.TrySet( 0, 0, GridBuffer.Alternate, 5f ), Is.True );
@@ -66,9 +66,9 @@ public sealed class DoubleBufferedChunkedGridUnitTests {
 
 	[Test]
 	public void CopyCurrentToAlternate_CopiesValues() {
-		using ChunkedGrid<float> source = new();
+		ChunkedGrid<float> source = new();
 		source[ 2, 2 ] = 3f;
-		using DoubleBufferedChunkedGrid<float> grid = new();
+		DoubleBufferedChunkedGrid<float> grid = new();
 		grid.Attach( source, 0, 0 );
 
 		grid.CopyCurrentToAlternate();
@@ -79,9 +79,9 @@ public sealed class DoubleBufferedChunkedGridUnitTests {
 
 	[Test]
 	public void CopyAlternateToCurrent_CopiesValues() {
-		using ChunkedGrid<float> source = new();
+		ChunkedGrid<float> source = new();
 		source[ 2, 2 ] = 3f;
-		using DoubleBufferedChunkedGrid<float> grid = new();
+		DoubleBufferedChunkedGrid<float> grid = new();
 		grid.Attach( source, 0, 0 );
 
 		grid.CopyAlternateToCurrent();
@@ -92,9 +92,9 @@ public sealed class DoubleBufferedChunkedGridUnitTests {
 
 	[Test]
 	public void Detach_UnpopulatesBothBuffers() {
-		using ChunkedGrid<float> source = new();
+		ChunkedGrid<float> source = new();
 		source[ 1, 1 ] = 1f;
-		using DoubleBufferedChunkedGrid<float> grid = new();
+		DoubleBufferedChunkedGrid<float> grid = new();
 		grid.Attach( source, 0, 0 );
 
 		grid.Detach( source, 0, 0 );
@@ -107,10 +107,10 @@ public sealed class DoubleBufferedChunkedGridUnitTests {
 
 	[Test]
 	public void EnumerateChunks_TopologyChanged_Throws() {
-		using ChunkedGrid<float> source = new();
+		ChunkedGrid<float> source = new();
 		source[ 0, 0 ] = 1f;
 		source[ 64, 0 ] = 1f;
-		using DoubleBufferedChunkedGrid<float> grid = new();
+		DoubleBufferedChunkedGrid<float> grid = new();
 		grid.Attach( source, 0, 0 );
 
 		Assert.That( () => {
@@ -122,9 +122,9 @@ public sealed class DoubleBufferedChunkedGridUnitTests {
 
 	[Test]
 	public void EnumerateChunks_ValueWrites_DoNotThrow() {
-		using ChunkedGrid<float> source = new();
+		ChunkedGrid<float> source = new();
 		source[ 0, 0 ] = 1f;
-		using DoubleBufferedChunkedGrid<float> grid = new();
+		DoubleBufferedChunkedGrid<float> grid = new();
 		grid.Attach( source, 0, 0 );
 
 		foreach( BufferedChunk<float> chunk in grid.EnumerateChunks() ) {
@@ -137,10 +137,10 @@ public sealed class DoubleBufferedChunkedGridUnitTests {
 
 	[Test]
 	public void EnumerateNeighbourhoods_ExposesBothBuffers() {
-		using ChunkedGrid<float> source = new();
+		ChunkedGrid<float> source = new();
 		source[ 0, 0 ] = 1f;
 		source[ 64, 0 ] = 2f;
-		using DoubleBufferedChunkedGrid<float> grid = new();
+		DoubleBufferedChunkedGrid<float> grid = new();
 		grid.Attach( source, 0, 0 );
 		grid.CopyCurrentToAlternate();
 		grid.Swap();
