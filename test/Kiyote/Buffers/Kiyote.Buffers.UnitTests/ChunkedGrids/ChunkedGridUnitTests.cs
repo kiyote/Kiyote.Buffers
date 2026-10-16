@@ -582,6 +582,25 @@ public class ChunkedGridUnitTests {
 		}
 	}
 
+	[Test]
+	public void TryGetPopulatedBounds_ExactCellBounds() {
+		ChunkedGrid<float> grid = new( 8 );
+
+		bool emptyFound = grid.TryGetPopulatedBounds( out _, out _, out _, out _ );
+		grid[ -3, 2 ] = 1f;
+		grid[ 12, 20 ] = 1f;
+		grid[ 40, 5 ] = 1f;
+		grid.Clear( 40, 5 );
+		bool found = grid.TryGetPopulatedBounds( out int column, out int row, out int width, out int height );
+
+		using( Assert.EnterMultipleScope() ) {
+			Assert.That( emptyFound, Is.False );
+			Assert.That( found, Is.True );
+			Assert.That( (column, row, width, height), Is.EqualTo( (-3, 2, 16, 19) ) );
+			Assert.That( grid.Width, Is.EqualTo( 56 ) );
+		}
+	}
+
 	private readonly struct ColumnExtractor : ICellExtractor<float, int> {
 
 		public bool TryExtract(

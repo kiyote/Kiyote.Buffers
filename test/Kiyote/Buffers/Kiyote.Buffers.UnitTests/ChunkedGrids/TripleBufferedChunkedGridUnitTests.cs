@@ -112,6 +112,43 @@ public class TripleBufferedChunkedGridUnitTests {
 		}
 	}
 
+	[Test]
+	public void Acquire_AfterAttachAllocatingChunks_LeaseReadsValues() {
+		TripleBufferedChunkedGrid<float> grid = new( 8 );
+		ChunkedGrid<float> source = new( 8 );
+		source[ 3, 3 ] = 1f;
+		source[ 20, 3 ] = 2f;
+
+		grid.Attach( source, 5, 0 );
+		grid.Swap();
+		using TripleBufferedLease<float> lease = grid.Acquire();
+		int chunks = 0;
+		foreach( GridChunk<float> chunk in lease.EnumerateChunks() ) {
+			chunks++;
+		}
+
+		using( Assert.EnterMultipleScope() ) {
+			Assert.That( lease.TryGet( 8, 3, out float first ), Is.True );
+			Assert.That( first, Is.EqualTo( 1f ) );
+			Assert.That( lease.TryGet( 25, 3, out float second ), Is.True );
+			Assert.That( second, Is.EqualTo( 2f ) );
+			Assert.That( chunks, Is.EqualTo( lease.ChunkCount ) );
+			Assert.That( chunks, Is.EqualTo( 2 ) );
+		}
+	}
+
+	[Test]
+	public void TryGetPopulatedBounds_ExactCellBounds() {
+		TripleBufferedChunkedGrid<float> grid = CreateGrid();
+
+		bool found = grid.TryGetPopulatedBounds( out int column, out int row, out int width, out int height );
+
+		using( Assert.EnterMultipleScope() ) {
+			Assert.That( found, Is.True );
+			Assert.That( (column, row, width, height), Is.EqualTo( (0, 0, 1, 1) ) );
+		}
+	}
+
 	private static TripleBufferedChunkedGrid<float> CreateGrid() {
 		TripleBufferedChunkedGrid<float> grid = new();
 		ChunkedGrid<float> source = new();

@@ -47,6 +47,16 @@ public sealed class DoubleBufferedChunkedGrid<T> where T : unmanaged {
 
 	public int Height => _map.Height;
 
+	/// <inheritdoc cref="ChunkedGridLayout.TryGetPopulatedBounds(out int, out int, out int, out int)"/>
+	public bool TryGetPopulatedBounds(
+		out int column,
+		out int row,
+		out int width,
+		out int height
+	) {
+		return _map.Layout.TryGetPopulatedBounds( out column, out row, out width, out height );
+	}
+
 	/// <summary>
 	/// Exchanges the roles of the current and alternate buffers. O(1).
 	/// </summary>

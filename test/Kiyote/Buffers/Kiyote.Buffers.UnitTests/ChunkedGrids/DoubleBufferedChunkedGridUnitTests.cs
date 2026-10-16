@@ -106,6 +106,22 @@ public sealed class DoubleBufferedChunkedGridUnitTests {
 	}
 
 	[Test]
+	public void TryGetPopulatedBounds_AfterAttach_ExactCellBounds() {
+		ChunkedGrid<float> source = new();
+		source[ 1, 2 ] = 1f;
+		source[ 5, 9 ] = 1f;
+		DoubleBufferedChunkedGrid<float> grid = new();
+
+		grid.Attach( source, 10, -20 );
+		bool found = grid.TryGetPopulatedBounds( out int column, out int row, out int width, out int height );
+
+		using( Assert.EnterMultipleScope() ) {
+			Assert.That( found, Is.True );
+			Assert.That( (column, row, width, height), Is.EqualTo( (11, -18, 5, 8) ) );
+		}
+	}
+
+	[Test]
 	public void EnumerateChunks_TopologyChanged_Throws() {
 		ChunkedGrid<float> source = new();
 		source[ 0, 0 ] = 1f;

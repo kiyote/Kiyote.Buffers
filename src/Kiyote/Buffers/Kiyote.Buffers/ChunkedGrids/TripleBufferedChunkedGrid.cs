@@ -67,6 +67,16 @@ public sealed class TripleBufferedChunkedGrid<T> where T : unmanaged {
 
 	public int Height => _map.Height;
 
+	/// <inheritdoc cref="ChunkedGridLayout.TryGetPopulatedBounds(out int, out int, out int, out int)"/>
+	public bool TryGetPopulatedBounds(
+		out int column,
+		out int row,
+		out int width,
+		out int height
+	) {
+		return _map.Layout.TryGetPopulatedBounds( out column, out row, out width, out height );
+	}
+
 	/// <summary>
 	/// Publishes the current buffer as the latest state, makes it the
 	/// alternate buffer, and selects a buffer that is not leased as the new
