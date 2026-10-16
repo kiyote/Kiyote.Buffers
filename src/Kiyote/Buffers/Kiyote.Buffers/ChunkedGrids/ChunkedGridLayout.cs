@@ -6,7 +6,7 @@ namespace Kiyote.Buffers.ChunkedGrids;
 /// <summary>
 /// The topology of a sparse chunked grid: which square, power-of-two sized
 /// chunks are allocated and which of their cells are populated. Holds no
-/// values; any number of <c>ChunkedGridLayer&lt;T&gt;</c> instances of any
+/// values; any number of <see cref="ChunkedGridLayer{T}"/> instances of any
 /// element type can share one layout.
 /// </summary>
 /// <remarks>
