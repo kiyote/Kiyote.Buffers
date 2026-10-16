@@ -12,9 +12,9 @@ internal interface IChunkRunOperation<TSource, T>
 
 	/// <param name="sourceValues">The values of the source chunk.</param>
 	/// <param name="sourceIndex">Value index of the first cell of the run in <paramref name="sourceValues"/>.</param>
-	/// <param name="targetValues">The values of the target chunk.</param>
+	/// <param name="targetBuffers">The value buffers of the target chunk.</param>
 	/// <param name="targetPresence">The presence of the target chunk.</param>
-	/// <param name="targetIndex">Value index of the first cell of the run in <paramref name="targetValues"/>.</param>
+	/// <param name="targetIndex">Value index of the first cell of the run in each target buffer.</param>
 	/// <param name="targetPresenceRow">Index of the first presence word of the target row.</param>
 	/// <param name="targetBit">Bit offset of the run within the target presence row.</param>
 	/// <param name="bits">Source presence of the run; bit <c>i</c> is cell <c>i</c>.</param>
@@ -25,7 +25,7 @@ internal interface IChunkRunOperation<TSource, T>
 	bool Process(
 		TSource[] sourceValues,
 		int sourceIndex,
-		T[] targetValues,
+		T[][] targetBuffers,
 		ulong[] targetPresence,
 		int targetIndex,
 		int targetPresenceRow,
@@ -39,10 +39,12 @@ internal interface IChunkRunOperation<TSource, T>
 
 internal struct CopyRunOperation<T> : IChunkRunOperation<T, T> where T : unmanaged {
 
+	public int Buffer;
+
 	public readonly bool Process(
 		T[] sourceValues,
 		int sourceIndex,
-		T[] targetValues,
+		T[][] targetBuffers,
 		ulong[] targetPresence,
 		int targetIndex,
 		int targetPresenceRow,
@@ -52,6 +54,7 @@ internal struct CopyRunOperation<T> : IChunkRunOperation<T, T> where T : unmanag
 		int sourceColumn,
 		int sourceRow
 	) {
+		T[] targetValues = targetBuffers[ Buffer ];
 		if( bits == PresenceBits.Mask( count ) ) {
 			sourceValues.AsSpan( sourceIndex, count ).CopyTo( targetValues.AsSpan( targetIndex, count ) );
 		} else {
@@ -73,11 +76,12 @@ internal struct ExtractRunOperation<TSource, T, TExtractor> : IChunkRunOperation
 	where TExtractor : struct, ICellExtractor<TSource, T> {
 
 	public TExtractor Extractor;
+	public int Buffer;
 
 	public bool Process(
 		TSource[] sourceValues,
 		int sourceIndex,
-		T[] targetValues,
+		T[][] targetBuffers,
 		ulong[] targetPresence,
 		int targetIndex,
 		int targetPresenceRow,
@@ -87,6 +91,7 @@ internal struct ExtractRunOperation<TSource, T, TExtractor> : IChunkRunOperation
 		int sourceColumn,
 		int sourceRow
 	) {
+		T[] targetValues = targetBuffers[ Buffer ];
 		ulong accepted = 0;
 		ulong remaining = bits;
 		while( remaining != 0 ) {
@@ -111,7 +116,7 @@ internal struct ClearRunOperation<TSource, T> : IChunkRunOperation<TSource, T>
 	public readonly bool Process(
 		TSource[] sourceValues,
 		int sourceIndex,
-		T[] targetValues,
+		T[][] targetBuffers,
 		ulong[] targetPresence,
 		int targetIndex,
 		int targetPresenceRow,
@@ -136,7 +141,7 @@ internal struct ExtractClearRunOperation<TSource, T, TExtractor> : IChunkRunOper
 	public bool Process(
 		TSource[] sourceValues,
 		int sourceIndex,
-		T[] targetValues,
+		T[][] targetBuffers,
 		ulong[] targetPresence,
 		int targetIndex,
 		int targetPresenceRow,
@@ -170,7 +175,7 @@ internal struct OverlapRunOperation<TSource, T> : IChunkRunOperation<TSource, T>
 	public readonly bool Process(
 		TSource[] sourceValues,
 		int sourceIndex,
-		T[] targetValues,
+		T[][] targetBuffers,
 		ulong[] targetPresence,
 		int targetIndex,
 		int targetPresenceRow,

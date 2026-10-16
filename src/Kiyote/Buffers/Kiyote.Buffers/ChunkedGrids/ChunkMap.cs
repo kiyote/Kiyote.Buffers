@@ -254,7 +254,7 @@ internal sealed class ChunkMap<T> where T : unmanaged {
 		}
 
 		OverlapRunOperation<TSource, T> operation = default;
-		return !WalkRuns( source, 0, column, row, 0, create: false, ref operation );
+		return !WalkRuns( source, 0, column, row, create: false, ref operation );
 	}
 
 	/// <summary>
@@ -270,8 +270,10 @@ internal sealed class ChunkMap<T> where T : unmanaged {
 		int buffer
 	) {
 		if( !IsAlignedWith( source, column, row ) ) {
-			CopyRunOperation<T> copy = default;
-			_ = WalkRuns( source, sourceBuffer, column, row, buffer, create: true, ref copy );
+			CopyRunOperation<T> copy = new() {
+				Buffer = buffer
+			};
+			_ = WalkRuns( source, sourceBuffer, column, row, create: true, ref copy );
 			return;
 		}
 
@@ -303,9 +305,10 @@ internal sealed class ChunkMap<T> where T : unmanaged {
 	) where TSource : unmanaged
 	  where TExtractor : struct, ICellExtractor<TSource, T> {
 		ExtractRunOperation<TSource, T, TExtractor> operation = new() {
-			Extractor = extractor
+			Extractor = extractor,
+			Buffer = buffer
 		};
-		_ = WalkRuns( source, sourceBuffer, column, row, buffer, create: true, ref operation );
+		_ = WalkRuns( source, sourceBuffer, column, row, create: true, ref operation );
 	}
 
 	/// <summary>
@@ -318,7 +321,7 @@ internal sealed class ChunkMap<T> where T : unmanaged {
 	) where TSource : unmanaged {
 		if( !IsAlignedWith( source, column, row ) ) {
 			ClearRunOperation<TSource, T> clear = default;
-			_ = WalkRuns( source, 0, column, row, 0, create: false, ref clear );
+			_ = WalkRuns( source, 0, column, row, create: false, ref clear );
 			return;
 		}
 
@@ -348,7 +351,7 @@ internal sealed class ChunkMap<T> where T : unmanaged {
 		ExtractClearRunOperation<TSource, T, TExtractor> operation = new() {
 			Extractor = extractor
 		};
-		_ = WalkRuns( source, sourceBuffer, column, row, 0, create: false, ref operation );
+		_ = WalkRuns( source, sourceBuffer, column, row, create: false, ref operation );
 	}
 
 	/// <summary>
@@ -362,7 +365,6 @@ internal sealed class ChunkMap<T> where T : unmanaged {
 		int sourceBuffer,
 		int column,
 		int row,
-		int buffer,
 		bool create,
 		ref TOperation operation
 	) where TSource : unmanaged
@@ -409,7 +411,7 @@ internal sealed class ChunkMap<T> where T : unmanaged {
 							&& !operation.Process(
 								sourceValues,
 								sourceRowStart + sourceLocalColumn,
-								target.Buffers[ buffer ],
+								target.Buffers,
 								target.Presence,
 								targetRowStart + targetLocalColumn,
 								targetPresenceRow,
