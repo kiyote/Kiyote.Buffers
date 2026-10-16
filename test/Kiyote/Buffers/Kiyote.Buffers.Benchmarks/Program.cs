@@ -23,7 +23,7 @@ BenchmarkSwitcher
 		//typeof( NumericBufferOperatorBenchmarks ),
 		//typeof( BufferAnalyzerBenchmarks )
 		typeof( ChunkedGridBenchmarks ),
-		//typeof( DoubleBufferedChunkedGridBenchmarks ),
+		typeof( DoubleBufferedChunkedGridBenchmarks ),
 	] )
 	.RunAll( config, args );
 

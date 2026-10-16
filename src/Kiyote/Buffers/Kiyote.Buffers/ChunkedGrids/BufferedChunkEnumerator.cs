@@ -2,32 +2,31 @@ namespace Kiyote.Buffers.ChunkedGrids;
 
 /// <summary>
 /// Enumerates both buffers of the allocated chunks of a
-/// multi-buffered grid. Throws
+/// multi-buffered grid in ascending chunk index order. Throws
 /// <see cref="InvalidOperationException"/> if the topology changes during enumeration.
 /// </summary>
 public ref struct BufferedChunkEnumerator<T> where T : unmanaged {
 
-	private ChunkCursor<T> _cursor;
-	private readonly int _current;
-	private readonly int _alternate;
+	private readonly ChunkValues<T> _current;
+	private readonly ChunkValues<T> _alternate;
+	private ChunkIndexEnumerator _indices;
 
 	internal BufferedChunkEnumerator(
-		ChunkMap<T> map,
-		int current,
-		int alternate
+		ChunkValues<T> current,
+		ChunkValues<T> alternate
 	) {
-		_cursor = new ChunkCursor<T>( map );
 		_current = current;
 		_alternate = alternate;
+		_indices = current.Layout.EnumerateChunks();
 	}
 
 	public readonly BufferedChunk<T> Current => new(
-		_cursor.Map.CreateView( _cursor.Current, _current ),
-		_cursor.Map.CreateView( _cursor.Current, _alternate )
+		new GridChunk<T>( _current.Layout, _indices.Current, _current.Get( _indices.Current ) ),
+		new GridChunk<T>( _alternate.Layout, _indices.Current, _alternate.Get( _indices.Current ) )
 	);
 
 	public bool MoveNext() {
-		return _cursor.MoveNext();
+		return _indices.MoveNext();
 	}
 
 	public readonly BufferedChunkEnumerator<T> GetEnumerator() {

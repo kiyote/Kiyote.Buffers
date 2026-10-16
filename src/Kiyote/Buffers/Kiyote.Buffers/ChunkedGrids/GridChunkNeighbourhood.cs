@@ -10,29 +10,40 @@ namespace Kiyote.Buffers.ChunkedGrids;
 /// </remarks>
 public readonly ref struct GridChunkNeighbourhood<T> where T : unmanaged {
 
-	private readonly ChunkMap<T> _map;
+	private readonly ChunkedGridLayout _layout;
 	private readonly NeighbourChunks<T> _chunks;
-	private readonly int _buffer;
 
 	internal GridChunkNeighbourhood(
-		ChunkMap<T> map,
-		scoped in NeighbourChunks<T> chunks,
-		int buffer
+		ChunkedGridLayout layout,
+		ChunkValues<T> values,
+		int chunkIndex
 	) {
-		_map = map;
+		NeighbourChunks<T> chunks = default;
+		for( int k = 0; k < NeighbourChunks<T>.Length; k++ ) {
+			int index = layout.GetNeighbour( chunkIndex, k );
+			chunks[ k ] = index == ChunkedGridLayout.NoChunk
+				? new NeighbourChunk<T>( index, null, null )
+				: new NeighbourChunk<T>( index, values.Get( index ), layout.GetPresenceArray( index ) );
+		}
+		_layout = layout;
 		_chunks = chunks;
-		_buffer = buffer;
+		ChunkIndex = chunkIndex;
 	}
 
-	public int Size => _map.ChunkSize;
+	public int Size => _layout.ChunkSize;
 
-	public GridChunk<T> Center => _map.CreateView( _chunks[ NeighbourChunks<T>.CenterIndex ]!, _buffer );
+	/// <summary>
+	/// The index of the centre chunk in its <see cref="ChunkedGridLayout"/>.
+	/// </summary>
+	public int ChunkIndex { get; }
+
+	public GridChunk<T> Center => new( _layout, ChunkIndex, _chunks[ ChunkedGridLayout.CentreNeighbour ].Values! );
 
 	public bool HasNeighbour(
 		int dx,
 		int dy
 	) {
-		return Get( dx, dy ) is not null;
+		return Get( dx, dy ).Values is not null;
 	}
 
 	public bool TryGetNeighbour(
@@ -40,12 +51,12 @@ public readonly ref struct GridChunkNeighbourhood<T> where T : unmanaged {
 		int dy,
 		out GridChunk<T> chunk
 	) {
-		GridChunkStorage<T>? storage = Get( dx, dy );
-		if( storage is null ) {
+		NeighbourChunk<T> neighbour = Get( dx, dy );
+		if( neighbour.Values is null ) {
 			chunk = default;
 			return false;
 		}
-		chunk = _map.CreateView( storage, _buffer );
+		chunk = new GridChunk<T>( _layout, neighbour.Index, neighbour.Values );
 		return true;
 	}
 
@@ -56,10 +67,10 @@ public readonly ref struct GridChunkNeighbourhood<T> where T : unmanaged {
 	public Span<T> GetRowValues(
 		int localRow
 	) {
-		GridChunkStorage<T>? storage = Resolve( 0, localRow, out _, out int row );
-		return storage is null
+		NeighbourChunk<T> chunk = Resolve( 0, localRow, out _, out int row );
+		return chunk.Values is null
 			? []
-			: storage.Buffers[ _buffer ].AsSpan( row << _map.ChunkShift, _map.ChunkSize );
+			: chunk.Values.AsSpan( row << _layout.ChunkShift, _layout.ChunkSize );
 	}
 
 	/// <summary>
@@ -69,10 +80,11 @@ public readonly ref struct GridChunkNeighbourhood<T> where T : unmanaged {
 	public Span<ulong> GetPresenceRow(
 		int localRow
 	) {
-		GridChunkStorage<T>? storage = Resolve( 0, localRow, out _, out int row );
-		return storage is null
+		NeighbourChunk<T> chunk = Resolve( 0, localRow, out _, out int row );
+		int words = _layout.PresenceWordsPerRow;
+		return chunk.Presence is null
 			? []
-			: storage.Presence.AsSpan( row * _map.WordsPerRow, _map.WordsPerRow );
+			: chunk.Presence.AsSpan( row * words, words );
 	}
 
 	/// <summary>
@@ -85,25 +97,26 @@ public readonly ref struct GridChunkNeighbourhood<T> where T : unmanaged {
 		Span<T> values,
 		Span<ulong> presence
 	) {
-		int size = _map.ChunkSize;
-		int words = _map.WordsPerRow;
+		int size = _layout.ChunkSize;
+		int words = _layout.PresenceWordsPerRow;
 		ArgumentOutOfRangeException.ThrowIfLessThan( values.Length, size );
 		ArgumentOutOfRangeException.ThrowIfLessThan( presence.Length, words );
 
-		GridChunkStorage<T>? storage = Resolve( localColumn, 0, out int column, out _ );
+		NeighbourChunk<T> chunk = Resolve( localColumn, 0, out int column, out _ );
 		presence[ ..words ].Clear();
-		if( storage is null ) {
+		if( chunk.Values is null ) {
 			values[ ..size ].Clear();
 			return false;
 		}
 
-		T[] source = storage.Buffers[ _buffer ];
-		int shift = _map.ChunkShift;
+		T[] source = chunk.Values;
+		ulong[] sourcePresence = chunk.Presence!;
+		int shift = _layout.ChunkShift;
 		int word = column >> 6;
 		ulong bit = 1UL << ( column & 63 );
 		for( int r = 0; r < size; r++ ) {
 			values[ r ] = source[ ( r << shift ) + column ];
-			if( ( storage.Presence[ ( r * words ) + word ] & bit ) != 0 ) {
+			if( ( sourcePresence[ ( r * words ) + word ] & bit ) != 0 ) {
 				presence[ r >> 6 ] |= 1UL << ( r & 63 );
 			}
 		}
@@ -115,9 +128,9 @@ public readonly ref struct GridChunkNeighbourhood<T> where T : unmanaged {
 		int localRow,
 		out T value
 	) {
-		GridChunkStorage<T>? storage = Resolve( localColumn, localRow, out int column, out int row );
-		if( storage is not null && _map.IsBitSet( storage, column, row ) ) {
-			value = storage.Buffers[ _buffer ][ ( row << _map.ChunkShift ) + column ];
+		NeighbourChunk<T> chunk = Resolve( localColumn, localRow, out int column, out int row );
+		if( chunk.Values is not null && _layout.IsBitSet( chunk.Presence!, column, row ) ) {
+			value = chunk.Values[ ( row << _layout.ChunkShift ) + column ];
 			return true;
 		}
 		value = default;
@@ -128,11 +141,11 @@ public readonly ref struct GridChunkNeighbourhood<T> where T : unmanaged {
 		int localColumn,
 		int localRow
 	) {
-		GridChunkStorage<T>? storage = Resolve( localColumn, localRow, out int column, out int row );
-		return storage is not null && _map.IsBitSet( storage, column, row );
+		NeighbourChunk<T> chunk = Resolve( localColumn, localRow, out int column, out int row );
+		return chunk.Presence is not null && _layout.IsBitSet( chunk.Presence, column, row );
 	}
 
-	private GridChunkStorage<T>? Get(
+	private NeighbourChunk<T> Get(
 		int dx,
 		int dy
 	) {
@@ -143,19 +156,19 @@ public readonly ref struct GridChunkNeighbourhood<T> where T : unmanaged {
 		return _chunks[ ( ( dy + 1 ) * 3 ) + dx + 1 ];
 	}
 
-	private GridChunkStorage<T>? Resolve(
+	private NeighbourChunk<T> Resolve(
 		int localColumn,
 		int localRow,
 		out int column,
 		out int row
 	) {
-		int size = _map.ChunkSize;
+		int size = _layout.ChunkSize;
 		ArgumentOutOfRangeException.ThrowIfLessThan( localColumn, -size );
 		ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual( localColumn, 2 * size );
 		ArgumentOutOfRangeException.ThrowIfLessThan( localRow, -size );
 		ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual( localRow, 2 * size );
-		int shift = _map.ChunkShift;
-		int mask = _map.ChunkMask;
+		int shift = _layout.ChunkShift;
+		int mask = _layout.ChunkMask;
 		column = localColumn & mask;
 		row = localRow & mask;
 		return _chunks[ ( ( ( localRow >> shift ) + 1 ) * 3 ) + ( localColumn >> shift ) + 1 ];

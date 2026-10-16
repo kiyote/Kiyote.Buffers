@@ -1,33 +1,26 @@
 namespace Kiyote.Buffers.ChunkedGrids;
 
 /// <summary>
-/// Enumerates the allocated chunks of a grid with their neighbours resolved.
-/// Throws <see cref="InvalidOperationException"/> if the grid topology
-/// changes during enumeration.
+/// Enumerates the allocated chunks of a grid in ascending chunk index order,
+/// with their neighbours resolved. Throws <see cref="InvalidOperationException"/>
+/// if chunks are allocated or removed during enumeration.
 /// </summary>
 public ref struct GridChunkNeighbourhoodEnumerator<T> where T : unmanaged {
 
-	private ChunkCursor<T> _cursor;
-	private readonly int _buffer;
-	private NeighbourChunks<T> _current;
+	private readonly ChunkValues<T> _values;
+	private ChunkIndexEnumerator _indices;
 
 	internal GridChunkNeighbourhoodEnumerator(
-		ChunkMap<T> map,
-		int buffer
+		ChunkValues<T> values
 	) {
-		_cursor = new ChunkCursor<T>( map );
-		_buffer = buffer;
-		_current = default;
+		_values = values;
+		_indices = values.Layout.EnumerateChunks();
 	}
 
-	public readonly GridChunkNeighbourhood<T> Current => new( _cursor.Map, in _current, _buffer );
+	public readonly GridChunkNeighbourhood<T> Current => new( _values.Layout, _values, _indices.Current );
 
 	public bool MoveNext() {
-		if( !_cursor.MoveNext() ) {
-			return false;
-		}
-		_current = _cursor.Map.GatherNeighbours( _cursor.Current );
-		return true;
+		return _indices.MoveNext();
 	}
 
 	public readonly GridChunkNeighbourhoodEnumerator<T> GetEnumerator() {

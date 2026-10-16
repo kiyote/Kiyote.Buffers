@@ -564,6 +564,24 @@ public class ChunkedGridUnitTests {
 		Assert.That( withEastOrWest, Is.EqualTo( 2 ) );
 	}
 
+	[Test]
+	public void GetChunk_ChunkIndexAndPopulatedCount_Reported() {
+		ChunkedGrid<float> grid = new( 8 );
+		grid[ 0, 0 ] = 1f;
+		grid[ 9, 0 ] = 1f;
+		grid[ 10, 1 ] = 1f;
+
+		_ = grid.TryGetChunk( 1, 0, out GridChunk<float> chunk );
+		_ = grid.TryGetNeighbourhood( 1, 0, out GridChunkNeighbourhood<float> neighbourhood );
+
+		using( Assert.EnterMultipleScope() ) {
+			Assert.That( chunk.ChunkIndex, Is.EqualTo( 1 ) );
+			Assert.That( chunk.PopulatedCount, Is.EqualTo( 2 ) );
+			Assert.That( neighbourhood.ChunkIndex, Is.EqualTo( 1 ) );
+			Assert.That( neighbourhood.Center.ChunkIndex, Is.EqualTo( 1 ) );
+		}
+	}
+
 	private readonly struct ColumnExtractor : ICellExtractor<float, int> {
 
 		public bool TryExtract(

@@ -130,7 +130,7 @@ public sealed class TripleBufferedChunkedGrid<T> where T : unmanaged {
 		int chunkColumn,
 		int chunkRow
 	) {
-		return _map.FindStorage( chunkColumn, chunkRow ) is not null;
+		return _map.FindChunk( chunkColumn, chunkRow ) != ChunkedGridLayout.NoChunk;
 	}
 
 	public bool TryGetChunk(
@@ -138,14 +138,14 @@ public sealed class TripleBufferedChunkedGrid<T> where T : unmanaged {
 		int chunkRow,
 		out BufferedChunk<T> chunk
 	) {
-		GridChunkStorage<T>? storage = _map.FindStorage( chunkColumn, chunkRow );
-		if( storage is null ) {
+		int index = _map.FindChunk( chunkColumn, chunkRow );
+		if( index == ChunkedGridLayout.NoChunk ) {
 			chunk = default;
 			return false;
 		}
 		chunk = new BufferedChunk<T>(
-			_map.CreateView( storage, _current ),
-			_map.CreateView( storage, _alternate )
+			_map.CreateView( index, _current ),
+			_map.CreateView( index, _alternate )
 		);
 		return true;
 	}
@@ -158,7 +158,7 @@ public sealed class TripleBufferedChunkedGrid<T> where T : unmanaged {
 	}
 
 	public BufferedChunkEnumerator<T> EnumerateChunks() {
-		return new BufferedChunkEnumerator<T>( _map, _current, _alternate );
+		return new BufferedChunkEnumerator<T>( _map.GetBuffer( _current ), _map.GetBuffer( _alternate ) );
 	}
 
 	public bool TryGetNeighbourhood(
@@ -166,21 +166,20 @@ public sealed class TripleBufferedChunkedGrid<T> where T : unmanaged {
 		int chunkRow,
 		out BufferedNeighbourhood<T> neighbourhood
 	) {
-		GridChunkStorage<T>? storage = _map.FindStorage( chunkColumn, chunkRow );
-		if( storage is null ) {
+		int index = _map.FindChunk( chunkColumn, chunkRow );
+		if( index == ChunkedGridLayout.NoChunk ) {
 			neighbourhood = default;
 			return false;
 		}
-		NeighbourChunks<T> chunks = _map.GatherNeighbours( storage );
 		neighbourhood = new BufferedNeighbourhood<T>(
-			new GridChunkNeighbourhood<T>( _map, in chunks, _current ),
-			new GridChunkNeighbourhood<T>( _map, in chunks, _alternate )
+			_map.CreateNeighbourhood( index, _current ),
+			_map.CreateNeighbourhood( index, _alternate )
 		);
 		return true;
 	}
 
 	public BufferedNeighbourhoodEnumerator<T> EnumerateNeighbourhoods() {
-		return new BufferedNeighbourhoodEnumerator<T>( _map, _current, _alternate );
+		return new BufferedNeighbourhoodEnumerator<T>( _map.GetBuffer( _current ), _map.GetBuffer( _alternate ) );
 	}
 
 	/// <summary>

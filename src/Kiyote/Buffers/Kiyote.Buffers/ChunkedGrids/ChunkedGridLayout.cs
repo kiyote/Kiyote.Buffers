@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Kiyote.Buffers.ChunkedGrids;
 
@@ -176,10 +177,7 @@ public sealed class ChunkedGridLayout {
 		int chunkColumn,
 		int chunkRow
 	) {
-		int index = FindChunk( chunkColumn, chunkRow );
-		return index != NoChunk
-			? index
-			: AllocateChunk( chunkColumn, chunkRow );
+		return GetOrCreateEntry( chunkColumn, chunkRow ).Index;
 	}
 
 	/// <summary>
@@ -272,9 +270,9 @@ public sealed class ChunkedGridLayout {
 		int column,
 		int row
 	) {
-		int index = FindChunk( column >> ChunkShift, row >> ChunkShift );
-		return index != NoChunk
-			&& IsBitSet( _presence[ index ]!, column & ChunkMask, row & ChunkMask );
+		ChunkEntry? entry = FindEntry( column >> ChunkShift, row >> ChunkShift );
+		return entry is not null
+			&& IsBitSet( entry.Presence, column & ChunkMask, row & ChunkMask );
 	}
 
 	/// <summary>
@@ -294,12 +292,12 @@ public sealed class ChunkedGridLayout {
 		out int chunkIndex,
 		out int localIndex
 	) {
-		int index = FindChunk( column >> ChunkShift, row >> ChunkShift );
-		if( index != NoChunk ) {
+		ChunkEntry? entry = FindEntry( column >> ChunkShift, row >> ChunkShift );
+		if( entry is not null ) {
 			int localColumn = column & ChunkMask;
 			int localRow = row & ChunkMask;
-			if( IsBitSet( _presence[ index ]!, localColumn, localRow ) ) {
-				chunkIndex = index;
+			if( IsBitSet( entry.Presence, localColumn, localRow ) ) {
+				chunkIndex = entry.Index;
 				localIndex = ( localRow << ChunkShift ) + localColumn;
 				return true;
 			}
@@ -317,9 +315,9 @@ public sealed class ChunkedGridLayout {
 		int column,
 		int row
 	) {
-		int index = GetOrCreateChunk( column >> ChunkShift, row >> ChunkShift );
+		ChunkEntry entry = GetOrCreateEntry( column >> ChunkShift, row >> ChunkShift );
 		int localColumn = column & ChunkMask;
-		ref ulong word = ref _presence[ index ]![ ( ( row & ChunkMask ) * PresenceWordsPerRow ) + ( localColumn >> 6 ) ];
+		ref ulong word = ref entry.Presence[ ( ( row & ChunkMask ) * PresenceWordsPerRow ) + ( localColumn >> 6 ) ];
 		ulong bit = 1UL << ( localColumn & 63 );
 		bool changed = ( word & bit ) == 0;
 		word |= bit;
@@ -335,12 +333,12 @@ public sealed class ChunkedGridLayout {
 		int column,
 		int row
 	) {
-		int index = FindChunk( column >> ChunkShift, row >> ChunkShift );
-		if( index == NoChunk ) {
+		ChunkEntry? entry = FindEntry( column >> ChunkShift, row >> ChunkShift );
+		if( entry is null ) {
 			return false;
 		}
 		int localColumn = column & ChunkMask;
-		ref ulong word = ref _presence[ index ]![ ( ( row & ChunkMask ) * PresenceWordsPerRow ) + ( localColumn >> 6 ) ];
+		ref ulong word = ref entry.Presence[ ( ( row & ChunkMask ) * PresenceWordsPerRow ) + ( localColumn >> 6 ) ];
 		ulong bit = 1UL << ( localColumn & 63 );
 		bool changed = ( word & bit ) != 0;
 		word &= ~bit;
@@ -366,8 +364,7 @@ public sealed class ChunkedGridLayout {
 		while( length > 0 ) {
 			int localColumn = column & ChunkMask;
 			int count = Math.Min( length, ChunkSize - localColumn );
-			int index = GetOrCreateChunk( column >> ChunkShift, chunkRow );
-			changed += SetBits( _presence[ index ]!, rowStart, localColumn, count );
+			changed += SetBits( GetOrCreateEntry( column >> ChunkShift, chunkRow ).Presence, rowStart, localColumn, count );
 			column += count;
 			length -= count;
 		}
@@ -393,9 +390,9 @@ public sealed class ChunkedGridLayout {
 		while( length > 0 ) {
 			int localColumn = column & ChunkMask;
 			int count = Math.Min( length, ChunkSize - localColumn );
-			int index = FindChunk( column >> ChunkShift, chunkRow );
-			if( index != NoChunk ) {
-				changed += ClearBits( _presence[ index ]!, rowStart, localColumn, count );
+			ChunkEntry? entry = FindEntry( column >> ChunkShift, chunkRow );
+			if( entry is not null ) {
+				changed += ClearBits( entry.Presence, rowStart, localColumn, count );
 			}
 			column += count;
 			length -= count;
@@ -589,18 +586,35 @@ public sealed class ChunkedGridLayout {
 		int chunkColumn,
 		int chunkRow
 	) {
+		ChunkEntry? entry = FindEntry( chunkColumn, chunkRow );
+		return entry is null ? NoChunk : entry.Index;
+	}
+
+	/// <summary>
+	/// Finds an allocated chunk without allocating, checking the one-entry
+	/// lookup cache inline before falling back to the dictionary.
+	/// </summary>
+	[MethodImpl( MethodImplOptions.AggressiveInlining )]
+	internal ChunkEntry? FindEntry(
+		int chunkColumn,
+		int chunkRow
+	) {
 		ChunkEntry? cache = _cache;
-		if( cache is not null
+		return cache is not null
 			&& cache.Column == chunkColumn
 			&& cache.Row == chunkRow
-		) {
-			return cache.Index;
-		}
-		if( _lookup.TryGetValue( Key( chunkColumn, chunkRow ), out ChunkEntry? entry ) ) {
-			_cache = entry;
-			return entry.Index;
-		}
-		return NoChunk;
+				? cache
+				: FindEntryUncached( chunkColumn, chunkRow );
+	}
+
+	/// <summary>
+	/// Gets an allocated chunk, allocating it if required.
+	/// </summary>
+	internal ChunkEntry GetOrCreateEntry(
+		int chunkColumn,
+		int chunkRow
+	) {
+		return FindEntry( chunkColumn, chunkRow ) ?? AllocateChunk( chunkColumn, chunkRow );
 	}
 
 	/// <summary>
@@ -665,7 +679,33 @@ public sealed class ChunkedGridLayout {
 		);
 	}
 
-	private int AllocateChunk(
+	/// <summary>
+	/// Finds an allocated chunk in the lookup dictionary, bypassing and not
+	/// updating the one-entry cache; for callers that keep their own cache.
+	/// </summary>
+	[MethodImpl( MethodImplOptions.AggressiveInlining )]
+	internal ChunkEntry? LookupEntry(
+		int chunkColumn,
+		int chunkRow
+	) {
+		return _lookup.TryGetValue( Key( chunkColumn, chunkRow ), out ChunkEntry? entry )
+			? entry
+			: null;
+	}
+
+	[MethodImpl( MethodImplOptions.NoInlining )]
+	private ChunkEntry? FindEntryUncached(
+		int chunkColumn,
+		int chunkRow
+	) {
+		if( _lookup.TryGetValue( Key( chunkColumn, chunkRow ), out ChunkEntry? entry ) ) {
+			_cache = entry;
+			return entry;
+		}
+		return null;
+	}
+
+	private ChunkEntry AllocateChunk(
 		int chunkColumn,
 		int chunkRow
 	) {
@@ -675,11 +715,11 @@ public sealed class ChunkedGridLayout {
 			ChunkCapacity = index + 1;
 		}
 
-		ChunkEntry entry = new( chunkColumn, chunkRow, index );
+		ChunkEntry entry = new( chunkColumn, chunkRow, index, new ulong[ PresenceWordsPerChunk ] );
 		bool wasEmpty = _lookup.Count == 0;
 		_lookup.Add( Key( chunkColumn, chunkRow ), entry );
 		_entries[ index ] = entry;
-		_presence[ index ] = new ulong[ PresenceWordsPerChunk ];
+		_presence[ index ] = entry.Presence;
 		_generations[ index ]++;
 
 		int start = index * NeighbourCount;
@@ -713,7 +753,7 @@ public sealed class ChunkedGridLayout {
 			_minChunkRow = Math.Min( _minChunkRow, chunkRow );
 			_maxChunkRow = Math.Max( _maxChunkRow, chunkRow );
 		}
-		return index;
+		return entry;
 	}
 
 	private void Free(
@@ -822,15 +862,18 @@ public sealed class ChunkedGridLayout {
 	/// <summary>
 	/// An allocated chunk; immutable so it can be cached as a single reference.
 	/// </summary>
-	private sealed class ChunkEntry(
+	internal sealed class ChunkEntry(
 		int column,
 		int row,
-		int index
+		int index,
+		ulong[] presence
 	) {
 		public int Column { get; } = column;
 
 		public int Row { get; } = row;
 
 		public int Index { get; } = index;
+
+		public ulong[] Presence { get; } = presence;
 	}
 }

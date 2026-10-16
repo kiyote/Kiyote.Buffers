@@ -48,17 +48,17 @@ public readonly struct TripleBufferedLease<T> : IDisposable, IEquatable<TripleBu
 		out GridChunk<T> chunk
 	) {
 		ChunkMap<T> map = _grid.Map;
-		GridChunkStorage<T>? storage = map.FindStorage( chunkColumn, chunkRow );
-		if( storage is null ) {
+		int index = map.FindChunk( chunkColumn, chunkRow );
+		if( index == ChunkedGridLayout.NoChunk ) {
 			chunk = default;
 			return false;
 		}
-		chunk = map.CreateView( storage, _buffer );
+		chunk = map.CreateView( index, _buffer );
 		return true;
 	}
 
 	public GridChunkEnumerator<T> EnumerateChunks() {
-		return new GridChunkEnumerator<T>( _grid.Map, _buffer );
+		return new GridChunkEnumerator<T>( _grid.Map.GetBuffer( _buffer ) );
 	}
 
 	public bool TryGetNeighbourhood(
@@ -67,18 +67,17 @@ public readonly struct TripleBufferedLease<T> : IDisposable, IEquatable<TripleBu
 		out GridChunkNeighbourhood<T> neighbourhood
 	) {
 		ChunkMap<T> map = _grid.Map;
-		GridChunkStorage<T>? storage = map.FindStorage( chunkColumn, chunkRow );
-		if( storage is null ) {
+		int index = map.FindChunk( chunkColumn, chunkRow );
+		if( index == ChunkedGridLayout.NoChunk ) {
 			neighbourhood = default;
 			return false;
 		}
-		NeighbourChunks<T> chunks = map.GatherNeighbours( storage );
-		neighbourhood = new GridChunkNeighbourhood<T>( map, in chunks, _buffer );
+		neighbourhood = map.CreateNeighbourhood( index, _buffer );
 		return true;
 	}
 
 	public GridChunkNeighbourhoodEnumerator<T> EnumerateNeighbourhoods() {
-		return new GridChunkNeighbourhoodEnumerator<T>( _grid.Map, _buffer );
+		return new GridChunkNeighbourhoodEnumerator<T>( _grid.Map.GetBuffer( _buffer ) );
 	}
 
 	public void Dispose() {

@@ -13,7 +13,7 @@ namespace Kiyote.Buffers.ChunkedGrids;
 public sealed class ChunkedGrid<T> where T : unmanaged {
 
 	public const int DefaultChunkSize = 64;
-	public const int MaximumChunkSize = ChunkMap<T>.MaximumChunkSize;
+	public const int MaximumChunkSize = ChunkedGridLayout.MaximumChunkSize;
 
 	private readonly ChunkMap<T> _map;
 
@@ -92,7 +92,7 @@ public sealed class ChunkedGrid<T> where T : unmanaged {
 		int chunkColumn,
 		int chunkRow
 	) {
-		return _map.FindStorage( chunkColumn, chunkRow ) is not null;
+		return _map.FindChunk( chunkColumn, chunkRow ) != ChunkedGridLayout.NoChunk;
 	}
 
 	public bool TryGetChunk(
@@ -100,12 +100,12 @@ public sealed class ChunkedGrid<T> where T : unmanaged {
 		int chunkRow,
 		out GridChunk<T> chunk
 	) {
-		GridChunkStorage<T>? storage = _map.FindStorage( chunkColumn, chunkRow );
-		if( storage is null ) {
+		int index = _map.FindChunk( chunkColumn, chunkRow );
+		if( index == ChunkedGridLayout.NoChunk ) {
 			chunk = default;
 			return false;
 		}
-		chunk = _map.CreateView( storage, 0 );
+		chunk = _map.CreateView( index, 0 );
 		return true;
 	}
 
@@ -113,7 +113,7 @@ public sealed class ChunkedGrid<T> where T : unmanaged {
 		int chunkColumn,
 		int chunkRow
 	) {
-		return _map.CreateView( _map.GetOrCreateStorage( chunkColumn, chunkRow ), 0 );
+		return _map.CreateView( _map.GetOrCreateChunk( chunkColumn, chunkRow ), 0 );
 	}
 
 	public bool RemoveChunk(
@@ -124,11 +124,11 @@ public sealed class ChunkedGrid<T> where T : unmanaged {
 	}
 
 	/// <summary>
-	/// Enumerates the allocated chunks in no particular order. The grid must
+	/// Enumerates the allocated chunks in ascending chunk index order. The grid must
 	/// not have chunks added or removed during enumeration.
 	/// </summary>
 	public GridChunkEnumerator<T> EnumerateChunks() {
-		return new GridChunkEnumerator<T>( _map, 0 );
+		return new GridChunkEnumerator<T>( _map.GetBuffer( 0 ) );
 	}
 
 	/// <summary>
@@ -140,23 +140,22 @@ public sealed class ChunkedGrid<T> where T : unmanaged {
 		int chunkRow,
 		out GridChunkNeighbourhood<T> neighbourhood
 	) {
-		GridChunkStorage<T>? storage = _map.FindStorage( chunkColumn, chunkRow );
-		if( storage is null ) {
+		int index = _map.FindChunk( chunkColumn, chunkRow );
+		if( index == ChunkedGridLayout.NoChunk ) {
 			neighbourhood = default;
 			return false;
 		}
-		NeighbourChunks<T> chunks = _map.GatherNeighbours( storage );
-		neighbourhood = new GridChunkNeighbourhood<T>( _map, in chunks, 0 );
+		neighbourhood = _map.CreateNeighbourhood( index, 0 );
 		return true;
 	}
 
 	/// <summary>
-	/// Enumerates the allocated chunks, in no particular order, each with its
+	/// Enumerates the allocated chunks, in ascending chunk index order, each with its
 	/// eight neighbours resolved. The grid must not have chunks added or
 	/// removed during enumeration.
 	/// </summary>
 	public GridChunkNeighbourhoodEnumerator<T> EnumerateNeighbourhoods() {
-		return new GridChunkNeighbourhoodEnumerator<T>( _map, 0 );
+		return new GridChunkNeighbourhoodEnumerator<T>( _map.GetBuffer( 0 ) );
 	}
 
 	/// <summary>

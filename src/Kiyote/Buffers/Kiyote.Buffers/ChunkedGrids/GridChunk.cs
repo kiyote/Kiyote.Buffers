@@ -1,8 +1,8 @@
 namespace Kiyote.Buffers.ChunkedGrids;
 
 /// <summary>
-/// A view over one value buffer of a single allocated chunk of a
-/// <see cref="ChunkedGrid{T}"/> or <see cref="DoubleBufferedChunkedGrid{T}"/>.
+/// A view over one value buffer of a single allocated chunk, together with
+/// the chunk's presence.
 /// </summary>
 /// <remarks>
 /// <see cref="Values"/> is row-major with exactly <see cref="Size"/> elements per
@@ -18,22 +18,25 @@ public readonly ref struct GridChunk<T> where T : unmanaged {
 	private readonly ulong _fullWordMask;
 
 	internal GridChunk(
-		GridChunkStorage<T> storage,
-		int buffer,
-		int size,
-		int shift,
-		int presenceWordsPerRow,
-		ulong fullWordMask
+		ChunkedGridLayout layout,
+		int chunkIndex,
+		T[] values
 	) {
-		ChunkColumn = storage.ChunkColumn;
-		ChunkRow = storage.ChunkRow;
-		Size = size;
-		PresenceWordsPerRow = presenceWordsPerRow;
-		_shift = shift;
-		_fullWordMask = fullWordMask;
-		Values = new Span<T>( storage.Buffers[ buffer ], 0, size * size );
-		Presence = new Span<ulong>( storage.Presence, 0, size * presenceWordsPerRow );
+		ChunkIndex = chunkIndex;
+		ChunkColumn = layout.GetChunkColumn( chunkIndex );
+		ChunkRow = layout.GetChunkRow( chunkIndex );
+		Size = layout.ChunkSize;
+		PresenceWordsPerRow = layout.PresenceWordsPerRow;
+		_shift = layout.ChunkShift;
+		_fullWordMask = layout.FullWordMask;
+		Values = values;
+		Presence = layout.GetPresenceArray( chunkIndex );
 	}
+
+	/// <summary>
+	/// The index of this chunk in its <see cref="ChunkedGridLayout"/>.
+	/// </summary>
+	public int ChunkIndex { get; }
 
 	public int ChunkColumn { get; }
 
@@ -56,6 +59,11 @@ public readonly ref struct GridChunk<T> where T : unmanaged {
 	public Span<T> Values { get; }
 
 	public Span<ulong> Presence { get; }
+
+	/// <summary>
+	/// The number of populated cells. Computed on each access.
+	/// </summary>
+	public int PopulatedCount => ChunkedGridLayout.CountPopulated( Presence );
 
 	public Span<T> GetRowValues(
 		int localRow
@@ -81,17 +89,7 @@ public readonly ref struct GridChunk<T> where T : unmanaged {
 	/// <c>true</c> when every cell in the chunk is populated, allowing the
 	/// caller to skip masking entirely.
 	/// </summary>
-	public bool IsFull {
-		get {
-			ReadOnlySpan<ulong> presence = Presence;
-			for( int i = 0; i < presence.Length; i++ ) {
-				if( presence[ i ] != _fullWordMask ) {
-					return false;
-				}
-			}
-			return true;
-		}
-	}
+	public bool IsFull => !Presence.ContainsAnyExcept( _fullWordMask );
 
 	/// <summary>
 	/// <c>true</c> when no cell in the chunk is populated.
