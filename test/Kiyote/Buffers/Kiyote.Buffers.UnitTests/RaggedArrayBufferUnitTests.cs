@@ -1,7 +1,7 @@
 namespace Kiyote.Buffers.UnitTests;
 
 [TestFixture]
-public class ArrayBufferUnitTests {
+public class RaggedArrayBufferUnitTests {
 
 	[Test]
 	public void GetRowSpan_ValidRow_LengthMatchesColumns() {

@@ -1,4 +1,4 @@
-namespace Kiyote.Buffers;
+namespace Kiyote.Buffers.Analyzers;
 
 public interface IBufferAnalyzer {
 
@@ -19,7 +19,7 @@ public interface IBufferAnalyzer {
 		int startColumn,
 		int startRow,
 		TPassable isPassable
-	) where TPassable : struct, IPassable<T>;
+	) where TPassable : struct, ICellEval<T>;
 
 	/// <summary>
 	/// Finds every cell reachable from the starting point without crossing an
@@ -50,7 +50,7 @@ public interface IBufferAnalyzer {
 		int startRow,
 		TPassable isPassable,
 		out IReadOnlyList<BufferCell<T>> area
-	) where TPassable : struct, IPassable<T>;
+	) where TPassable : struct, ICellEval<T>;
 
 	/// <summary>
 	/// Reports every cell of the sealed region to <paramref name="visitor"/>
@@ -73,7 +73,7 @@ public interface IBufferAnalyzer {
 		TPassable isPassable,
 		ref TVisitor visitor
 	)
-		where TPassable : struct, IPassable<T>
+		where TPassable : struct, ICellEval<T>
 		where TVisitor : struct, ICellVisitor<T>;
 
 }

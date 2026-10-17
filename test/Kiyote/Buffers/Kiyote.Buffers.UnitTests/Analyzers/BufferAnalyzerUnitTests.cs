@@ -1,4 +1,4 @@
-namespace Kiyote.Buffers.UnitTests;
+namespace Kiyote.Buffers.Analyzers.UnitTests;
 
 [TestFixture]
 public sealed class BufferAnalyzerUnitTests {
@@ -387,9 +387,9 @@ public sealed class BufferAnalyzerUnitTests {
 		return buffer;
 	}
 
-	private readonly struct BoolPassable : IPassable<bool> {
+	private readonly struct BoolPassable : ICellEval<bool> {
 
-		public bool IsPassable(
+		public bool Evaluate(
 			bool value
 		) {
 			return value;

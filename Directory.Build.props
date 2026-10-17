@@ -1,9 +1,9 @@
 <Project>
 	<PropertyGroup>
-		<ProductVersion>0.14.0</ProductVersion>
+		<ProductVersion>0.15.0</ProductVersion>
 		<Version Condition=" '$(ProductVersion)' == '' ">0.0.1</Version>
 		<Version Condition=" '$(ProductVersion)' != '' ">$(ProductVersion)</Version>
-	</PropertyGroup>	
+	</PropertyGroup>
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
@@ -26,7 +26,7 @@
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 		<WarningsAsErrors />
 	</PropertyGroup>
-	
+
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<DefineConstants>DEBUG;TRACE</DefineConstants>
 	</PropertyGroup>

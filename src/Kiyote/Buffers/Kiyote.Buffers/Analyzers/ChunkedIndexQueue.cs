@@ -1,6 +1,6 @@
 using System.Buffers;
 
-namespace Kiyote.Buffers;
+namespace Kiyote.Buffers.Analyzers;
 
 /// <summary>
 /// A FIFO queue of cell indices backed by fixed size pooled blocks.

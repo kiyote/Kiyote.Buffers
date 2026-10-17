@@ -1,4 +1,4 @@
-namespace Kiyote.Buffers;
+namespace Kiyote.Buffers.Analyzers;
 
 /// <summary>
 /// Determines whether a given buffer value can be traversed.
@@ -13,18 +13,18 @@ namespace Kiyote.Buffers;
 /// </para>
 /// <example>
 /// <code>
-/// public readonly struct OpenFloor : IPassable&lt;Tile&gt; {
-///     public bool IsPassable( Tile value ) {
+/// public readonly struct OpenFloor : ICellEval&lt;Tile&gt; {
+///     public bool Evaluate( Tile value ) {
 ///         return value == Tile.Floor;
 ///     }
 /// }
 ///
-/// bool isSealed = analyzer.IsSealed( buffer, column, row, default( OpenFloor ) );
+/// bool isSealed = analyzer.Evaluate( buffer, column, row, default( OpenFloor ) );
 /// </code>
 /// </example>
 /// </remarks>
-public interface IPassable<T> {
+public interface ICellEval<T> {
 
-	bool IsPassable( T value );
+	bool Evaluate( T value );
 
 }

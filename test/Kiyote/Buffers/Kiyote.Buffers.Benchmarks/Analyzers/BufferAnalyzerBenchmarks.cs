@@ -1,6 +1,6 @@
 using BenchmarkDotNet.Attributes;
 
-namespace Kiyote.Buffers.Benchmarks;
+namespace Kiyote.Buffers.Analyzers.Benchmarks;
 
 [MemoryDiagnoser( displayGenColumns: false )]
 public class BufferAnalyzerBenchmarks {
@@ -82,9 +82,9 @@ public class BufferAnalyzerBenchmarks {
 		_ = _analyzer.TryVisitSealedArea( _buffer1000, 499, 499, _boolPassable, ref visitor );
 	}
 
-	private readonly struct BoolPassable : IPassable<bool> {
+	private readonly struct BoolPassable : ICellEval<bool> {
 
-		public bool IsPassable(
+		public bool Evaluate(
 			bool value
 		) {
 			return value;

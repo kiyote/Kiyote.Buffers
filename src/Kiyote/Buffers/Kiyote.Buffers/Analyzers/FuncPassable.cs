@@ -1,10 +1,10 @@
-namespace Kiyote.Buffers;
+namespace Kiyote.Buffers.Analyzers;
 
 /// <summary>
-/// Adapts a <see cref="Func{T, TResult}"/> to <see cref="IPassable{T}"/> so the
+/// Adapts a <see cref="Func{T, TResult}"/> to <see cref="ICellEval{T}"/> so the
 /// delegate-based API can share the generic implementation.
 /// </summary>
-internal readonly struct FuncPassable<T> : IPassable<T> {
+internal readonly struct FuncPassable<T> : ICellEval<T> {
 
 	private readonly Func<T, bool> _isPassable;
 
@@ -14,7 +14,7 @@ internal readonly struct FuncPassable<T> : IPassable<T> {
 		_isPassable = isPassable;
 	}
 
-	public bool IsPassable(
+	public bool Evaluate(
 		T value
 	) {
 		return _isPassable( value );

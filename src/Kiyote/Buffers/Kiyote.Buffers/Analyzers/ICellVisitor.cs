@@ -1,4 +1,5 @@
-namespace Kiyote.Buffers;
+
+namespace Kiyote.Buffers.Analyzers;
 
 /// <summary>
 /// Receives each cell reached by a flood fill.
@@ -37,29 +38,3 @@ public interface ICellVisitor<T> {
 
 }
 
-/// <summary>
-/// Discards every visited cell; used when only the sealed/unsealed result matters.
-/// </summary>
-internal struct NullCellVisitor<T> : ICellVisitor<T> {
-
-	public readonly void Visit( int column, int row, T value ) {
-	}
-}
-
-/// <summary>
-/// Accumulates every visited cell into a caller supplied list.
-/// </summary>
-internal readonly struct ListCellVisitor<T> : ICellVisitor<T> {
-
-	private readonly List<BufferCell<T>> _cells;
-
-	public ListCellVisitor(
-		List<BufferCell<T>> cells
-	) {
-		_cells = cells;
-	}
-
-	public readonly void Visit( int column, int row, T value ) {
-		_cells.Add( new BufferCell<T>( column, row, value ) );
-	}
-}

@@ -5,11 +5,10 @@ namespace Kiyote.Buffers;
 
 public static class ExtensionMethods {
 
-	public static IServiceCollection AddBuffers(
+	public static IServiceCollection AddBufferOperators(
 		this IServiceCollection services
 	) {
 		services.TryAddSingleton<IBufferOperator, BufferOperator>();
-		services.TryAddSingleton<IBufferAnalyzer, BufferAnalyzer>();
 
 		return services;
 	}
@@ -18,7 +17,7 @@ public static class ExtensionMethods {
 		this IServiceCollection services
 	) {
 		services
-			.AddBuffers()
+			.AddBufferOperators()
 			.TryAddSingleton<IBufferFactory, RaggedArrayBufferFactory>();
 
 		return services;
@@ -28,7 +27,7 @@ public static class ExtensionMethods {
 		this IServiceCollection services
 	) {
 		services
-			.AddBuffers()
+			.AddBufferOperators()
 			.TryAddSingleton<IBufferFactory, FlatArrayBufferFactory>();
 
 		return services;

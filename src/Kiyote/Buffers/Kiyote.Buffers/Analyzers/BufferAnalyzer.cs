@@ -1,6 +1,6 @@
 using System.Buffers;
 
-namespace Kiyote.Buffers;
+namespace Kiyote.Buffers.Analyzers;
 
 internal sealed class BufferAnalyzer : IBufferAnalyzer {
 	bool IBufferAnalyzer.IsSealed<T>(
@@ -56,7 +56,7 @@ internal sealed class BufferAnalyzer : IBufferAnalyzer {
 		int startColumn,
 		int startRow,
 		TPassable isPassable
-	) where TPassable : struct, IPassable<T> {
+	) where TPassable : struct, ICellEval<T> {
 		NullCellVisitor<T> visitor = default;
 		return Fill<T, TPassable, NullCellVisitor<T>>( buffer, startColumn, startRow, isPassable, ref visitor );
 	}
@@ -67,7 +67,7 @@ internal sealed class BufferAnalyzer : IBufferAnalyzer {
 		int startRow,
 		TPassable isPassable,
 		out IReadOnlyList<BufferCell<T>> area
-	) where TPassable : struct, IPassable<T> {
+	) where TPassable : struct, ICellEval<T> {
 		List<BufferCell<T>> cells = [];
 		var visitor = new ListCellVisitor<T>( cells );
 		bool sealedArea = Fill<T, TPassable, ListCellVisitor<T>>( buffer, startColumn, startRow, isPassable, ref visitor );
@@ -95,10 +95,10 @@ internal sealed class BufferAnalyzer : IBufferAnalyzer {
 		TPassable isPassable,
 		ref TVisitor visitor
 	)
-		where TPassable : struct, IPassable<T>
+		where TPassable : struct, ICellEval<T>
 		where TVisitor : struct, ICellVisitor<T> {
 		// Early exit if starting point is already an impassable wall
-		if( !isPassable.IsPassable( buffer[ startColumn, startRow ] ) ) {
+		if( !isPassable.Evaluate( buffer[ startColumn, startRow ] ) ) {
 			return true;
 		}
 
@@ -136,7 +136,7 @@ internal sealed class BufferAnalyzer : IBufferAnalyzer {
 
 					// 2. Process valid internal neighbors
 					int neighbourIndex = ( nr * columns ) + nc;
-					if( !visited.IsSet( neighbourIndex ) && isPassable.IsPassable( buffer[ nc, nr ] ) ) {
+					if( !visited.IsSet( neighbourIndex ) && isPassable.Evaluate( buffer[ nc, nr ] ) ) {
 						visited.Set( neighbourIndex );
 						queue.Enqueue( neighbourIndex );
 					}

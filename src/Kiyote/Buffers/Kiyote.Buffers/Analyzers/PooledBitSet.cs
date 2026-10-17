@@ -1,6 +1,6 @@
 using System.Buffers;
 
-namespace Kiyote.Buffers;
+namespace Kiyote.Buffers.Analyzers;
 
 /// <summary>
 /// A pooled bitset used to track which cells a fill has already reached.

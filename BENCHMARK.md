@@ -82,10 +82,6 @@ LaunchCount=1  WarmupCount=10
 
 
 # ChunkedGrid
-BenchmarkDotNet v0.15.8, .NET 10.0.13, Intel Core i7-9700K; MediumRun, in-process. This CPU is affected by the
-JCC erratum, so tight lookup loops (`Indexer_*`, `TryGet_*`) can vary by up to ~30% between runs depending on code
-placement.
-
 | Method                                  | ChunkSize | Mean       | Error     | StdDev    | Allocated |
 |---------------------------------------- |---------- |-----------:|----------:|----------:|----------:|
 | Compose_NewGrid                         | 32        |  39.291 μs | 1.0642 μs | 0.9954 μs |  147776 B |
