@@ -15,16 +15,15 @@ ManualConfig config = DefaultConfig.Instance
 
 BenchmarkSwitcher
 	.FromTypes( [
-		//typeof( RaggedArrayBufferBenchmarks ),
-		//typeof( FlatArrayBufferBenchmarks ),
-		//typeof( BufferOperatorBenchmarks ),
-		//typeof( RaggedNumericBufferBenchmarks ),
-		//typeof( FlatNumericBufferBenchmarks ),
-		//typeof( NumericBufferOperatorBenchmarks ),
-		//typeof( BufferAnalyzerBenchmarks )
+		typeof( RaggedArrayBufferBenchmarks ),
+		typeof( FlatArrayBufferBenchmarks ),
+		typeof( BufferOperatorBenchmarks ),
+		typeof( RaggedNumericBufferBenchmarks ),
+		typeof( FlatNumericBufferBenchmarks ),
+		typeof( NumericBufferOperatorBenchmarks ),
 		typeof( ChunkedGridBenchmarks ),
 		typeof( DoubleBufferedChunkedGridBenchmarks ),
 		typeof( ChunkedGridLayerBenchmarks ),
 	] )
-	.RunAll( config, args );
+	.Run( args, config );
 

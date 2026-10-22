@@ -19,7 +19,8 @@ public static class ChunkPadding {
 	/// Gets the number of elements in a padded block: <c>( size + 2 * halo )²</c>.
 	/// </summary>
 	/// <exception cref="ArgumentOutOfRangeException">
-	/// <paramref name="size"/> is not positive, or <paramref name="halo"/> is not in <c>[0, size]</c>.
+	/// <paramref name="size"/> is not positive, <paramref name="halo"/> is not in <c>[0, size]</c>,
+	/// or the padded length cannot be represented as an <see cref="int"/>.
 	/// </exception>
 	public static int GetPaddedLength(
 		int size,
@@ -28,8 +29,11 @@ public static class ChunkPadding {
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero( size );
 		ArgumentOutOfRangeException.ThrowIfNegative( halo );
 		ArgumentOutOfRangeException.ThrowIfGreaterThan( halo, size );
-		int stride = size + ( 2 * halo );
-		return stride * stride;
+		long stride = (long)size + ( 2L * halo );
+		if( stride > 46340 ) {
+			throw new ArgumentOutOfRangeException( nameof( size ), "The padded length exceeds Int32.MaxValue." );
+		}
+		return (int)( stride * stride );
 	}
 
 	/// <summary>

@@ -166,20 +166,22 @@ public sealed class ChunkedGridLayout {
 	/// <summary>
 	/// The width of the chunk-aligned bounding box of allocated chunks.
 	/// </summary>
+	/// <exception cref="OverflowException">The bounding box is wider than <see cref="int.MaxValue"/> cells.</exception>
 	public int Width {
 		get {
 			EnsureHull();
-			return IsEmpty ? 0 : ( _maxChunkColumn - _minChunkColumn + 1 ) << ChunkShift;
+			return IsEmpty ? 0 : checked( (int)( ( (long)_maxChunkColumn - _minChunkColumn + 1 ) * ChunkSize ) );
 		}
 	}
 
 	/// <summary>
 	/// The height of the chunk-aligned bounding box of allocated chunks.
 	/// </summary>
+	/// <exception cref="OverflowException">The bounding box is taller than <see cref="int.MaxValue"/> cells.</exception>
 	public int Height {
 		get {
 			EnsureHull();
-			return IsEmpty ? 0 : ( _maxChunkRow - _minChunkRow + 1 ) << ChunkShift;
+			return IsEmpty ? 0 : checked( (int)( ( (long)_maxChunkRow - _minChunkRow + 1 ) * ChunkSize ) );
 		}
 	}
 
@@ -373,13 +375,16 @@ public sealed class ChunkedGridLayout {
 	/// allocating chunks as required. The run may cross any number of chunks.
 	/// </summary>
 	/// <returns>The number of cells that were previously unpopulated.</returns>
-	/// <exception cref="ArgumentOutOfRangeException"><paramref name="length"/> is negative.</exception>
+	/// <exception cref="ArgumentOutOfRangeException"><paramref name="length"/> is negative or the run exceeds <see cref="int.MaxValue"/>.</exception>
 	public int SetPopulatedRun(
 		int column,
 		int row,
 		int length
 	) {
 		ArgumentOutOfRangeException.ThrowIfNegative( length );
+		if( length > 0 && (long)column + length - 1 > int.MaxValue ) {
+			throw new ArgumentOutOfRangeException( nameof( length ) );
+		}
 		int changed = 0;
 		int chunkRow = row >> ChunkShift;
 		int rowStart = ( row & ChunkMask ) * PresenceWordsPerRow;
@@ -387,8 +392,10 @@ public sealed class ChunkedGridLayout {
 			int localColumn = column & ChunkMask;
 			int count = Math.Min( length, ChunkSize - localColumn );
 			changed += SetBits( GetOrCreateEntry( column >> ChunkShift, chunkRow ).Presence, rowStart, localColumn, count );
-			column += count;
 			length -= count;
+			if( length > 0 ) {
+				column += count;
+			}
 		}
 		return changed;
 	}
@@ -399,13 +406,16 @@ public sealed class ChunkedGridLayout {
 	/// allocates or removes chunks.
 	/// </summary>
 	/// <returns>The number of cells that were previously populated.</returns>
-	/// <exception cref="ArgumentOutOfRangeException"><paramref name="length"/> is negative.</exception>
+	/// <exception cref="ArgumentOutOfRangeException"><paramref name="length"/> is negative or the run exceeds <see cref="int.MaxValue"/>.</exception>
 	public int ClearPopulatedRun(
 		int column,
 		int row,
 		int length
 	) {
 		ArgumentOutOfRangeException.ThrowIfNegative( length );
+		if( length > 0 && (long)column + length - 1 > int.MaxValue ) {
+			throw new ArgumentOutOfRangeException( nameof( length ) );
+		}
 		int changed = 0;
 		int chunkRow = row >> ChunkShift;
 		int rowStart = ( row & ChunkMask ) * PresenceWordsPerRow;
@@ -416,8 +426,10 @@ public sealed class ChunkedGridLayout {
 			if( entry is not null ) {
 				changed += ClearBits( entry.Presence, rowStart, localColumn, count );
 			}
-			column += count;
 			length -= count;
+			if( length > 0 ) {
+				column += count;
+			}
 		}
 		return changed;
 	}
@@ -532,6 +544,7 @@ public sealed class ChunkedGridLayout {
 	/// Gets the exact bounding box of the populated cells. Computed on each call.
 	/// </summary>
 	/// <returns><see langword="false"/> when no cell is populated.</returns>
+	/// <exception cref="OverflowException">The populated extent cannot be represented as an <see cref="int"/>.</exception>
 	public bool TryGetPopulatedBounds(
 		out int column,
 		out int row,
@@ -542,6 +555,7 @@ public sealed class ChunkedGridLayout {
 		int minRow = int.MaxValue;
 		int maxColumn = int.MinValue;
 		int maxRow = int.MinValue;
+		bool foundPopulated = false;
 		int words = PresenceWordsPerRow;
 		Span<ulong> columns = stackalloc ulong[ words ];
 		for( int i = 0; i < ChunkCapacity; i++ ) {
@@ -554,6 +568,7 @@ public sealed class ChunkedGridLayout {
 			if( first < 0 ) {
 				continue;
 			}
+			foundPopulated = true;
 			int last = presence.LastIndexOfAnyExcept( 0UL );
 			int baseColumn = entry.Column << ChunkShift;
 			int baseRow = entry.Row << ChunkShift;
@@ -579,7 +594,7 @@ public sealed class ChunkedGridLayout {
 			);
 		}
 
-		if( minColumn == int.MaxValue ) {
+		if( !foundPopulated ) {
 			column = 0;
 			row = 0;
 			width = 0;
@@ -588,8 +603,8 @@ public sealed class ChunkedGridLayout {
 		}
 		column = minColumn;
 		row = minRow;
-		width = maxColumn - minColumn + 1;
-		height = maxRow - minRow + 1;
+		width = checked( (int)( (long)maxColumn - minColumn + 1 ) );
+		height = checked( (int)( (long)maxRow - minRow + 1 ) );
 		return true;
 	}
 
@@ -731,6 +746,14 @@ public sealed class ChunkedGridLayout {
 		int chunkColumn,
 		int chunkRow
 	) {
+		if( ( (long)chunkColumn << ChunkShift ) < int.MinValue
+			|| ( ( (long)chunkColumn << ChunkShift ) + ChunkMask ) > int.MaxValue ) {
+			throw new ArgumentOutOfRangeException( nameof( chunkColumn ) );
+		}
+		if( ( (long)chunkRow << ChunkShift ) < int.MinValue
+			|| ( ( (long)chunkRow << ChunkShift ) + ChunkMask ) > int.MaxValue ) {
+			throw new ArgumentOutOfRangeException( nameof( chunkRow ) );
+		}
 		if( !_free.TryPop( out int index ) ) {
 			index = ChunkCapacity;
 			EnsureCapacity( index + 1 );
@@ -750,10 +773,11 @@ public sealed class ChunkedGridLayout {
 				_neighbours[ start + k ] = index;
 				continue;
 			}
-			int neighbour = _lookup.TryGetValue(
-				Key( chunkColumn + ( k % 3 ) - 1, chunkRow + ( k / 3 ) - 1 ),
-				out ChunkEntry? found
-			)
+			long neighbourColumn = (long)chunkColumn + ( k % 3 ) - 1;
+			long neighbourRow = (long)chunkRow + ( k / 3 ) - 1;
+			int neighbour = neighbourColumn >= int.MinValue && neighbourColumn <= int.MaxValue
+				&& neighbourRow >= int.MinValue && neighbourRow <= int.MaxValue
+				&& _lookup.TryGetValue( Key( (int)neighbourColumn, (int)neighbourRow ), out ChunkEntry? found )
 				? found.Index
 				: NoChunk;
 			_neighbours[ start + k ] = neighbour;

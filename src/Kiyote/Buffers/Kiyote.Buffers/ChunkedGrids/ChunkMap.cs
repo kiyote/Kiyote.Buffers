@@ -231,6 +231,7 @@ internal sealed class ChunkMap<T> where T : unmanaged {
 		int row
 	) where TSource : unmanaged {
 		if( IsAlignedWith( source, column, row ) ) {
+			ValidateTranslation( source, column, row, aligned: true );
 			ChunkedGridLayout sourceLayout = source.Layout;
 			int chunkColumnOffset = column >> ChunkShift;
 			int chunkRowOffset = row >> ChunkShift;
@@ -277,6 +278,7 @@ internal sealed class ChunkMap<T> where T : unmanaged {
 			return;
 		}
 
+		ValidateTranslation( source, column, row, aligned: true );
 		ChunkedGridLayout sourceLayout = source.Layout;
 		ChunkValues<T> sourceBufferValues = source.GetBuffer( sourceBuffer );
 		int chunkColumnOffset = column >> ChunkShift;
@@ -325,6 +327,7 @@ internal sealed class ChunkMap<T> where T : unmanaged {
 			return;
 		}
 
+		ValidateTranslation( source, column, row, aligned: true );
 		ChunkedGridLayout sourceLayout = source.Layout;
 		int chunkColumnOffset = column >> ChunkShift;
 		int chunkRowOffset = row >> ChunkShift;
@@ -369,6 +372,7 @@ internal sealed class ChunkMap<T> where T : unmanaged {
 		ref TOperation operation
 	) where TSource : unmanaged
 	  where TOperation : struct, IChunkRunOperation<TSource, T> {
+		ValidateTranslation( source, column, row, aligned: false );
 		ChunkedGridLayout sourceLayout = source.Layout;
 		ChunkValues<TSource> sourceBufferValues = source.GetBuffer( sourceBuffer );
 		int sourceShift = source.ChunkShift;
@@ -395,11 +399,19 @@ internal sealed class ChunkMap<T> where T : unmanaged {
 
 				int sourceLocalColumn = 0;
 				while( sourceLocalColumn < sourceSize ) {
-					int targetColumn = sourceBaseColumn + sourceLocalColumn + column;
+					long translatedColumn = (long)sourceBaseColumn + sourceLocalColumn + column;
+					if( translatedColumn < int.MinValue ) {
+						sourceLocalColumn += (int)Math.Min( sourceSize - sourceLocalColumn, (long)int.MinValue - translatedColumn );
+						continue;
+					}
+					if( translatedColumn > int.MaxValue ) {
+						break;
+					}
+					int targetColumn = (int)translatedColumn;
 					int targetLocalColumn = targetColumn & ChunkMask;
 					int count = Math.Min(
 						Math.Min( 64, sourceSize - sourceLocalColumn ),
-						ChunkSize - targetLocalColumn
+						(int)Math.Min( ChunkSize - targetLocalColumn, (long)int.MaxValue - translatedColumn + 1 )
 					);
 					ulong bits = PresenceBits.Read( sourceRowPresence, sourceLocalColumn, count );
 					if( bits != 0 ) {
@@ -430,6 +442,43 @@ internal sealed class ChunkMap<T> where T : unmanaged {
 			}
 		}
 		return true;
+	}
+
+	private static void ValidateTranslation<TSource>( ChunkMap<TSource> source, int column, int row, bool aligned ) where TSource : unmanaged {
+		if( column == 0 && row == 0 ) {
+			return;
+		}
+		ChunkedGridLayout layout = source.Layout;
+		foreach( int index in layout.EnumerateChunks() ) {
+			long firstColumn = ( (long)layout.GetChunkColumn( index ) << source.ChunkShift ) + column;
+			long firstRow = ( (long)layout.GetChunkRow( index ) << source.ChunkShift ) + row;
+			bool invalidColumn = firstColumn < int.MinValue || firstColumn + source.ChunkSize - 1 > int.MaxValue;
+			bool invalidRow = firstRow < int.MinValue || firstRow + source.ChunkSize - 1 > int.MaxValue;
+			if( !invalidColumn && !invalidRow ) {
+				continue;
+			}
+			if( aligned ) {
+				throw new ArgumentOutOfRangeException( invalidColumn ? nameof( column ) : nameof( row ), "The translated chunk exceeds the coordinate range." );
+			}
+			int words = source.WordsPerRow;
+			ReadOnlySpan<ulong> presence = layout.GetPresenceArray( index );
+			for( int localRow = 0; localRow < source.ChunkSize; localRow++ ) {
+				for( int word = 0; word < words; word++ ) {
+					ulong bits = presence[ ( localRow * words ) + word ];
+					while( bits != 0 ) {
+						long targetColumn = firstColumn + ( word << 6 ) + BitOperations.TrailingZeroCount( bits );
+						long targetRow = firstRow + localRow;
+						if( targetColumn < int.MinValue || targetColumn > int.MaxValue ) {
+							throw new ArgumentOutOfRangeException( nameof( column ), "The translated cell exceeds the coordinate range." );
+						}
+						if( targetRow < int.MinValue || targetRow > int.MaxValue ) {
+							throw new ArgumentOutOfRangeException( nameof( row ), "The translated cell exceeds the coordinate range." );
+						}
+						bits &= bits - 1;
+					}
+				}
+			}
+		}
 	}
 
 	private ChunkSlot? FindSlot(

@@ -78,6 +78,12 @@ public class ChunkPaddingUnitTests {
 		}
 	}
 
+	[TestCase( int.MaxValue, int.MaxValue )]
+	[TestCase( 46341, 0 )]
+	public void GetPaddedLength_UnrepresentableLength_Throws( int size, int halo ) {
+		Assert.Throws<ArgumentOutOfRangeException>( () => ChunkPadding.GetPaddedLength( size, halo ) );
+	}
+
 	[Test]
 	public void Gather_ReferenceType_Works() {
 		string[]?[] chunks = new string[]?[ 9 ];

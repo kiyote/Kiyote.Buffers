@@ -66,6 +66,37 @@ public class ChunkedGridUnitTests {
 		}
 	}
 
+	[TestCase( true )]
+	[TestCase( false )]
+	public void Attach_TranslatedCellsOutsideRange_ThrowsBeforeWriting( bool aligned ) {
+		ChunkedGrid<float> source = new();
+		source[ 0, 0 ] = 1f;
+		source[ 64, 0 ] = 2f;
+		ChunkedGrid<float> target = new();
+		target[ 0, 0 ] = 42f;
+		int offset = aligned ? int.MaxValue - 63 : int.MaxValue - 62;
+
+		Assert.Throws<ArgumentOutOfRangeException>( () => target.Attach( source, offset, 0 ) );
+		Assert.That( target.ChunkCount, Is.EqualTo( 1 ) );
+		Assert.That( target[ 0, 0 ], Is.EqualTo( 42f ) );
+		Assert.That( target.IsPopulated( offset, 0 ), Is.False );
+	}
+
+	[TestCase( int.MinValue + 1, -1, int.MinValue )]
+	[TestCase( int.MaxValue, 0, int.MaxValue )]
+	public void Attach_TranslatedPopulatedCellAtCoordinateLimit_RoundTrips( int offset, int sourceColumn, int targetColumn ) {
+		ChunkedGrid<float> source = new();
+		source[ sourceColumn, 0 ] = 5f;
+		ChunkedGrid<float> target = new();
+
+		target.Attach( source, offset, 0 );
+
+		Assert.That( target[ targetColumn, 0 ], Is.EqualTo( 5f ) );
+		Assert.That( target.HasOverlap( source, offset, 0 ), Is.True );
+		target.Detach( source, offset, 0 );
+		Assert.That( target.IsPopulated( targetColumn, 0 ), Is.False );
+	}
+
 	[Test]
 	public void TryGet_UnpopulatedCellInAllocatedChunk_ReturnsFalse() {
 		ChunkedGrid<float> grid = new();

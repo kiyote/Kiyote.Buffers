@@ -40,6 +40,61 @@ public class ChunkedGridLayoutUnitTests {
 	}
 
 	[Test]
+	public void GetOrCreateChunk_UnrepresentableCoordinate_DoesNotAllocate() {
+		ChunkedGridLayout layout = new( 64 );
+
+		Assert.Throws<ArgumentOutOfRangeException>( () => layout.GetOrCreateChunk( int.MaxValue, 0 ) );
+		Assert.Throws<ArgumentOutOfRangeException>( () => layout.GetOrCreateChunk( 0, int.MinValue ) );
+		Assert.That( layout.ChunkCount, Is.Zero );
+	}
+
+	[Test]
+	public void Bounds_DistantChunks_ThrowInsteadOfWrapping() {
+		ChunkedGridLayout layout = new( 64 );
+		_ = layout.SetPopulated( int.MinValue, int.MinValue );
+		_ = layout.SetPopulated( int.MaxValue, int.MaxValue );
+
+		Assert.Throws<OverflowException>( () => _ = layout.Width );
+		Assert.Throws<OverflowException>( () => _ = layout.Height );
+		Assert.Throws<OverflowException>( () => layout.TryGetPopulatedBounds( out _, out _, out _, out _ ) );
+		Assert.That( layout.Column, Is.EqualTo( int.MinValue ) );
+		Assert.That( layout.Row, Is.EqualTo( int.MinValue ) );
+	}
+
+	[Test]
+	public void TryGetPopulatedBounds_SingleCellAtMaximumCoordinate_ReturnsOneByOne() {
+		ChunkedGridLayout layout = new( 64 );
+		_ = layout.SetPopulated( int.MaxValue, int.MaxValue );
+
+		bool found = layout.TryGetPopulatedBounds( out int column, out int row, out int width, out int height );
+
+		Assert.That( found, Is.True );
+		Assert.That( (column, row, width, height), Is.EqualTo( (int.MaxValue, int.MaxValue, 1, 1) ) );
+	}
+
+	[Test]
+	public void PopulatedRuns_BeyondMaximumColumn_ThrowBeforeMutation() {
+		ChunkedGridLayout layout = new( 64 );
+
+		Assert.Throws<ArgumentOutOfRangeException>( () => layout.SetPopulatedRun( int.MaxValue - 1, 0, 3 ) );
+		Assert.That( layout.ChunkCount, Is.Zero );
+		_ = layout.SetPopulated( int.MaxValue, 0 );
+		Assert.Throws<ArgumentOutOfRangeException>( () => layout.ClearPopulatedRun( int.MaxValue, 0, 2 ) );
+		Assert.That( layout.IsPopulated( int.MaxValue, 0 ), Is.True );
+		Assert.That( layout.SetPopulatedRun( int.MaxValue, 0, 1 ), Is.Zero );
+	}
+
+	[Test]
+	public void GetNeighbours_ExtremeChunkCoordinates_DoNotWrap() {
+		ChunkedGridLayout layout = new( 1 );
+		int left = layout.GetOrCreateChunk( int.MinValue, 0 );
+		int right = layout.GetOrCreateChunk( int.MaxValue, 0 );
+
+		Assert.That( layout.GetNeighbours( left )[ 3 ], Is.EqualTo( -1 ) );
+		Assert.That( layout.GetNeighbours( right )[ 5 ], Is.EqualTo( -1 ) );
+	}
+
+	[Test]
 	public void GetOrCreateChunk_NewChunks_DenseIndicesInAllocationOrder() {
 		ChunkedGridLayout layout = new( 8 );
 
