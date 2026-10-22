@@ -22,6 +22,25 @@ public sealed class DoubleBufferedChunkedGridUnitTests {
 	}
 
 	[Test]
+	public void Swap_ExistingChunkAndNeighbourhoodViews_RetainCapturedRoles() {
+		ChunkedGrid<float> source = new();
+		source[ 0, 0 ] = 3f;
+		DoubleBufferedChunkedGrid<float> grid = new();
+		grid.Attach( source, 0, 0 );
+		Assert.That( grid.TryGetChunk( 0, 0, out BufferedChunk<float> oldChunk ), Is.True );
+		Assert.That( grid.TryGetNeighbourhood( 0, 0, out BufferedNeighbourhood<float> oldNeighbourhood ), Is.True );
+
+		grid.Swap();
+
+		Assert.That( grid.TryGetChunk( 0, 0, out BufferedChunk<float> newChunk ), Is.True );
+		Assert.That( oldChunk.Current.Values[ 0 ], Is.EqualTo( 3f ) );
+		Assert.That( oldChunk.Alternate.Values[ 0 ], Is.Zero );
+		Assert.That( oldNeighbourhood.Current.Center.Values[ 0 ], Is.EqualTo( 3f ) );
+		Assert.That( newChunk.Current.Values[ 0 ], Is.Zero );
+		Assert.That( newChunk.Alternate.Values[ 0 ], Is.EqualTo( 3f ) );
+	}
+
+	[Test]
 	public void TryGet_InvalidBuffer_Throws() {
 		DoubleBufferedChunkedGrid<float> grid = new();
 		Assert.Throws<ArgumentOutOfRangeException>( () => grid.TryGet( 0, 0, (GridBuffer)2, out _ ) );

@@ -22,7 +22,14 @@ public ref struct ChunkIndexEnumerator {
 	/// <summary>
 	/// The current chunk index.
 	/// </summary>
-	public readonly int Current => _index;
+	public readonly int Current {
+		get {
+			if( _layout.Version != _version ) {
+				throw new InvalidOperationException( "The grid topology changed during enumeration." );
+			}
+			return _index;
+		}
+	}
 
 	/// <summary>
 	/// Advances to the next allocated chunk index.

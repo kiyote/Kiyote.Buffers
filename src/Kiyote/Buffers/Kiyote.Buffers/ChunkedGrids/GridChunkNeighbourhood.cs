@@ -61,8 +61,8 @@ public readonly ref struct GridChunkNeighbourhood<T> where T : unmanaged {
 	}
 
 	/// <summary>
-	/// Gets the values of a local row, or an empty span if the chunk holding
-	/// that row is not allocated.
+	/// Gets the values of a local row in the centre column (north, centre or south),
+	/// or an empty span if that chunk is not allocated. Corner chunks are not included.
 	/// </summary>
 	public Span<T> GetRowValues(
 		int localRow
@@ -74,8 +74,8 @@ public readonly ref struct GridChunkNeighbourhood<T> where T : unmanaged {
 	}
 
 	/// <summary>
-	/// Gets the presence words of a local row, or an empty span if the chunk
-	/// holding that row is not allocated.
+	/// Gets the presence words of a local row in the centre column (north, centre or south),
+	/// or an empty span if that chunk is not allocated. Corner chunks are not included.
 	/// </summary>
 	public Span<ulong> GetPresenceRow(
 		int localRow

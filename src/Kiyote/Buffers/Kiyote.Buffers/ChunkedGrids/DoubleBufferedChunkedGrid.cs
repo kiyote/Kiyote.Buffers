@@ -59,6 +59,7 @@ public sealed class DoubleBufferedChunkedGrid<T> where T : unmanaged {
 
 	/// <summary>
 	/// Exchanges the roles of the current and alternate buffers. O(1).
+	/// Existing chunk and neighbourhood views retain their original buffer roles.
 	/// </summary>
 	public void Swap() {
 		_current ^= 1;

@@ -11,6 +11,19 @@ public class ChunkedGridUnitTests {
 		Water
 	}
 
+	[Test]
+	public void Neighbourhood_GetRowValues_WhenOnlyCornerExists_ReturnsEmptyHaloRow() {
+		ChunkedGrid<float> grid = new();
+		grid[ 0, 0 ] = 1f;
+		grid[ -1, -1 ] = 2f;
+
+		Assert.That( grid.TryGetNeighbourhood( 0, 0, out GridChunkNeighbourhood<float> n ), Is.True );
+		Assert.That( n.GetRowValues( -1 ).IsEmpty, Is.True );
+		Assert.That( n.GetPresenceRow( -1 ).IsEmpty, Is.True );
+		Assert.That( n.TryGetValue( -1, -1, out float corner ), Is.True );
+		Assert.That( corner, Is.EqualTo( 2f ) );
+	}
+
 	[TestCase( 0 )]
 	[TestCase( 1 )]
 	public void Attach_EmptyAllocatedChunk_DoesNotAllocateTarget( int offset ) {

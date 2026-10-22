@@ -13,6 +13,20 @@ public class ChunkedGridLayoutUnitTests {
 		Assert.That( () => _ = new ChunkedGridLayout( chunkSize ), Throws.InstanceOf<ArgumentOutOfRangeException>() );
 	}
 
+	[Test]
+	public void EnumerateChunks_CurrentAfterTopologyChange_Throws() {
+		ChunkedGridLayout layout = new( 8 );
+		_ = layout.GetOrCreateChunk( 0, 0 );
+		Assert.Throws<InvalidOperationException>( () => ReadCurrentAfterTopologyChange( layout ) );
+
+		static void ReadCurrentAfterTopologyChange( ChunkedGridLayout layout ) {
+			ChunkIndexEnumerator enumerator = layout.EnumerateChunks();
+			Assert.That( enumerator.MoveNext(), Is.True );
+			_ = layout.GetOrCreateChunk( 1, 0 );
+			_ = enumerator.Current;
+		}
+	}
+
 	[TestCase( 1 )]
 	[TestCase( 8 )]
 	[TestCase( ChunkedGridLayout.MaximumChunkSize )]

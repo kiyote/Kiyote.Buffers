@@ -16,8 +16,8 @@ namespace Kiyote.Buffers.ChunkedGrids;
 /// <para>
 /// Values are stored independently of presence: unpopulating a cell does not
 /// reset its value, and <see cref="GetValues"/>, <see cref="GetRowValues"/>
-/// and <see cref="GetReference"/> can write unpopulated cells. Callers that
-/// need unpopulated cells to hold <see langword="default"/> enforce it themselves.
+/// can write unpopulated cells; <see cref="GetReference"/> requires a populated cell.
+/// Callers that need unpopulated cells to hold <see langword="default"/> enforce it themselves.
 /// </para>
 /// <para>
 /// Every row of a chunk is a whole number of
