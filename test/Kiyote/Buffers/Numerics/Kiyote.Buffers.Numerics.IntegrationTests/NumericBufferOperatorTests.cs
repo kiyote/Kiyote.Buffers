@@ -658,6 +658,60 @@ public sealed class NumericBufferOperatorTests {
 		Assert.That( source[ 9, 1 ], Is.EqualTo( 1.0f ) );
 	}
 
+	[TestCase( false )]
+	[TestCase( true )]
+	public void Arithmetic_FlatAndRaggedLayouts_ProduceMatchingValues( bool ragged ) {
+		INumericBuffer<int> source = ragged
+			? new RaggedNumericBuffer<int>( 11, 3, 6 )
+			: new FlatNumericBuffer<int>( 11, 3, 6 );
+		INumericBuffer<int> destination = ragged
+			? new RaggedNumericBuffer<int>( 11, 3, -1 )
+			: new FlatNumericBuffer<int>( 11, 3, -1 );
+		source[ 10, 2 ] = 18;
+
+		_operators.Add( source, destination, 2 );
+		Assert.That( destination[ 0, 0 ], Is.EqualTo( 8 ) );
+		Assert.That( destination[ 10, 2 ], Is.EqualTo( 20 ) );
+		_operators.Subtract( source, destination, 2 );
+		Assert.That( destination[ 10, 2 ], Is.EqualTo( 16 ) );
+		_operators.Multiply( source, destination, 2 );
+		Assert.That( destination[ 10, 2 ], Is.EqualTo( 36 ) );
+		_operators.Divide( source, destination, 2 );
+		Assert.That( destination[ 10, 2 ], Is.EqualTo( 9 ) );
+		Assert.That( source[ 10, 2 ], Is.EqualTo( 18 ) );
+	}
+
+	[TestCase( false )]
+	[TestCase( true )]
+	public void Reductions_VectorAndTailColumns_IgnorePadding( bool ragged ) {
+		INumericBuffer<int> source = ragged
+			? new RaggedNumericBuffer<int>( 11, 3, 5 )
+			: new FlatNumericBuffer<int>( 11, 3, 5 );
+		source[ 1, 1 ] = -7;
+		source[ 10, 2 ] = 21;
+
+		Assert.That( _operators.Min( source ), Is.EqualTo( -7 ) );
+		Assert.That( _operators.Max( source ), Is.EqualTo( 21 ) );
+		Assert.That( _operators.MinMax( source ), Is.EqualTo( (-7, 21) ) );
+	}
+
+	[TestCase( false )]
+	[TestCase( true )]
+	public void Normalize_ConstantOutOfPlace_FlatAndRaggedLayouts_ClearDestination( bool ragged ) {
+		INumericBuffer<float> source = ragged
+			? new RaggedNumericBuffer<float>( 11, 3, 5f )
+			: new FlatNumericBuffer<float>( 11, 3, 5f );
+		INumericBuffer<float> destination = ragged
+			? new RaggedNumericBuffer<float>( 11, 3, 9f )
+			: new FlatNumericBuffer<float>( 11, 3, 9f );
+
+		_operators.Normalize( source, destination );
+
+		Assert.That( destination[ 0, 0 ], Is.Zero );
+		Assert.That( destination[ 10, 2 ], Is.Zero );
+		Assert.That( source[ 10, 2 ], Is.EqualTo( 5f ) );
+	}
+
 	private sealed class TestNumericBuffer : INumericBuffer<float> {
 
 		private readonly float[][] _content;
