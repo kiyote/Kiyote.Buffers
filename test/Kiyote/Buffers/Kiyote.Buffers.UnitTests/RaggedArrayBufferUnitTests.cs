@@ -47,6 +47,6 @@ public class RaggedArrayBufferUnitTests {
 	public void GetRowSpan_RowOutOfRange_ThrowsException() {
 		RaggedArrayBuffer<int> buffer = new( 5, 3, 0 );
 
-		Assert.Throws<IndexOutOfRangeException>( () => buffer.GetRowSpan( 3 ) );
+		Assert.Throws<ArgumentOutOfRangeException>( () => buffer.GetRowSpan( 3 ) );
 	}
 }
