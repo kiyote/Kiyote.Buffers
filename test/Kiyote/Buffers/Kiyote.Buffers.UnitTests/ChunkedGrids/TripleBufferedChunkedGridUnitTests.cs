@@ -65,6 +65,90 @@ public class TripleBufferedChunkedGridUnitTests {
 	}
 
 	[Test]
+	public void Acquire_WhileLeaseOutstanding_ThrowsAndPreservesPublishedBuffer() {
+		TripleBufferedChunkedGrid<float> grid = CreateGrid();
+		grid.TrySet( 0, 0, GridBuffer.Current, 1f );
+		grid.Swap();
+		using TripleBufferedLease<float> held = grid.Acquire();
+
+		Assert.Throws<InvalidOperationException>( () => grid.Acquire() );
+		for( int step = 2; step < 10; step++ ) {
+			grid.TrySet( 0, 0, GridBuffer.Current, step );
+			grid.Swap();
+			Assert.That( held.TryGet( 0, 0, out float value ), Is.True );
+			Assert.That( value, Is.EqualTo( 1f ) );
+		}
+	}
+
+	[Test]
+	public void Dispose_StaleCopiedLease_DoesNotReleaseNewLease() {
+		TripleBufferedChunkedGrid<float> grid = CreateGrid();
+		TripleBufferedLease<float> previous = grid.Acquire();
+		TripleBufferedLease<float> staleCopy = previous;
+		previous.Dispose();
+		using TripleBufferedLease<float> current = grid.Acquire();
+
+		Assert.That( current, Is.Not.EqualTo( previous ) );
+		staleCopy.Dispose();
+		Assert.Throws<InvalidOperationException>( () => grid.Acquire() );
+		previous.Dispose();
+		Assert.Throws<InvalidOperationException>( () => grid.Acquire() );
+	}
+
+	[Test]
+	public void Dispose_DefaultLease_DoesNotAffectActiveLease() {
+		TripleBufferedChunkedGrid<float> grid = CreateGrid();
+		using TripleBufferedLease<float> current = grid.Acquire();
+		default( TripleBufferedLease<float> ).Dispose();
+
+		Assert.Throws<InvalidOperationException>( () => grid.Acquire() );
+	}
+
+	[Test]
+	public void TopologyChanges_WhileLeased_ThrowBeforeMutation() {
+		TripleBufferedChunkedGrid<float> grid = CreateGrid();
+		ChunkedGrid<float> source = new();
+		source[ 64, 0 ] = 1f;
+		using TripleBufferedLease<float> lease = grid.Acquire();
+
+		Assert.Throws<InvalidOperationException>( () => grid.Attach( source, 0, 0 ) );
+		Assert.Throws<InvalidOperationException>( () => grid.Detach( source, 0, 0 ) );
+		Assert.Throws<InvalidOperationException>( () => grid.RemoveChunk( 0, 0 ) );
+		Assert.Throws<InvalidOperationException>( () => grid.Compact() );
+		Assert.Throws<InvalidOperationException>( () => grid.CopyCurrentToAlternate() );
+		Assert.Throws<InvalidOperationException>( () => grid.CopyAlternateToCurrent() );
+		Assert.That( grid.ChunkCount, Is.EqualTo( 1 ) );
+		Assert.That( lease.IsPopulated( 0, 0 ), Is.True );
+	}
+
+	[Test]
+	public void Acquire_DuringAttach_ThrowsUntilMutationCompletes() {
+		TripleBufferedChunkedGrid<float> grid = CreateGrid();
+		ChunkedGrid<float> source = new();
+		source[ 64, 0 ] = 1f;
+		using ManualResetEventSlim entered = new();
+		using ManualResetEventSlim release = new();
+		Task owner = Task.Run( () => {
+			grid.Attach<float>( source, 0, 0, value => {
+				entered.Set();
+				_ = release.Wait( TimeSpan.FromSeconds( 10 ) );
+				return (true, value);
+			} );
+		} );
+		try {
+			Assert.That( entered.Wait( TimeSpan.FromSeconds( 10 ) ), Is.True );
+			Assert.Throws<InvalidOperationException>( () => {
+				using TripleBufferedLease<float> unexpected = grid.Acquire();
+			} );
+		} finally {
+			release.Set();
+			owner.GetAwaiter().GetResult();
+		}
+		using TripleBufferedLease<float> lease = grid.Acquire();
+		Assert.That( lease.IsPopulated( 64, 0 ), Is.True );
+	}
+
+	[Test]
 	public void Concurrent_ReaderAlwaysSeesConsistentBuffer() {
 		const int Cells = 256;
 		TripleBufferedChunkedGrid<int> grid = new();

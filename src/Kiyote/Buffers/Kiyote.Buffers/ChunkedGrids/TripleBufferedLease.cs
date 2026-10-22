@@ -7,20 +7,26 @@ namespace Kiyote.Buffers.ChunkedGrids;
 /// the buffer to the owning thread.
 /// </summary>
 /// <remarks>
-/// The lease performs no checks: treat the buffer as read-only, dispose the
-/// lease exactly once, and do not use it after disposal.
+/// The lease is a copyable value. Disposing any copy releases that acquisition;
+/// repeated or stale disposals do not release later acquisitions. Treat the
+/// buffer as read-only and do not use any copy after one is disposed. Read
+/// accessors do not check whether a lease is still active. Disposing a default
+/// lease does nothing; its read accessors are not valid.
 /// </remarks>
 public readonly struct TripleBufferedLease<T> : IDisposable, IEquatable<TripleBufferedLease<T>> where T : unmanaged {
 
 	private readonly TripleBufferedChunkedGrid<T> _grid;
 	private readonly int _buffer;
+	private readonly long _token;
 
 	internal TripleBufferedLease(
 		TripleBufferedChunkedGrid<T> grid,
-		int buffer
+		int buffer,
+		long token
 	) {
 		_grid = grid;
 		_buffer = buffer;
+		_token = token;
 	}
 
 	public int ChunkSize => _grid.Map.ChunkSize;
@@ -81,13 +87,13 @@ public readonly struct TripleBufferedLease<T> : IDisposable, IEquatable<TripleBu
 	}
 
 	public void Dispose() {
-		_grid?.Release();
+		_grid?.Release( _token );
 	}
 
 	public bool Equals(
 		TripleBufferedLease<T> other
 	) {
-		return ReferenceEquals( _grid, other._grid ) && _buffer == other._buffer;
+		return ReferenceEquals( _grid, other._grid ) && _token == other._token;
 	}
 
 	public override bool Equals(
@@ -97,7 +103,7 @@ public readonly struct TripleBufferedLease<T> : IDisposable, IEquatable<TripleBu
 	}
 
 	public override int GetHashCode() {
-		return HashCode.Combine( _grid, _buffer );
+		return HashCode.Combine( _grid, _token );
 	}
 
 	public static bool operator ==( TripleBufferedLease<T> left, TripleBufferedLease<T> right ) {

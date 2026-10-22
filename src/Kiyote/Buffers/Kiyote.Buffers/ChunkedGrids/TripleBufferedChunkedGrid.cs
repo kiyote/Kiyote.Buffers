@@ -15,27 +15,27 @@ namespace Kiyote.Buffers.ChunkedGrids;
 /// </para>
 /// <para>
 /// A single consumer thread calls <see cref="Acquire"/> to obtain the latest
-/// published buffer and disposes the returned lease to give it back. Because
+/// published buffer and disposes the returned lease before acquiring again. Because
 /// there are three buffers the owning thread never waits: it always writes the
 /// one buffer that is neither the latest nor leased. Acquire and Swap are
 /// lock-free.
 /// </para>
 /// <para>
 /// No other protection is provided. Leased buffers must be treated as
-/// read-only, and the owning thread must not change topology
+/// read-only. Topology changes
 /// (<c>Attach</c>, <c>Detach</c>, <see cref="Compact"/>, <see cref="RemoveChunk"/>)
-/// or call the copy methods while a lease is outstanding.
+/// and copy methods throw while a lease is outstanding; callers must not mutate
+/// topology through previously obtained writable spans while leased.
 /// </para>
 /// </remarks>
 public sealed class TripleBufferedChunkedGrid<T> where T : unmanaged {
-
-	private const int None = -1;
 
 	private readonly ChunkMap<T> _map;
 	private int _current;
 	private int _alternate;
 	private int _latest;
-	private int _leased;
+	private long _leaseState;
+	private long _leaseGeneration;
 
 	public TripleBufferedChunkedGrid(
 		int chunkSize = ChunkedGrid<T>.DefaultChunkSize
@@ -44,7 +44,6 @@ public sealed class TripleBufferedChunkedGrid<T> where T : unmanaged {
 		_current = 0;
 		_alternate = 1;
 		_latest = 1;
-		_leased = None;
 	}
 
 	internal ChunkMap<T> Map => _map;
@@ -86,7 +85,7 @@ public sealed class TripleBufferedChunkedGrid<T> where T : unmanaged {
 		int published = _current;
 		int previous = _alternate;
 		_ = Interlocked.Exchange( ref _latest, published );
-		int leased = Volatile.Read( ref _leased );
+		int leased = (int)( Volatile.Read( ref _leaseState ) & 3 ) - 1;
 		_alternate = published;
 		_current = leased == previous
 			? 3 - published - previous
@@ -97,17 +96,40 @@ public sealed class TripleBufferedChunkedGrid<T> where T : unmanaged {
 	/// Leases the most recently published buffer. Call from the consumer
 	/// thread only; dispose the lease before acquiring another.
 	/// </summary>
+	/// <exception cref="InvalidOperationException">A lease or topology/copy operation is already outstanding.</exception>
 	public TripleBufferedLease<T> Acquire() {
 		int latest;
-		do {
+		long token;
+		while( true ) {
 			latest = Volatile.Read( ref _latest );
-			_ = Interlocked.Exchange( ref _leased, latest );
-		} while( Volatile.Read( ref _latest ) != latest );
-		return new TripleBufferedLease<T>( this, latest );
+			long generation = ++_leaseGeneration;
+			if( generation > ( long.MaxValue >> 2 ) ) {
+				throw new InvalidOperationException( "The lease generation is exhausted." );
+			}
+			token = ( generation << 2 ) | (uint)( latest + 1 );
+			if( Interlocked.CompareExchange( ref _leaseState, token, 0 ) != 0 ) {
+				throw new InvalidOperationException( "A lease or topology/copy operation is already outstanding." );
+			}
+			if( Volatile.Read( ref _latest ) == latest ) {
+				break;
+			}
+			Release( token );
+		}
+		return new TripleBufferedLease<T>( this, latest, token );
 	}
 
-	internal void Release() {
-		Volatile.Write( ref _leased, None );
+	internal void Release( long token ) {
+		_ = Interlocked.CompareExchange( ref _leaseState, 0, token );
+	}
+
+	private void BeginMutation() {
+		if( Interlocked.CompareExchange( ref _leaseState, -1, 0 ) != 0 ) {
+			throw new InvalidOperationException( "Topology and copy operations are not allowed while a lease is outstanding." );
+		}
+	}
+
+	private void EndMutation() {
+		Volatile.Write( ref _leaseState, 0 );
 	}
 
 	public bool IsPopulated(
@@ -164,7 +186,12 @@ public sealed class TripleBufferedChunkedGrid<T> where T : unmanaged {
 		int chunkColumn,
 		int chunkRow
 	) {
-		return _map.Remove( chunkColumn, chunkRow );
+		BeginMutation();
+		try {
+			return _map.Remove( chunkColumn, chunkRow );
+		} finally {
+			EndMutation();
+		}
 	}
 
 	public BufferedChunkEnumerator<T> EnumerateChunks() {
@@ -196,14 +223,24 @@ public sealed class TripleBufferedChunkedGrid<T> where T : unmanaged {
 	/// Copies every value of the current buffer into the alternate buffer.
 	/// </summary>
 	public void CopyCurrentToAlternate() {
-		_map.CopyBuffer( _current, _alternate );
+		BeginMutation();
+		try {
+			_map.CopyBuffer( _current, _alternate );
+		} finally {
+			EndMutation();
+		}
 	}
 
 	/// <summary>
 	/// Copies every value of the alternate buffer into the current buffer.
 	/// </summary>
 	public void CopyAlternateToCurrent() {
-		_map.CopyBuffer( _alternate, _current );
+		BeginMutation();
+		try {
+			_map.CopyBuffer( _alternate, _current );
+		} finally {
+			EndMutation();
+		}
 	}
 
 	/// <inheritdoc cref="ChunkedGrid{T}.HasOverlap{TSource}(ChunkedGrid{TSource}, int, int)"/>
@@ -223,7 +260,12 @@ public sealed class TripleBufferedChunkedGrid<T> where T : unmanaged {
 		int row
 	) {
 		ArgumentNullException.ThrowIfNull( source );
-		_map.Attach( source.Map, 0, column, row, _current );
+		BeginMutation();
+		try {
+			_map.Attach( source.Map, 0, column, row, _current );
+		} finally {
+			EndMutation();
+		}
 	}
 
 	/// <inheritdoc cref="DoubleBufferedChunkedGrid{T}.Attach{TSource, TExtractor}(ChunkedGrid{TSource}, int, int, TExtractor)"/>
@@ -235,7 +277,12 @@ public sealed class TripleBufferedChunkedGrid<T> where T : unmanaged {
 	) where TSource : unmanaged
 	  where TExtractor : struct, ICellExtractor<TSource, T> {
 		ArgumentNullException.ThrowIfNull( source );
-		_map.Attach( source.Map, 0, column, row, _current, extractor );
+		BeginMutation();
+		try {
+			_map.Attach( source.Map, 0, column, row, _current, extractor );
+		} finally {
+			EndMutation();
+		}
 	}
 
 	/// <inheritdoc cref="DoubleBufferedChunkedGrid{T}.Attach{TSource, TExtractor}(ChunkedGrid{TSource}, int, int, TExtractor)"/>
@@ -256,7 +303,12 @@ public sealed class TripleBufferedChunkedGrid<T> where T : unmanaged {
 		int row
 	) where TSource : unmanaged {
 		ArgumentNullException.ThrowIfNull( source );
-		_map.Detach( source.Map, column, row );
+		BeginMutation();
+		try {
+			_map.Detach( source.Map, column, row );
+		} finally {
+			EndMutation();
+		}
 	}
 
 	/// <inheritdoc cref="ChunkedGrid{T}.Detach{TSource, TExtractor}(ChunkedGrid{TSource}, int, int, TExtractor)"/>
@@ -268,12 +320,22 @@ public sealed class TripleBufferedChunkedGrid<T> where T : unmanaged {
 	) where TSource : unmanaged
 	  where TExtractor : struct, ICellExtractor<TSource, T> {
 		ArgumentNullException.ThrowIfNull( source );
-		_map.Detach( source.Map, 0, column, row, extractor );
+		BeginMutation();
+		try {
+			_map.Detach( source.Map, 0, column, row, extractor );
+		} finally {
+			EndMutation();
+		}
 	}
 
 	/// <inheritdoc cref="ChunkedGrid{T}.Compact"/>
 	public int Compact() {
-		return _map.Compact();
+		BeginMutation();
+		try {
+			return _map.Compact();
+		} finally {
+			EndMutation();
+		}
 	}
 
 	private int Resolve(

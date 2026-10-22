@@ -23,6 +23,7 @@ BenchmarkSwitcher
 		typeof( NumericBufferOperatorBenchmarks ),
 		typeof( ChunkedGridBenchmarks ),
 		typeof( DoubleBufferedChunkedGridBenchmarks ),
+		typeof( TripleBufferedChunkedGridBenchmarks ),
 		typeof( ChunkedGridLayerBenchmarks ),
 	] )
 	.Run( args, config );
