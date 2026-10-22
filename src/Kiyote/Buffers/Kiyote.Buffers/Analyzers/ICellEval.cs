@@ -19,7 +19,7 @@ namespace Kiyote.Buffers.Analyzers;
 ///     }
 /// }
 ///
-/// bool isSealed = analyzer.Evaluate( buffer, column, row, default( OpenFloor ) );
+/// bool isSealed = analyzer.IsSealed( buffer, column, row, default( OpenFloor ) );
 /// </code>
 /// </example>
 /// </remarks>

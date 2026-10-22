@@ -22,6 +22,10 @@ namespace Kiyote.Buffers.ChunkedGrids;
 /// Cell access by coordinates goes through a per-chunk <see cref="ChunkSlot"/>
 /// holding the chunk's presence and every buffer's values, behind a
 /// one-entry cache, so a cache hit costs one reference check.
+/// Coordinated readers may share a stable layout, but coordinate lookups write
+/// the cache. Without external synchronization, concurrent cache misses are
+/// only supported by the triple-buffer lease publication protocol; topology
+/// changes and writable presence access are not safe during a lease.
 /// </para>
 /// </remarks>
 internal sealed class ChunkMap<T> where T : unmanaged {

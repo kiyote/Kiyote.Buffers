@@ -13,8 +13,8 @@ library will handle the rest.
 
 Register the factories and operators with the DI container:
 ```csharp
-services.AddNumericBuffers();
-````
+services.AddFlatNumericBuffers(); // or services.AddRaggedNumericBuffers()
+```
 
 Then inject the `INumericBufferOperator` into your class and use it to perform operations on buffers.
 
@@ -40,7 +40,7 @@ public class MyClass
 
     public void ProcessBuffer()
     {
-        IBuffer<float> buffer = _bufferFactory.Create( 100, 100, 0 );
+        INumericBuffer<float> buffer = _bufferFactory.Create( 100, 100, 0f );
         // Fill the buffer with whatever
 
         _bufferOperator.Normalize( buffer );
@@ -48,3 +48,17 @@ public class MyClass
     }
 }
 ```
+
+## Migration notes
+
+- `AddNumericBuffers()` registers only `INumericBufferOperator`. For injection of `INumericBufferFactory`,
+  use `AddFlatNumericBuffers()` or `AddRaggedNumericBuffers()` as above. If both are called, the first factory
+  registration wins; register a custom factory or operator first to override the defaults.
+- Numeric buffers require positive logical dimensions; indexers reject padded or out-of-range coordinates.
+  Destination-taking operations reject mismatched shapes before writing with `InvalidOperationException`.
+- `Normalize` maps finite floating-point values into `[0, 1]`; for integral buffers, intermediate values map
+  to zero and only the maximum maps to one. Constant inputs produce zero, including for out-of-place normalization
+  and scaling. `Normalize` and `ScaleToRange` reject nonfinite inputs before writing and throw on unrepresentable
+  ranges; scaling uses double intermediates and saturating destination conversion, which may lose precision on
+  large integers. Callers depending on previous integer division, constant-source copying or partial writes
+  should update their handling.

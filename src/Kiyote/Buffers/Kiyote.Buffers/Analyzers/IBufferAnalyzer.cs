@@ -59,7 +59,9 @@ public interface IBufferAnalyzer {
 	/// <remarks>
 	/// Prefer this over
 	/// <see cref="TryGetSealedArea{T}(IBuffer{T}, int, int, Func{T, bool}, out IReadOnlyList{BufferCell{T}})"/>
-	/// for large regions; it performs no allocation at all. When the region is
+	/// for large regions; with reusable pooled scratch and a nonallocating visitor,
+	/// steady-state calls can avoid managed allocations. Pool growth and the
+	/// visitor may allocate. When the region is
 	/// not sealed the fill stops as soon as it reaches the buffer edge, so the
 	/// visitor will have been given only part of the region.
 	/// </remarks>

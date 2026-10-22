@@ -27,8 +27,9 @@ namespace Kiyote.Buffers.ChunkedGrids;
 /// first <see cref="ChunkSize"/> bits are reserved and ignored by grid operations.
 /// </para>
 /// <para>
-/// The layout is not thread-safe. Concurrent reads are safe only while no
-/// chunk is allocated or removed.
+/// The layout is not thread-safe for mutations. Concurrent reads require a
+/// stable topology and presence; coordinate lookups also update a one-entry
+/// cache, so use externally synchronized access for strict read-only concurrency.
 /// </para>
 /// </remarks>
 public sealed class ChunkedGridLayout {

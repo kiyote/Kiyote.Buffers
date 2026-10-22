@@ -13,8 +13,8 @@ library will handle the rest.
 
 Register the factories and operators with the DI container:
 ```csharp
-services.AddBuffers();
-````
+services.AddFlatBuffers(); // or services.AddRaggedBuffers()
+```
 
 Then inject the `IBufferOperator` into your class and use it to perform operations on buffers.
 
@@ -47,7 +47,7 @@ public class MyClass
         _bufferOperator.Perform(
             input,
             value => {
-                return value + 1 % 255;
+                return (byte)((value + 1) % 255);
             },
             output
         );
@@ -59,7 +59,9 @@ public class MyClass
 
 `Kiyote.Buffers.ChunkedGrids.ChunkedGrid<T>` (where `T : unmanaged`) is a sparse, unbounded 2D grid
 stored as square, lazily allocated chunks (64x64 by default). The chunk size must be a power of two and
-a multiple of the `Vector256<T>` lane count, so every chunk row can be processed with whole vectors.
+a multiple of the `Vector256<T>` lane count for a typed grid, so every chunk row can be processed with whole vectors.
+`ChunkedGridLayout` alone stores only topology and accepts any power-of-two size from 1 to 4096;
+`ChunkedGridLayer<T>` and the typed grids additionally require whole `Vector256<T>` rows.
 
 A cell is populated only when its chunk is allocated and its presence bit is set, allowing irregular shapes.
 `Column`/`Row`/`Width`/`Height` describe the chunk-aligned hull of allocated chunks; `TryGetPopulatedBounds`
@@ -146,7 +148,7 @@ ulong exposed = cells & ~north;
 ```
 
 Layers store values independently of presence: unpopulating a cell does not reset its value, and `GetValues`,
-`GetRowValues` and `GetReference` can write unpopulated cells. The layout holds no reference to its layers; a layer
+`GetRowValues` can write unpopulated cells; `GetReference` throws for unpopulated cells. The layout holds no reference to its layers; a layer
 catches up with chunk allocations lazily and is collected when no longer referenced. `SwapStorage` exchanges the
 values of two layers over the same layout in O(1). Neither type is thread-safe.
 
@@ -182,5 +184,23 @@ using( TripleBufferedLease<float> lease = grid.Acquire() ) {
 }
 ```
 
-`Swap` and `Acquire` are lock-free, and the simulation never writes the leased buffer. Nothing else is guarded:
-treat the lease as read-only, and don't change topology (`Attach`, `Detach`, `Compact`, `RemoveChunk`) while a lease is held.
+`Swap` and `Acquire` are lock-free, and the simulation never writes the leased buffer. Treat the lease as
+read-only. Topology and copy methods throw while a lease is outstanding; do not change topology or presence
+through previously obtained writable spans while leased. Only one consumer may hold a lease at a time.
+
+## Migration notes
+
+- Buffer constructors and factories now require positive logical dimensions and reject unrepresentable storage;
+  indexers reject coordinates outside logical rows and columns, including padding. Use validated `GetRowSpan`
+  for row-wise access instead of indexing padded cells.
+- Operators now reject null arguments and mismatched destination dimensions before writing. Catch
+  `ArgumentNullException` or `InvalidOperationException` rather than relying on partial output.
+- Grid coordinates, populated runs, extents, and padded scratch sizes now reject unrepresentable results rather
+  than wrapping. Local chunk access rejects out-of-range coordinates; reserved presence bits in small chunks are
+  ignored by derived queries. `Attach` copies populated cells only, not allocated empty chunks.
+- Double- and triple-buffered grid `TryGet`/`TrySet` reject undefined `GridBuffer` values. Overlapping triple-buffer
+  acquisitions and topology/copy changes while leased throw; copied or stale lease disposal cannot release a
+  newer acquisition. Enumerators also reject topology changes when reading `Current`. Existing buffered views
+  retain their physical buffer roles after `Swap`; fetch a new view for the new current buffer.
+- Factory selection remains first-registration-wins: to override a default, register your factory or operator
+  before `AddFlatBuffers()` or `AddRaggedBuffers()`. Replace old `AddBuffers()` examples with one of these methods.
