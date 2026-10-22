@@ -61,6 +61,30 @@ public class ChunkedGridUnitTests {
 		}
 	}
 
+	[TestCase( 8 )]
+	[TestCase( 32 )]
+	[TestCase( 64 )]
+	[TestCase( 128 )]
+	public void Indexer_ChunkBoundaryWrites_PresenceMatchesValues( int chunkSize ) {
+		ChunkedGrid<float> grid = new( chunkSize );
+		grid[ -1, -1 ] = 1f;
+		grid[ 0, 0 ] = 2f;
+		grid[ chunkSize - 1, chunkSize - 1 ] = 3f;
+		grid[ chunkSize, chunkSize ] = 4f;
+
+		Assert.That( grid.ChunkCount, Is.EqualTo( 3 ) );
+		Assert.That( grid.TryGet( -1, -1, out float first ), Is.True );
+		Assert.That( first, Is.EqualTo( 1f ) );
+		Assert.That( grid.TryGet( chunkSize - 1, chunkSize - 1, out float last ), Is.True );
+		Assert.That( last, Is.EqualTo( 3f ) );
+		Assert.That( grid.TryGet( chunkSize, chunkSize, out float next ), Is.True );
+		Assert.That( next, Is.EqualTo( 4f ) );
+		Assert.That( grid.IsPopulated( chunkSize - 1, chunkSize ), Is.False );
+		grid.Clear( chunkSize - 1, chunkSize - 1 );
+		Assert.That( grid.IsPopulated( chunkSize - 1, chunkSize - 1 ), Is.False );
+		Assert.That( grid.IsPopulated( 0, 0 ), Is.True );
+	}
+
 	[TestCase( 0 )]
 	[TestCase( 48 )]
 	[TestCase( 4 )]
