@@ -18,6 +18,13 @@ services.AddBuffers();
 
 Then inject the `IBufferOperator` into your class and use it to perform operations on buffers.
 
+`AddFlatBuffers()` and `AddRaggedBuffers()` each register an `IBufferFactory` and an `IBufferOperator` only
+when the service has not already been registered. Calling both chooses the factory registered first;
+an application-provided factory or operator remains in place. `AddBufferOperators()` registers only
+the operator. `AddBufferAnalyzers()` registers `IBufferAnalyzer` and, for convenience, the same default
+`IBufferOperator` if one is not already registered. To select a different implementation, register
+it before calling these methods.
+
 ```csharp
 public class MyClass
 {

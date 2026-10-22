@@ -13,6 +13,8 @@ public static class ExtensionMethods {
 		return services;
 	}
 
+	/// <summary>Registers the numeric operator and ragged factory unless already registered.
+	/// If both numeric factories are added, the first registered factory wins.</summary>
 	public static IServiceCollection AddRaggedNumericBuffers(
 		this IServiceCollection services
 	) {
@@ -23,6 +25,8 @@ public static class ExtensionMethods {
 		return services;
 	}
 
+	/// <summary>Registers the numeric operator and flat factory unless already registered.
+	/// If both numeric factories are added, the first registered factory wins.</summary>
 	public static IServiceCollection AddFlatNumericBuffers(
 		this IServiceCollection services
 	) {

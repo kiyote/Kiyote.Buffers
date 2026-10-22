@@ -13,6 +13,8 @@ public static class ExtensionMethods {
 		return services;
 	}
 
+	/// <summary>Registers default buffer operators and the ragged factory unless already registered.
+	/// If both buffer factories are added, the first registered factory wins.</summary>
 	public static IServiceCollection AddRaggedBuffers(
 		this IServiceCollection services
 	) {
@@ -23,6 +25,8 @@ public static class ExtensionMethods {
 		return services;
 	}
 
+	/// <summary>Registers default buffer operators and the flat factory unless already registered.
+	/// If both buffer factories are added, the first registered factory wins.</summary>
 	public static IServiceCollection AddFlatBuffers(
 		this IServiceCollection services
 	) {

@@ -18,6 +18,12 @@ services.AddNumericBuffers();
 
 Then inject the `INumericBufferOperator` into your class and use it to perform operations on buffers.
 
+`AddFlatNumericBuffers()` and `AddRaggedNumericBuffers()` register default `INumericBufferFactory` and
+`INumericBufferOperator` services only when no registration exists for each service. Calling both chooses
+the first registered factory; an application-provided factory or operator takes precedence. Register a
+custom service before calling these methods to substitute it. `AddNumericBuffers()` registers only the
+operator, not a factory.
+
 ```csharp
 public class MyClass
 {
