@@ -1,5 +1,8 @@
-﻿namespace Kiyote.Buffers;
+namespace Kiyote.Buffers;
 
+/// <summary>Applies operations to buffers with matching logical dimensions.</summary>
+/// <remarks>Each operation rejects null buffers or delegates with <see cref="ArgumentNullException"/>
+/// and mismatched source/output dimensions with <see cref="InvalidOperationException"/> before writing output.</remarks>
 public interface IBufferOperator {
 	/// <summary>
 	/// Performs the supplied <paramref name="op"/> on each value in the

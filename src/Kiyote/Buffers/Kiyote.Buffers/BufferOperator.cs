@@ -7,6 +7,8 @@ internal sealed class BufferOperator : IBufferOperator {
 		Func<T, T> op,
 		IBuffer<T> output
 	) {
+		ValidateShape( a, output );
+		ArgumentNullException.ThrowIfNull( op );
 		int rows = a.Rows;
 		int columns = a.Columns;
 
@@ -25,13 +27,11 @@ internal sealed class BufferOperator : IBufferOperator {
 		Func<T, T, T> op,
 		IBuffer<T> output
 	) {
+		ValidateShape( a, b );
+		ValidateShape( a, output );
+		ArgumentNullException.ThrowIfNull( op );
 		int rows = a.Rows;
 		int columns = a.Columns;
-		if( rows != b.Rows
-			|| columns != b.Columns
-		) {
-			throw new InvalidOperationException( "Operands must be same dimensions." );
-		}
 		for( int r = 0; r < rows; r++ ) {
 			Span<T> left = a.GetRowSpan( r );
 			Span<T> right = b.GetRowSpan( r );
@@ -47,6 +47,8 @@ internal sealed class BufferOperator : IBufferOperator {
 		Func<int, int, IBuffer<T>, T, T> op,
 		IBuffer<T> output
 	) {
+		ValidateShape( source, output );
+		ArgumentNullException.ThrowIfNull( op );
 		int rows = source.Rows;
 		int columns = source.Columns;
 
@@ -65,6 +67,8 @@ internal sealed class BufferOperator : IBufferOperator {
 		Func<int, int, TSource, TOutput> op,
 		IBuffer<TOutput> output
 	) {
+		ValidateShape( source, output );
+		ArgumentNullException.ThrowIfNull( op );
 		int rows = source.Rows;
 		int columns = source.Columns;
 
@@ -74,6 +78,14 @@ internal sealed class BufferOperator : IBufferOperator {
 			for( int c = 0; c < columns; c++ ) {
 				target[ c ] = op( c, r, values[ c ] );
 			}
+		}
+	}
+
+	private static void ValidateShape<TSource, TOutput>( IBuffer<TSource> source, IBuffer<TOutput> destination ) {
+		ArgumentNullException.ThrowIfNull( source );
+		ArgumentNullException.ThrowIfNull( destination );
+		if( source.Rows != destination.Rows || source.Columns != destination.Columns ) {
+			throw new InvalidOperationException( "Buffers must have the same dimensions." );
 		}
 	}
 }

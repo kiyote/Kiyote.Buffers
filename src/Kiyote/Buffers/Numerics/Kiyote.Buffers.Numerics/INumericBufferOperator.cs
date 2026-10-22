@@ -2,6 +2,9 @@ using System.Numerics;
 
 namespace Kiyote.Buffers.Numerics; 
 
+/// <summary>Performs numeric operations on buffers.</summary>
+/// <remarks>Destination-taking operations require the same logical dimensions as the source and
+/// throw <see cref="InvalidOperationException"/> before writing if they differ.</remarks>
 public interface INumericBufferOperator : IBufferOperator {
 
 	void Add<T>(

@@ -62,6 +62,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		INumericBuffer<T> destination,
 		T amount
 	) {
+		ValidateShape( source, destination );
 		int rows = source.Rows;
 		if( source is RaggedNumericBuffer<T> numericBuffer
 			&& destination is RaggedNumericBuffer<T> numericDestination
@@ -121,6 +122,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		INumericBuffer<T> destination,
 		T amount
 	) {
+		ValidateShape( source, destination );
 		int rows = source.Rows;
 		if( source is RaggedNumericBuffer<T> numericBuffer
 			&& destination is RaggedNumericBuffer<T> numericDestination
@@ -180,6 +182,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		INumericBuffer<T> destination,
 		T amount
 	) {
+		ValidateShape( source, destination );
 		int rows = source.Rows;
 		if( source is RaggedNumericBuffer<T> numericBuffer
 			&& destination is RaggedNumericBuffer<T> numericDestination
@@ -239,6 +242,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		INumericBuffer<T> destination,
 		T amount
 	) {
+		ValidateShape( source, destination );
 		int rows = source.Rows;
 		if( source is RaggedNumericBuffer<T> numericBuffer
 			&& destination is RaggedNumericBuffer<T> numericDestination
@@ -459,6 +463,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		INumericBuffer<T> source,
 		INumericBuffer<T> destination
 	) {
+		ValidateShape( source, destination );
 		INumericBufferOperator op = this;
 		(T min, T max) = op.MinMax( source );
 		T range = max - min;
@@ -474,6 +479,7 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		INumericBuffer<TSource> source,
 		INumericBuffer<TDestination> destination
 	) {
+		ValidateShape( source, destination );
 		INumericBufferOperator op = this;
 		(TSource min, TSource max) = op.MinMax( source );
 		TSource range = max - min;
@@ -504,6 +510,8 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		Func<T, T> op,
 		IBuffer<T> output
 	) {
+		ValidateShape( a, output );
+		ArgumentNullException.ThrowIfNull( op );
 		int rows = a.Rows;
 		int columns = a.Columns;
 
@@ -522,13 +530,11 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		Func<T, T, T> op,
 		IBuffer<T> output
 	) {
+		ValidateShape( a, b );
+		ValidateShape( a, output );
+		ArgumentNullException.ThrowIfNull( op );
 		int rows = a.Rows;
 		int columns = a.Columns;
-		if( rows != b.Rows
-			|| columns != b.Columns
-		) {
-			throw new InvalidOperationException( "Operands must be same dimensions." );
-		}
 		for( int r = 0; r < rows; r++ ) {
 			Span<T> left = a.GetRowSpan( r );
 			Span<T> right = b.GetRowSpan( r );
@@ -544,6 +550,8 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		Func<int, int, IBuffer<T>, T, T> op,
 		IBuffer<T> output
 	) {
+		ValidateShape( source, output );
+		ArgumentNullException.ThrowIfNull( op );
 		int rows = source.Rows;
 		int columns = source.Columns;
 
@@ -562,6 +570,8 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		Func<int, int, TSource, TOutput> op,
 		IBuffer<TOutput> output
 	) {
+		ValidateShape( source, output );
+		ArgumentNullException.ThrowIfNull( op );
 		int rows = source.Rows;
 		int columns = source.Columns;
 
@@ -571,6 +581,14 @@ internal class NumericBufferOperator : INumericBufferOperator {
 			for( int c = 0; c < columns; c++ ) {
 				target[ c ] = op( c, r, values[ c ] );
 			}
+		}
+	}
+
+	private static void ValidateShape<TSource, TOutput>( IBuffer<TSource> source, IBuffer<TOutput> destination ) {
+		ArgumentNullException.ThrowIfNull( source );
+		ArgumentNullException.ThrowIfNull( destination );
+		if( source.Rows != destination.Rows || source.Columns != destination.Columns ) {
+			throw new InvalidOperationException( "Buffers must have the same dimensions." );
 		}
 	}
 }
