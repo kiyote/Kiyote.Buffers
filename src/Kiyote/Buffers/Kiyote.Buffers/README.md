@@ -204,3 +204,6 @@ through previously obtained writable spans while leased. Only one consumer may h
   retain their physical buffer roles after `Swap`; fetch a new view for the new current buffer.
 - Factory selection remains first-registration-wins: to override a default, register your factory or operator
   before `AddFlatBuffers()` or `AddRaggedBuffers()`. Replace old `AddBuffers()` examples with one of these methods.
+
+Before: `services.AddBuffers();` (no such registration method).
+After: `services.AddFlatBuffers();` or `services.AddRaggedBuffers();` to register both the factory and operator.

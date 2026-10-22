@@ -62,3 +62,7 @@ public class MyClass
   ranges; scaling uses double intermediates and saturating destination conversion, which may lose precision on
   large integers. Callers depending on previous integer division, constant-source copying or partial writes
   should update their handling.
+
+Before: `services.AddNumericBuffers();` followed by injection of `INumericBufferFactory` (not registered).
+After: `services.AddFlatNumericBuffers();` or `services.AddRaggedNumericBuffers();` to register the factory
+and operator together.

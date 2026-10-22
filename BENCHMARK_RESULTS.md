@@ -22,3 +22,9 @@ Baseline: commit `b32152c` (no production code has changed since). Current item 
 | Numeric NormalizeToDestination | Flat / Ragged, 1000² floats | 3096 / 4827 us | ~0 B |
 
 The flat numeric constructor already allocates exactly one padded value array after initializing `_allocWidth`; the unused allocation described in the original review plan is not present. Flat storage uses fewer bytes but is slower to initialize with nonzero values on this host; Ragged vectorization outperforms Flat for Add and Max but not Normalize. No storage-layout or vectorization change is justified solely by these mixed measurements. In-process measurements share the host with the IDE; use multiple paired runs for release decisions.
+
+## Final validation (UPDATE_PLAN item 14)
+
+The full Release solution build succeeded. The core test project passed 287/287 tests, and Numerics passed 79/79 tests. Both package README registration examples match the DI tests. The benchmark runner exposes analyzer, grid, triple-buffer, core access and Flat/Ragged numeric scenarios. No production hot paths changed in items 8–14; the item-13 measurements above remain the gate for those paths.
+
+Earlier changes to small-chunk presence operations did not yield a conclusive throughput comparison: an unchanged baseline varied substantially between runs. Triple-buffer lease protection increased Acquire/Dispose from approximately 4.6 ns to 10.8 ns in the paired item-6 run while remaining allocation-free; this is the deliberate atomicity cost that prevents stale lease release. Do not interpret the noisy item-5 measurement or the item-13 cross-layout comparison as proof of an optimization. Numeric normalization semantics and the single-consumer, read-only triple-buffer lease contract are stated in the package READMEs; no outstanding contract choice was silently assumed.
