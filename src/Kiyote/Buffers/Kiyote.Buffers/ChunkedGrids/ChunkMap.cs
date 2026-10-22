@@ -284,12 +284,16 @@ internal sealed class ChunkMap<T> where T : unmanaged {
 		int chunkColumnOffset = column >> ChunkShift;
 		int chunkRowOffset = row >> ChunkShift;
 		foreach( int sourceIndex in sourceLayout.EnumerateChunks() ) {
+			ulong[] sourcePresence = sourceLayout.GetPresenceArray( sourceIndex );
+			if( !sourcePresence.AsSpan().ContainsAnyExcept( 0UL ) ) {
+				continue;
+			}
 			ChunkSlot target = GetOrCreateSlot(
 				sourceLayout.GetChunkColumn( sourceIndex ) + chunkColumnOffset,
 				sourceLayout.GetChunkRow( sourceIndex ) + chunkRowOffset
 			);
 			CopyChunk(
-				sourceLayout.GetPresenceArray( sourceIndex ),
+				sourcePresence,
 				sourceBufferValues.Get( sourceIndex ),
 				target.Presence,
 				target.Buffers[ buffer ]

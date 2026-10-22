@@ -4,6 +4,20 @@ namespace Kiyote.Buffers.ChunkedGrids.UnitTests;
 public class TripleBufferedChunkedGridUnitTests {
 
 	[Test]
+	public void TryGet_InvalidBuffer_Throws() {
+		TripleBufferedChunkedGrid<float> grid = new();
+		Assert.Throws<ArgumentOutOfRangeException>( () => grid.TryGet( 0, 0, (GridBuffer)2, out _ ) );
+	}
+
+	[Test]
+	public void TrySet_InvalidBuffer_ThrowsWithoutWriting() {
+		TripleBufferedChunkedGrid<float> grid = CreateGrid();
+		Assert.Throws<ArgumentOutOfRangeException>( () => grid.TrySet( 0, 0, (GridBuffer)(-1), 9f ) );
+		Assert.That( grid.TryGet( 0, 0, GridBuffer.Alternate, out float alternate ), Is.True );
+		Assert.That( alternate, Is.Zero );
+	}
+
+	[Test]
 	public void Swap_PublishesWrittenBuffer() {
 		TripleBufferedChunkedGrid<float> grid = CreateGrid();
 		grid.TrySet( 0, 0, GridBuffer.Current, 5f );

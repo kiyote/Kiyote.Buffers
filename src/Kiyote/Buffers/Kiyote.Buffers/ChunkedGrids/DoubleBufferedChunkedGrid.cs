@@ -243,6 +243,10 @@ public sealed class DoubleBufferedChunkedGrid<T> where T : unmanaged {
 	private int Resolve(
 		GridBuffer buffer
 	) {
-		return buffer == GridBuffer.Current ? _current : _current ^ 1;
+		return buffer switch {
+			GridBuffer.Current => _current,
+			GridBuffer.Alternate => _current ^ 1,
+			_ => throw new ArgumentOutOfRangeException( nameof( buffer ) )
+		};
 	}
 }

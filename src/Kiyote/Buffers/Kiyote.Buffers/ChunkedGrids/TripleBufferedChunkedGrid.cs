@@ -341,6 +341,10 @@ public sealed class TripleBufferedChunkedGrid<T> where T : unmanaged {
 	private int Resolve(
 		GridBuffer buffer
 	) {
-		return buffer == GridBuffer.Current ? _current : _alternate;
+		return buffer switch {
+			GridBuffer.Current => _current,
+			GridBuffer.Alternate => _alternate,
+			_ => throw new ArgumentOutOfRangeException( nameof( buffer ) )
+		};
 	}
 }

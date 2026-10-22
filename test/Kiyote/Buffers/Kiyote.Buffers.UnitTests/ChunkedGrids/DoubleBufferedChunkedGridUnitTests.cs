@@ -22,6 +22,24 @@ public sealed class DoubleBufferedChunkedGridUnitTests {
 	}
 
 	[Test]
+	public void TryGet_InvalidBuffer_Throws() {
+		DoubleBufferedChunkedGrid<float> grid = new();
+		Assert.Throws<ArgumentOutOfRangeException>( () => grid.TryGet( 0, 0, (GridBuffer)2, out _ ) );
+	}
+
+	[Test]
+	public void TrySet_InvalidBuffer_ThrowsWithoutWriting() {
+		ChunkedGrid<float> source = new();
+		source[ 0, 0 ] = 1f;
+		DoubleBufferedChunkedGrid<float> grid = new();
+		grid.Attach( source, 0, 0 );
+
+		Assert.Throws<ArgumentOutOfRangeException>( () => grid.TrySet( 0, 0, (GridBuffer)(-1), 9f ) );
+		Assert.That( grid.TryGet( 0, 0, GridBuffer.Alternate, out float alternate ), Is.True );
+		Assert.That( alternate, Is.Zero );
+	}
+
+	[Test]
 	public void Swap_ExchangesBuffers() {
 		ChunkedGrid<float> source = new();
 		source[ 0, 0 ] = 1f;

@@ -11,6 +11,33 @@ public class ChunkedGridUnitTests {
 		Water
 	}
 
+	[TestCase( 0 )]
+	[TestCase( 1 )]
+	public void Attach_EmptyAllocatedChunk_DoesNotAllocateTarget( int offset ) {
+		ChunkedGrid<float> source = new();
+		source.GetOrCreateChunk( 0, 0 );
+		ChunkedGrid<float> target = new();
+
+		target.Attach( source, offset, 0 );
+
+		Assert.That( target.ChunkCount, Is.Zero );
+	}
+
+	[TestCase( 0 )]
+	[TestCase( 1 )]
+	public void Attach_MixedPopulatedAndEmptyChunks_CopiesOnlyPopulatedChunk( int offset ) {
+		ChunkedGrid<float> source = new();
+		source.GetOrCreateChunk( 0, 0 );
+		source[ 64, 0 ] = 3f;
+		ChunkedGrid<float> target = new();
+
+		target.Attach( source, offset, 0 );
+
+		Assert.That( target.HasChunk( 0, 0 ), Is.False );
+		Assert.That( target.ChunkCount, Is.EqualTo( 1 ) );
+		Assert.That( target[ 64 + offset, 0 ], Is.EqualTo( 3f ) );
+	}
+
 	[Test]
 	public void Ctor_DefaultChunkSize_Is64() {
 		ChunkedGrid<float> grid = new();
