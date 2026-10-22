@@ -11,6 +11,8 @@ namespace Kiyote.Buffers.ChunkedGrids;
 /// so every row can be processed with whole vectors. <see cref="Presence"/>
 /// stores one bit per cell, <see cref="PresenceWordsPerRow"/> words per row,
 /// with bit <c>c &amp; 63</c> of word <c>c &gt;&gt; 6</c> describing local column <c>c</c>.
+/// When <see cref="Size"/> is less than 64, unused high bits of each presence
+/// word are reserved and ignored by grid operations.
 /// </remarks>
 public readonly ref struct GridChunk<T> where T : unmanaged {
 
@@ -63,17 +65,21 @@ public readonly ref struct GridChunk<T> where T : unmanaged {
 	/// <summary>
 	/// The number of populated cells. Computed on each access.
 	/// </summary>
-	public int PopulatedCount => ChunkedGridLayout.CountPopulated( Presence );
+	public int PopulatedCount => ChunkedGridLayout.CountPopulated( Presence, _fullWordMask );
 
 	public Span<T> GetRowValues(
 		int localRow
 	) {
+		ArgumentOutOfRangeException.ThrowIfNegative( localRow );
+		ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual( localRow, Size );
 		return Values.Slice( localRow << _shift, Size );
 	}
 
 	public Span<ulong> GetPresenceRow(
 		int localRow
 	) {
+		ArgumentOutOfRangeException.ThrowIfNegative( localRow );
+		ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual( localRow, Size );
 		return Presence.Slice( localRow * PresenceWordsPerRow, PresenceWordsPerRow );
 	}
 
@@ -81,6 +87,10 @@ public readonly ref struct GridChunk<T> where T : unmanaged {
 		int localColumn,
 		int localRow
 	) {
+		ArgumentOutOfRangeException.ThrowIfNegative( localColumn );
+		ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual( localColumn, Size );
+		ArgumentOutOfRangeException.ThrowIfNegative( localRow );
+		ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual( localRow, Size );
 		ulong word = Presence[ ( localRow * PresenceWordsPerRow ) + ( localColumn >> 6 ) ];
 		return ( word & ( 1UL << ( localColumn & 63 ) ) ) != 0;
 	}
@@ -89,10 +99,14 @@ public readonly ref struct GridChunk<T> where T : unmanaged {
 	/// <c>true</c> when every cell in the chunk is populated, allowing the
 	/// caller to skip masking entirely.
 	/// </summary>
-	public bool IsFull => !Presence.ContainsAnyExcept( _fullWordMask );
+	public bool IsFull => _fullWordMask == ulong.MaxValue
+		? !Presence.ContainsAnyExcept( ulong.MaxValue )
+		: PopulatedCount == Size * Size;
 
 	/// <summary>
 	/// <c>true</c> when no cell in the chunk is populated.
 	/// </summary>
-	public bool IsEmpty => !Presence.ContainsAnyExcept( 0UL );
+	public bool IsEmpty => _fullWordMask == ulong.MaxValue
+		? !Presence.ContainsAnyExcept( 0UL )
+		: PopulatedCount == 0;
 }

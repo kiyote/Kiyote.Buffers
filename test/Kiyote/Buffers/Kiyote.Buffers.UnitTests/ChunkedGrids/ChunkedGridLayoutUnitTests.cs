@@ -335,6 +335,7 @@ public class ChunkedGridLayoutUnitTests {
 		}
 	}
 
+	// Fill classification and populated-count coverage.
 	[TestCase( 8 )]
 	[TestCase( 64 )]
 	[TestCase( 128 )]
@@ -363,6 +364,29 @@ public class ChunkedGridLayoutUnitTests {
 			Assert.That( afterSpanWrite, Is.EqualTo( ChunkFill.Partial ) );
 			Assert.That( layout.GetPopulatedCount( index ), Is.EqualTo( ( chunkSize * chunkSize ) - 1 ) );
 		}
+	}
+
+	[Test]
+	public void GetPresenceRow_HighBitsInSmallChunk_AreIgnoredByDerivedState() {
+		ChunkedGridLayout layout = new( 8 );
+		int index = layout.GetOrCreateChunk( 0, 0 );
+		layout.GetPresenceRow( index, 0 )[ 0 ] = ~0xffUL;
+
+		Assert.That( layout.GetPopulatedCount( index ), Is.Zero );
+		Assert.That( layout.GetFill( index ), Is.EqualTo( ChunkFill.Empty ) );
+		Assert.That( layout.TryGetPopulatedBounds( out _, out _, out _, out _ ), Is.False );
+
+		layout.GetPresenceRow( index, 0 )[ 0 ] = ulong.MaxValue;
+		Assert.That( layout.GetPopulatedCount( index ), Is.EqualTo( 8 ) );
+		Assert.That( layout.GetFill( index ), Is.EqualTo( ChunkFill.Partial ) );
+		Assert.That( layout.TryGetPopulatedBounds( out int column, out int row, out int width, out int height ), Is.True );
+		Assert.That( (column, row, width, height), Is.EqualTo( (0, 0, 8, 1) ) );
+
+		layout.GetPresence( index ).Fill( ulong.MaxValue );
+		Assert.That( layout.GetFill( index ), Is.EqualTo( ChunkFill.Full ) );
+		Assert.That( layout.GetPopulatedCount( index ), Is.EqualTo( 64 ) );
+		layout.GetPresence( index ).Fill( ~0xffUL );
+		Assert.That( layout.Compact(), Is.EqualTo( 1 ) );
 	}
 
 	[Test]

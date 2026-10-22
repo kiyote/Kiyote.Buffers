@@ -194,6 +194,41 @@ public class ChunkedGridUnitTests {
 		}
 	}
 
+	[TestCase( -1, 0 )]
+	[TestCase( 8, 0 )]
+	[TestCase( 0, -1 )]
+	[TestCase( 0, 8 )]
+	public void IsPopulated_InvalidLocalCoordinates_Throws( int column, int row ) {
+		ChunkedGrid<float> grid = new( 8 );
+		_ = grid.GetOrCreateChunk( 0, 0 );
+
+		Assert.Throws<ArgumentOutOfRangeException>( () => grid.GetOrCreateChunk( 0, 0 ).IsPopulated( column, row ) );
+	}
+
+	[Test]
+	public void GetRowSpans_InvalidLocalRow_Throws() {
+		ChunkedGrid<float> grid = new( 8 );
+		_ = grid.GetOrCreateChunk( 0, 0 );
+
+		Assert.Throws<ArgumentOutOfRangeException>( () => grid.GetOrCreateChunk( 0, 0 ).GetRowValues( 8 ) );
+		Assert.Throws<ArgumentOutOfRangeException>( () => grid.GetOrCreateChunk( 0, 0 ).GetPresenceRow( -1 ) );
+	}
+
+	[Test]
+	public void Presence_InvalidHighBits_StayOutsideLogicalChunk() {
+		ChunkedGrid<float> source = new( 8 );
+		GridChunk<float> chunk = source.GetOrCreateChunk( 0, 0 );
+		chunk.GetPresenceRow( 0 )[ 0 ] = 1UL << 8;
+
+		Assert.That( chunk.IsEmpty, Is.True );
+		Assert.That( chunk.PopulatedCount, Is.Zero );
+		Assert.That( chunk.IsFull, Is.False );
+		ChunkedGrid<float> target = new( 8 );
+		target.Attach( source, 0, 0 );
+		Assert.That( target.IsPopulated( 0, 1 ), Is.False );
+		Assert.That( target.HasOverlap( source, 0, 0 ), Is.False );
+	}
+
 	[Test]
 	public void EnumerateChunks_VisitsAllocatedChunks() {
 		ChunkedGrid<float> grid = new();

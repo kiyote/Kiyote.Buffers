@@ -23,6 +23,8 @@ namespace Kiyote.Buffers.ChunkedGrids;
 /// per row, with bit <c>c &amp; 63</c> of word <c>c &gt;&gt; 6</c> describing
 /// local column <c>c</c>. Presence spans are writable; a freed chunk's spans
 /// refer to orphaned memory rather than to whichever chunk reuses its index.
+/// When <see cref="ChunkSize"/> is less than 64, high bits outside the row's
+/// first <see cref="ChunkSize"/> bits are reserved and ignored by grid operations.
 /// </para>
 /// <para>
 /// The layout is not thread-safe. Concurrent reads are safe only while no
@@ -263,7 +265,7 @@ public sealed class ChunkedGridLayout {
 		for( int i = 0; i < ChunkCapacity; i++ ) {
 			ChunkEntry? entry = _entries[ i ];
 			if( entry is not null
-				&& !_presence[ i ].AsSpan().ContainsAnyExcept( 0UL )
+				&& CountPopulated( _presence[ i ]!, FullWordMask ) == 0
 			) {
 				_ = _lookup.Remove( Key( entry.Column, entry.Row ) );
 				Free( entry );
@@ -471,7 +473,7 @@ public sealed class ChunkedGridLayout {
 		int chunkIndex
 	) {
 		_ = GetEntry( chunkIndex );
-		return CountPopulated( _presence[ chunkIndex ]! );
+		return CountPopulated( _presence[ chunkIndex ]!, FullWordMask );
 	}
 
 	/// <summary>
@@ -484,12 +486,11 @@ public sealed class ChunkedGridLayout {
 	) {
 		_ = GetEntry( chunkIndex );
 		ReadOnlySpan<ulong> presence = _presence[ chunkIndex ]!;
-		if( !presence.ContainsAnyExcept( 0UL ) ) {
+		int count = CountPopulated( presence, FullWordMask );
+		if( count == 0 ) {
 			return ChunkFill.Empty;
 		}
-		return presence.ContainsAnyExcept( FullWordMask )
-			? ChunkFill.Partial
-			: ChunkFill.Full;
+		return count == ChunkSize * ChunkSize ? ChunkFill.Full : ChunkFill.Partial;
 	}
 
 	/// <summary>
@@ -564,12 +565,32 @@ public sealed class ChunkedGridLayout {
 				continue;
 			}
 			ReadOnlySpan<ulong> presence = _presence[ i ]!;
-			int first = presence.IndexOfAnyExcept( 0UL );
+			int first = -1;
+			if( ChunkSize < 64 ) {
+				for( int r = 0; r < ChunkSize; r++ ) {
+					if( ( presence[ r ] & FullWordMask ) != 0 ) {
+						first = r;
+						break;
+					}
+				}
+			} else {
+				first = presence.IndexOfAnyExcept( 0UL );
+			}
 			if( first < 0 ) {
 				continue;
 			}
 			foundPopulated = true;
-			int last = presence.LastIndexOfAnyExcept( 0UL );
+			int last = first;
+			if( ChunkSize < 64 ) {
+				for( int r = ChunkSize - 1; r > first; r-- ) {
+					if( ( presence[ r ] & FullWordMask ) != 0 ) {
+						last = r;
+						break;
+					}
+				}
+			} else {
+				last = presence.LastIndexOfAnyExcept( 0UL );
+			}
 			int baseColumn = entry.Column << ChunkShift;
 			int baseRow = entry.Row << ChunkShift;
 			minRow = Math.Min( minRow, baseRow + ( first / words ) );
@@ -579,7 +600,7 @@ public sealed class ChunkedGridLayout {
 			for( int r = first / words; r <= last / words; r++ ) {
 				ReadOnlySpan<ulong> presenceRow = presence.Slice( r * words, words );
 				for( int w = 0; w < words; w++ ) {
-					columns[ w ] |= presenceRow[ w ];
+					columns[ w ] |= presenceRow[ w ] & FullWordMask;
 				}
 			}
 			int firstWord = columns.IndexOfAnyExcept( 0UL );
@@ -694,11 +715,12 @@ public sealed class ChunkedGridLayout {
 	}
 
 	internal static int CountPopulated(
-		ReadOnlySpan<ulong> presence
+		ReadOnlySpan<ulong> presence,
+		ulong fullWordMask
 	) {
 		int count = 0;
 		for( int i = 0; i < presence.Length; i++ ) {
-			count += BitOperations.PopCount( presence[ i ] );
+			count += BitOperations.PopCount( presence[ i ] & fullWordMask );
 		}
 		return count;
 	}

@@ -246,7 +246,7 @@ internal sealed class ChunkMap<T> where T : unmanaged {
 				ulong[] sourcePresence = sourceLayout.GetPresenceArray( sourceIndex );
 				ulong[] targetPresence = _layout.GetPresenceArray( target );
 				for( int i = 0; i < PresenceWords; i++ ) {
-					if( ( sourcePresence[ i ] & targetPresence[ i ] ) != 0 ) {
+					if( ( sourcePresence[ i ] & targetPresence[ i ] & FullWordMask ) != 0 ) {
 						return true;
 					}
 				}
@@ -464,7 +464,7 @@ internal sealed class ChunkMap<T> where T : unmanaged {
 			ReadOnlySpan<ulong> presence = layout.GetPresenceArray( index );
 			for( int localRow = 0; localRow < source.ChunkSize; localRow++ ) {
 				for( int word = 0; word < words; word++ ) {
-					ulong bits = presence[ ( localRow * words ) + word ];
+					ulong bits = presence[ ( localRow * words ) + word ] & layout.FullWordMask;
 					while( bits != 0 ) {
 						long targetColumn = firstColumn + ( word << 6 ) + BitOperations.TrailingZeroCount( bits );
 						long targetRow = firstRow + localRow;
@@ -556,7 +556,7 @@ internal sealed class ChunkMap<T> where T : unmanaged {
 			int rowStart = localRow << shift;
 			int presenceStart = localRow * words;
 			for( int w = 0; w < words; w++ ) {
-				ulong bits = sourcePresence[ presenceStart + w ];
+				ulong bits = sourcePresence[ presenceStart + w ] & full;
 				if( bits == 0 ) {
 					continue;
 				}
