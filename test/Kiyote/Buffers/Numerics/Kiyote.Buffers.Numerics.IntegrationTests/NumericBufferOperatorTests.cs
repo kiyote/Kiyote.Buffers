@@ -187,13 +187,13 @@ public sealed class NumericBufferOperatorTests {
 	}
 
 	[Test]
-	public void Normalize_UniformBuffer_ValuesUnchanged() {
+	public void Normalize_UniformBuffer_ValuesCleared() {
 		_operators.Add( _buffer!, 6.0f );
 
 		_operators.Normalize( _buffer! );
 
-		Assert.That( _buffer![ 0, 0 ], Is.EqualTo( 6.0f ) );
-		Assert.That( _buffer![ 9, 9 ], Is.EqualTo( 6.0f ) );
+		Assert.That( _buffer![ 0, 0 ], Is.Zero );
+		Assert.That( _buffer![ 9, 9 ], Is.Zero );
 	}
 
 	[Test]
@@ -517,8 +517,9 @@ public sealed class NumericBufferOperatorTests {
 
 		_operators.Normalize( _buffer!, output );
 
-		Assert.That( output[ 0, 0 ], Is.EqualTo( 6.0f ) );
-		Assert.That( output[ 9, 9 ], Is.EqualTo( 6.0f ) );
+		Assert.That( output[ 0, 0 ], Is.Zero );
+		Assert.That( output[ 9, 9 ], Is.Zero );
+		Assert.That( _buffer![ 0, 0 ], Is.EqualTo( 6.0f ) );
 	}
 
 	[Test]
@@ -561,6 +562,100 @@ public sealed class NumericBufferOperatorTests {
 		Assert.That( output[ 0, 0 ], Is.EqualTo( 0 ) );
 		Assert.That( output[ 5, 5 ], Is.EqualTo( 127 ) );
 		Assert.That( output[ 9, 9 ], Is.EqualTo( 255 ) );
+	}
+
+	[TestCase( false )]
+	[TestCase( true )]
+	public void Normalize_IntegerExtremes_MapsMaximumToOne( bool ragged ) {
+		INumericBuffer<int> source = ragged
+			? new RaggedNumericBuffer<int>( 10, 2, int.MinValue )
+			: new FlatNumericBuffer<int>( 10, 2, int.MinValue );
+		INumericBuffer<int> destination = ragged
+			? new RaggedNumericBuffer<int>( 10, 2, -1 )
+			: new FlatNumericBuffer<int>( 10, 2, -1 );
+		source[ 9, 1 ] = int.MaxValue;
+
+		_operators.Normalize( source, destination );
+
+		Assert.That( destination[ 0, 0 ], Is.Zero );
+		Assert.That( destination[ 9, 1 ], Is.EqualTo( 1 ) );
+		Assert.That( source[ 9, 1 ], Is.EqualTo( int.MaxValue ) );
+		_operators.Normalize( source );
+		Assert.That( source[ 0, 0 ], Is.Zero );
+		Assert.That( source[ 9, 1 ], Is.EqualTo( 1 ) );
+	}
+
+	[TestCase( false )]
+	[TestCase( true )]
+	public void ScaleToRange_IntegerExtremes_UsesWideArithmetic( bool ragged ) {
+		INumericBuffer<int> source = ragged
+			? new RaggedNumericBuffer<int>( 10, 2, int.MinValue )
+			: new FlatNumericBuffer<int>( 10, 2, int.MinValue );
+		INumericBuffer<byte> destination = ragged
+			? new RaggedNumericBuffer<byte>( 10, 2, 42 )
+			: new FlatNumericBuffer<byte>( 10, 2, 42 );
+		source[ 5, 0 ] = 0;
+		source[ 9, 1 ] = int.MaxValue;
+
+		_operators.ScaleToRange( source, destination );
+
+		Assert.That( destination[ 0, 0 ], Is.Zero );
+		Assert.That( destination[ 5, 0 ], Is.EqualTo( 127 ) );
+		Assert.That( destination[ 9, 1 ], Is.EqualTo( 255 ) );
+	}
+
+	[TestCase( false, 2 )]
+	[TestCase( true, 0 )]
+	[TestCase( true, 2 )]
+	[TestCase( true, 9 )]
+	public void Normalize_NaNInput_ThrowsBeforeWriting( bool ragged, int column ) {
+		INumericBuffer<float> source = ragged
+			? new RaggedNumericBuffer<float>( 10, 2, 1.0f )
+			: new FlatNumericBuffer<float>( 10, 2, 1.0f );
+		INumericBuffer<float> destination = ragged
+			? new RaggedNumericBuffer<float>( 10, 2, 9.0f )
+			: new FlatNumericBuffer<float>( 10, 2, 9.0f );
+		source[ column, 1 ] = float.NaN;
+
+		Assert.Throws<ArgumentException>( () => _operators.Normalize( source, destination ) );
+		Assert.That( destination[ 0, 0 ], Is.EqualTo( 9.0f ) );
+		Assert.That( destination[ column, 1 ], Is.EqualTo( 9.0f ) );
+		Assert.Throws<ArgumentException>( () => _operators.Normalize( source ) );
+		Assert.That( source[ 0, 0 ], Is.EqualTo( 1.0f ) );
+		Assert.Throws<ArgumentException>( () => _operators.ScaleToRange( source, destination ) );
+		Assert.That( destination[ column, 1 ], Is.EqualTo( 9.0f ) );
+	}
+
+	[TestCase( false )]
+	[TestCase( true )]
+	public void ScaleToRange_InfiniteInput_ThrowsBeforeWriting( bool ragged ) {
+		INumericBuffer<float> source = ragged
+			? new RaggedNumericBuffer<float>( 10, 2, 1.0f )
+			: new FlatNumericBuffer<float>( 10, 2, 1.0f );
+		INumericBuffer<byte> destination = ragged
+			? new RaggedNumericBuffer<byte>( 10, 2, 42 )
+			: new FlatNumericBuffer<byte>( 10, 2, 42 );
+		source[ 9, 1 ] = float.PositiveInfinity;
+
+		Assert.Throws<ArgumentException>( () => _operators.ScaleToRange( source, destination ) );
+		Assert.That( destination[ 0, 0 ], Is.EqualTo( 42 ) );
+		Assert.That( destination[ 9, 1 ], Is.EqualTo( 42 ) );
+		Assert.Throws<ArgumentException>( () => _operators.Normalize( source ) );
+		Assert.That( source[ 0, 0 ], Is.EqualTo( 1.0f ) );
+	}
+
+	[TestCase( false )]
+	[TestCase( true )]
+	public void Normalize_FloatExtremes_UsesWideArithmetic( bool ragged ) {
+		INumericBuffer<float> source = ragged
+			? new RaggedNumericBuffer<float>( 10, 2, -float.MaxValue )
+			: new FlatNumericBuffer<float>( 10, 2, -float.MaxValue );
+		source[ 9, 1 ] = float.MaxValue;
+
+		_operators.Normalize( source );
+
+		Assert.That( source[ 0, 0 ], Is.Zero );
+		Assert.That( source[ 9, 1 ], Is.EqualTo( 1.0f ) );
 	}
 
 	private sealed class TestNumericBuffer : INumericBuffer<float> {

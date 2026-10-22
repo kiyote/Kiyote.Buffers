@@ -390,13 +390,25 @@ internal class NumericBufferOperator : INumericBufferOperator {
 			int tailStart = vectorCount * Vector<T>.Count;
 			Vector<T> mins = Vector.Create( source[ 0, 0 ] );
 			Vector<T> maxs = mins;
+			Vector<T> valid = Vector.Equals( mins, mins );
 			for( int row = 0; row < rows; row++ ) {
 				Span<Vector<T>> vcontent = MemoryMarshal.Cast<T, Vector<T>>( numericBuffer.Content[ row ].AsSpan() );
 
 				for( int i = 0; i < vectorCount; i++ ) {
 					Vector<T> values = vcontent[ i ];
+					valid &= Vector.Equals( values, values );
 					mins = Vector.Min( values, mins );
 					maxs = Vector.Max( values, maxs );
+				}
+			}
+			if( !Vector.EqualsAll( valid, Vector.Equals( Vector<T>.Zero, Vector<T>.Zero ) ) ) {
+				for( int row = 0; row < rows; row++ ) {
+					for( int col = 0; col < tailStart; col++ ) {
+						T value = source[ col, row ];
+						if( T.IsNaN( value ) ) {
+							return (value, value);
+						}
+					}
 				}
 			}
 
@@ -416,6 +428,9 @@ internal class NumericBufferOperator : INumericBufferOperator {
 			for( int row = 0; row < rows; row++ ) {
 				for( int col = tailStart; col < columns; col++ ) {
 					T value = source[ col, row ];
+					if( T.IsNaN( value ) ) {
+						return (value, value);
+					}
 					if( value < min ) {
 						min = value;
 					}
@@ -429,10 +444,16 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		} else {
 			T min = source[ 0, 0 ];
 			T max = min;
+			if( T.IsNaN( min ) ) {
+				return (min, min);
+			}
 			for( int row = 0; row < rows; row++ ) {
 				Span<T> content = source.GetRowSpan( row );
 				for( int col = 0; col < columns; col++ ) {
 					T value = content[ col ];
+					if( T.IsNaN( value ) ) {
+						return (value, value);
+					}
 					if( value < min ) {
 						min = value;
 					}
@@ -451,8 +472,18 @@ internal class NumericBufferOperator : INumericBufferOperator {
 	) {
 		INumericBufferOperator op = this;
 		(T min, T max) = op.MinMax( source );
+		ValidateFiniteRange( min, max );
+		if( min == max ) {
+			op.Clear( source, T.Zero );
+			return;
+		}
+		if( T.One / T.CreateChecked( 2 ) == T.Zero ) {
+			NormalizeIntegral( source, source, max );
+			return;
+		}
 		T range = max - min;
-		if (range == T.Zero) {
+		if( !T.IsFinite( range ) ) {
+			NormalizeWide( source, source, min, max );
 			return;
 		}
 		op.Subtract( source, min );
@@ -466,9 +497,18 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		ValidateShape( source, destination );
 		INumericBufferOperator op = this;
 		(T min, T max) = op.MinMax( source );
+		ValidateFiniteRange( min, max );
+		if( min == max ) {
+			op.Clear( destination, T.Zero );
+			return;
+		}
+		if( T.One / T.CreateChecked( 2 ) == T.Zero ) {
+			NormalizeIntegral( source, destination, max );
+			return;
+		}
 		T range = max - min;
-		if( range == T.Zero ) {
-			op.Clear( destination, source[ 0, 0 ] );
+		if( !T.IsFinite( range ) ) {
+			NormalizeWide( source, destination, min, max );
 			return;
 		}
 		op.Subtract( source, destination, min );
@@ -482,24 +522,62 @@ internal class NumericBufferOperator : INumericBufferOperator {
 		ValidateShape( source, destination );
 		INumericBufferOperator op = this;
 		(TSource min, TSource max) = op.MinMax( source );
-		TSource range = max - min;
-		if( range == TSource.Zero ) {
+		ValidateFiniteRange( min, max );
+		if( min == max ) {
 			op.Clear( destination, TDestination.Zero );
 			return;
 		}
 
-		double doubleRange = double.CreateChecked( range );
+		double doubleMin = double.CreateChecked( min );
+		double doubleRange = double.CreateChecked( max ) - doubleMin;
+		if( !double.IsFinite( doubleRange ) || doubleRange == 0 ) {
+			throw new OverflowException( "The source range cannot be represented for scaling." );
+		}
 		double doubleDestinationMin = double.CreateChecked( TDestination.MinValue );
 		double doubleDestinationMax = double.CreateChecked( TDestination.MaxValue );
 		double doubleDestinationRange = doubleDestinationMax - doubleDestinationMin;
+		if( !double.IsFinite( doubleDestinationRange ) ) {
+			throw new OverflowException( "The destination range cannot be represented for scaling." );
+		}
 		int rows = source.Rows;
 		int columns = source.Columns;
 		for( int row = 0; row < rows; row++ ) {
 			Span<TSource> content = source.GetRowSpan( row );
 			Span<TDestination> target = destination.GetRowSpan( row );
 			for( int col = 0; col < columns; col++ ) {
-				double normalized = ( double.CreateChecked( content[ col ] - min ) / doubleRange * doubleDestinationRange ) + doubleDestinationMin;
+				double normalized = ( ( double.CreateChecked( content[ col ] ) - doubleMin ) / doubleRange * doubleDestinationRange ) + doubleDestinationMin;
 				target[ col ] = TDestination.CreateSaturating( normalized );
+			}
+		}
+	}
+
+	private static void ValidateFiniteRange<T>( T min, T max ) where T : struct, INumber<T> {
+		if( !T.IsFinite( min ) || !T.IsFinite( max ) ) {
+			throw new ArgumentException( "The source must contain only finite numeric values." );
+		}
+	}
+
+	private static void NormalizeIntegral<T>( INumericBuffer<T> source, INumericBuffer<T> destination, T max ) where T : struct, INumber<T> {
+		for( int row = 0; row < source.Rows; row++ ) {
+			Span<T> values = source.GetRowSpan( row );
+			Span<T> target = destination.GetRowSpan( row );
+			for( int col = 0; col < source.Columns; col++ ) {
+				target[ col ] = values[ col ] == max ? T.One : T.Zero;
+			}
+		}
+	}
+
+	private static void NormalizeWide<T>( INumericBuffer<T> source, INumericBuffer<T> destination, T min, T max ) where T : struct, INumber<T> {
+		double minimum = double.CreateChecked( min );
+		double range = double.CreateChecked( max ) - minimum;
+		if( !double.IsFinite( range ) || range == 0 ) {
+			throw new OverflowException( "The source range cannot be represented for normalization." );
+		}
+		for( int row = 0; row < source.Rows; row++ ) {
+			Span<T> values = source.GetRowSpan( row );
+			Span<T> target = destination.GetRowSpan( row );
+			for( int col = 0; col < source.Columns; col++ ) {
+				target[ col ] = T.CreateSaturating( ( double.CreateChecked( values[ col ] ) - minimum ) / range );
 			}
 		}
 	}
